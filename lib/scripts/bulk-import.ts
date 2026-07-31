@@ -8,8 +8,8 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
-import { questionBatchSchema, type QuestionDataInput } from '../types/schemas';
-import type { Database, QuestionRowInsert } from '../types/question';
+import { questionBatchSchema, type QuestionDataInput } from '../../types/schemas';
+import type { Database, QuestionRowInsert } from '../../types/question';
 
 const BATCH_SIZE = 100;
 

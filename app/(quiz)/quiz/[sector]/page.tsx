@@ -8,11 +8,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import { useLanguage } from '@/context/LanguageContext';
-import { useQuizEngine } from '@/hooks/useQuizEngine';
-import { mapQuestionRowToQuestionData } from '@/types/question';
-import type { OptionKey, OptionVisualState, QuestionData, QuestionRow, SectorType } from '@/types/question';
+import { getSupabaseBrowserClient } from '../../../../lib/supabase/client';
+import { useLanguage } from '../../../../context/LanguageContext';
+import { useQuizEngine } from '../../../../hooks/useQuizEngine';
+import { mapQuestionRowToQuestionData } from '../../../../types/question';
+import type { OptionKey, OptionVisualState, QuestionData, QuestionRow, SectorType } from '../../../../types/question';
 
 const VALID_SECTORS: readonly SectorType[] = [
   'financial',
@@ -319,4 +319,4 @@ export default function QuizPage(): JSX.Element {
       </div>
     </main>
   );
-        }
+}

@@ -8,9 +8,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import { useLanguage } from '@/context/LanguageContext';
-import type { SectorMeta } from '@/types/question';
+import { getSupabaseBrowserClient } from '../../lib/supabase/client';
+import { useLanguage } from '../../context/LanguageContext';
+import type { SectorMeta } from '../../types/question';
 
 const SECTOR_META: readonly SectorMeta[] = [
   {

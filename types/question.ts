@@ -118,6 +118,10 @@ export interface Database {
         readonly Update: QuestionRowUpdate;
       };
     };
+    readonly Views: Record<string, never>;
+    readonly Functions: Record<string, never>;
+    readonly Enums: Record<string, never>;
+    readonly CompositeTypes: Record<string, never>;
   };
 }
 
@@ -143,4 +147,4 @@ export function mapQuestionRowToQuestionData(row: QuestionRow): QuestionData {
     },
     createdAt: row.created_at,
   };
-}
+  }

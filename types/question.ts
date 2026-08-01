@@ -116,6 +116,7 @@ export interface Database {
         readonly Row: QuestionRow;
         readonly Insert: QuestionRowInsert;
         readonly Update: QuestionRowUpdate;
+        readonly Relationships: [];
       };
     };
     readonly Views: Record<string, never>;
@@ -147,4 +148,4 @@ export function mapQuestionRowToQuestionData(row: QuestionRow): QuestionData {
     },
     createdAt: row.created_at,
   };
-  }
+    }

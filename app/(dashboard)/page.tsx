@@ -2,11 +2,12 @@
 
 // ============================================================================
 // QuizMe — Dashboard Interface
-// Header dengan indikator streak, tombol sakelar bahasa, dan grid pilihan
-// 6 sektor studi kasus dengan estetika Soft Light Theme.
+// Header dengan indikator streak (dari Supabase), tombol sakelar bahasa, dan
+// grid pilihan 6 sektor studi kasus dengan estetika Soft Light Theme.
 // ============================================================================
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getSupabaseBrowserClient } from '../../lib/supabase/client';
 import { useLanguage } from '../../context/LanguageContext';
@@ -69,31 +70,55 @@ const SECTOR_META: readonly SectorMeta[] = [
   },
 ];
 
-const STREAK_STORAGE_KEY = 'quizme:best-streak';
-
 type SectorCountMap = Readonly<Record<string, number>>;
 
-function readStoredBestStreak(): number {
-  if (typeof window === 'undefined') {
-    return 0;
-  }
-
-  const stored = window.localStorage.getItem(STREAK_STORAGE_KEY);
-  const parsed = stored ? Number.parseInt(stored, 10) : 0;
-
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
-}
-
 export default function DashboardPage(): JSX.Element {
+  const router = useRouter();
   const { language, toggleLanguage } = useLanguage();
+
   const [sectorCounts, setSectorCounts] = useState<SectorCountMap>({});
   const [isLoadingCounts, setIsLoadingCounts] = useState<boolean>(true);
+
+  const [userName, setUserName] = useState<string>('');
   const [bestStreak, setBestStreak] = useState<number>(0);
+  const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 
+  // Cek login + ambil data profil (nama, streak) dari Supabase
   useEffect(() => {
-    setBestStreak(readStoredBestStreak());
-  }, []);
+    let isMounted = true;
 
+    async function loadProfile(): Promise<void> {
+      const supabase = getSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('name, best_streak')
+        .eq('id', user.id)
+        .single();
+
+      if (isMounted) {
+        setUserName(profile?.name ?? '');
+        setBestStreak(profile?.best_streak ?? 0);
+        setIsCheckingAuth(false);
+      }
+    }
+
+    void loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
+
+  // Ambil jumlah soal per sektor
   useEffect(() => {
     let isMounted = true;
 
@@ -131,6 +156,7 @@ export default function DashboardPage(): JSX.Element {
         language === 'id'
           ? 'Platform evaluasi analisis lintas disiplin'
           : 'Cross-disciplinary analysis assessment platform',
+      greeting: language === 'id' ? 'Halo' : 'Hi',
       streakLabel: language === 'id' ? 'Rekor Beruntun' : 'Best Streak',
       sectorHeading: language === 'id' ? 'Pilih Sektor Studi Kasus' : 'Choose a Case Study Sector',
       questionCountLabel: (count: number): string =>
@@ -140,6 +166,15 @@ export default function DashboardPage(): JSX.Element {
     [language],
   );
 
+  // Selagi cek login, jangan render konten dulu
+  if (isCheckingAuth) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50">
+        <p className="font-mono text-sm text-slate-400">Memuat…</p>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10 font-sans text-slate-800 sm:px-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-10">
@@ -148,7 +183,9 @@ export default function DashboardPage(): JSX.Element {
             <h1 className="font-mono text-3xl font-semibold tracking-tight text-slate-900">
               QuizMe
             </h1>
-            <p className="mt-1 text-sm text-slate-500">{copy.subtitle}</p>
+            <p className="mt-1 text-sm text-slate-500">
+              {copy.greeting}{userName ? `, ${userName}` : ''} — {copy.subtitle}
+            </p>
           </div>
 
           <div className="flex items-center gap-4">
@@ -217,4 +254,4 @@ export default function DashboardPage(): JSX.Element {
       </div>
     </main>
   );
-}
+    }

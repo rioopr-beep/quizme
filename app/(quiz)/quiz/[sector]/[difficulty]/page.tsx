@@ -13,6 +13,7 @@ import type {
   QuestionRow,
   SectorType,
   DifficultyLevel,
+  QuizAnswerRecord,
 } from '../../../../../types/question';
 
 const VALID_SECTORS: readonly SectorType[] = [
@@ -72,6 +73,44 @@ async function persistBestStreak(candidate: number): Promise<void> {
       last_active_date: new Date().toISOString().slice(0, 10),
     })
     .eq('id', user.id);
+}
+
+async function saveQuizAttempt(
+  sector: SectorType,
+  difficulty: DifficultyLevel,
+  questions: readonly QuestionData[],
+  answers: readonly QuizAnswerRecord[],
+): Promise<void> {
+  const supabase = getSupabaseBrowserClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return;
+
+  const score = answers.filter((a) => a.isCorrect).length;
+
+  const detailedAnswers = answers.map((answer) => {
+    const question = questions.find((q) => q.id === answer.questionId);
+    return {
+      questionId: answer.questionId,
+      prompt: question?.prompt ?? null,
+      options: question?.options ?? null,
+      selectedOption: answer.selectedOption,
+      correctOption: question?.correctOption ?? null,
+      isCorrect: answer.isCorrect,
+      dossier: question?.dossier ?? null,
+    };
+  });
+
+  await supabase.from('quiz_attempts').insert({
+    user_id: user.id,
+    sector,
+    difficulty,
+    question_count: questions.length,
+    score,
+    answers: detailedAnswers,
+  });
 }
 
 export default function QuizPage(): JSX.Element {
@@ -138,10 +177,11 @@ export default function QuizPage(): JSX.Element {
   const engine = useQuizEngine(sector ?? 'science', questions);
 
   useEffect(() => {
-    if (engine.state.status === 'completed') {
+    if (engine.state.status === 'completed' && sector && difficulty) {
       void persistBestStreak(engine.state.bestStreak);
+      void saveQuizAttempt(sector, difficulty, questions, engine.state.answers);
     }
-  }, [engine.state.status, engine.state.bestStreak]);
+  }, [engine.state.status, engine.state.bestStreak, sector, difficulty, questions, engine.state.answers]);
 
   const copy = useMemo(
     () => ({
@@ -228,13 +268,23 @@ export default function QuizPage(): JSX.Element {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => router.push('/dashboard')}
-            className="mt-8 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
-          >
-            {copy.returnToDashboard}
-          </button>
+
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => router.push(`/quiz/${sector}/${difficulty}/review`)}
+              className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700"
+            >
+              {language === 'id' ? 'Lihat Pembahasan' : 'View Review'}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard')}
+              className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
+            >
+              {copy.returnToDashboard}
+            </button>
+          </div>
         </div>
       </main>
     );
@@ -347,4 +397,4 @@ export default function QuizPage(): JSX.Element {
       </div>
     </main>
   );
-                }
+    }

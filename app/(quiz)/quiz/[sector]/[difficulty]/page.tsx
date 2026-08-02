@@ -31,7 +31,6 @@ const VALID_DIFFICULTIES: readonly DifficultyLevel[] = [
 ];
 
 const OPTION_ORDER: readonly OptionKey[] = ['A', 'B', 'C', 'D'];
-const STREAK_STORAGE_KEY = 'quizme:best-streak';
 
 const OPTION_VISUAL_CLASS_MAP: Record<OptionVisualState, string> = {
   default: 'border-slate-200 bg-white text-slate-700 hover:border-slate-300',
@@ -48,12 +47,31 @@ function isValidDifficulty(value: string): value is DifficultyLevel {
   return (VALID_DIFFICULTIES as readonly string[]).includes(value);
 }
 
-function persistBestStreak(candidate: number): void {
-  if (typeof window === 'undefined') return;
-  const stored = window.localStorage.getItem(STREAK_STORAGE_KEY);
-  const previousBest = stored ? Number.parseInt(stored, 10) : 0;
-  const nextBest = Math.max(Number.isFinite(previousBest) ? previousBest : 0, candidate);
-  window.localStorage.setItem(STREAK_STORAGE_KEY, String(nextBest));
+async function persistBestStreak(candidate: number): Promise<void> {
+  const supabase = getSupabaseBrowserClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('best_streak')
+    .eq('id', user.id)
+    .single();
+
+  const previousBest = profile?.best_streak ?? 0;
+  const nextBest = Math.max(previousBest, candidate);
+
+  await supabase
+    .from('profiles')
+    .update({
+      best_streak: nextBest,
+      current_streak: candidate,
+      last_active_date: new Date().toISOString().slice(0, 10),
+    })
+    .eq('id', user.id);
 }
 
 export default function QuizPage(): JSX.Element {
@@ -121,7 +139,7 @@ export default function QuizPage(): JSX.Element {
 
   useEffect(() => {
     if (engine.state.status === 'completed') {
-      persistBestStreak(engine.state.bestStreak);
+      void persistBestStreak(engine.state.bestStreak);
     }
   }, [engine.state.status, engine.state.bestStreak]);
 
@@ -329,4 +347,4 @@ export default function QuizPage(): JSX.Element {
       </div>
     </main>
   );
-}
+                }

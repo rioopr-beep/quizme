@@ -2,88 +2,23 @@
 
 // ============================================================================
 // QuizMe — Dashboard Interface
-// Header dengan indikator streak (dari Supabase), tombol sakelar bahasa, dan
-// grid pilihan 6 sektor studi kasus dengan estetika Soft Light Theme.
+// Ringkasan personal: sapaan, streak dari Supabase, dan tombol menuju
+// halaman pilih Topik. Grid sektor dipindah ke /topics.
 // ============================================================================
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { getSupabaseBrowserClient } from '../../lib/supabase/client';
 import { useLanguage } from '../../context/LanguageContext';
-import type { SectorMeta } from '../../types/question';
-
-const SECTOR_META: readonly SectorMeta[] = [
-  {
-    key: 'financial',
-    label: { id: 'Keuangan', en: 'Financial' },
-    description: {
-      id: 'Studi kasus valuasi, manajemen risiko, dan strategi investasi.',
-      en: 'Case studies on valuation, risk management, and investment strategy.',
-    },
-    accent: 'emerald',
-  },
-  {
-    key: 'cryptography',
-    label: { id: 'Kriptografi', en: 'Cryptography' },
-    description: {
-      id: 'Analisis algoritma enkripsi dan protokol keamanan data.',
-      en: 'Analysis of encryption algorithms and data security protocols.',
-    },
-    accent: 'rose',
-  },
-  {
-    key: 'psychology',
-    label: { id: 'Psikologi', en: 'Psychology' },
-    description: {
-      id: 'Interpretasi perilaku, bias kognitif, dan dinamika mental.',
-      en: 'Interpretation of behavior, cognitive bias, and mental dynamics.',
-    },
-    accent: 'emerald',
-  },
-  {
-    key: 'physics',
-    label: { id: 'Fisika', en: 'Physics' },
-    description: {
-      id: 'Pemecahan masalah mekanika, termodinamika, dan gelombang.',
-      en: 'Problem-solving in mechanics, thermodynamics, and wave physics.',
-    },
-    accent: 'rose',
-  },
-  {
-    key: 'science',
-    label: { id: 'Sains Umum', en: 'General Science' },
-    description: {
-      id: 'Penalaran ilmiah lintas disiplin biologi dan kimia.',
-      en: 'Cross-disciplinary scientific reasoning across biology and chemistry.',
-    },
-    accent: 'emerald',
-  },
-  {
-    key: 'linguistics',
-    label: { id: 'Linguistik', en: 'Linguistics' },
-    description: {
-      id: 'Analisis struktur bahasa, semantik, dan wacana.',
-      en: 'Analysis of language structure, semantics, and discourse.',
-    },
-    accent: 'rose',
-  },
-];
-
-type SectorCountMap = Readonly<Record<string, number>>;
 
 export default function DashboardPage(): JSX.Element {
   const router = useRouter();
   const { language, toggleLanguage } = useLanguage();
 
-  const [sectorCounts, setSectorCounts] = useState<SectorCountMap>({});
-  const [isLoadingCounts, setIsLoadingCounts] = useState<boolean>(true);
-
   const [userName, setUserName] = useState<string>('');
   const [bestStreak, setBestStreak] = useState<number>(0);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 
-  // Cek login + ambil data profil (nama, streak) dari Supabase
   useEffect(() => {
     let isMounted = true;
 
@@ -118,55 +53,14 @@ export default function DashboardPage(): JSX.Element {
     };
   }, [router]);
 
-  // Ambil jumlah soal per sektor
-  useEffect(() => {
-    let isMounted = true;
+  const greeting = language === 'id' ? 'Halo' : 'Hi';
+  const subtitle =
+    language === 'id'
+      ? 'Yuk lanjut belajar hari ini'
+      : "Let's keep learning today";
+  const streakLabel = language === 'id' ? 'Rekor Beruntun' : 'Best Streak';
+  const exploreLabel = language === 'id' ? 'Jelajahi Topik' : 'Explore Topics';
 
-    async function loadSectorCounts(): Promise<void> {
-      const supabase = getSupabaseBrowserClient();
-      const counts: Record<string, number> = {};
-
-      await Promise.all(
-        SECTOR_META.map(async (sector) => {
-          const { count } = await supabase
-            .from('questions')
-            .select('id', { count: 'exact', head: true })
-            .eq('sector', sector.key);
-
-          counts[sector.key] = count ?? 0;
-        }),
-      );
-
-      if (isMounted) {
-        setSectorCounts(counts);
-        setIsLoadingCounts(false);
-      }
-    }
-
-    void loadSectorCounts();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const copy = useMemo(
-    () => ({
-      subtitle:
-        language === 'id'
-          ? 'Platform evaluasi analisis lintas disiplin'
-          : 'Cross-disciplinary analysis assessment platform',
-      greeting: language === 'id' ? 'Halo' : 'Hi',
-      streakLabel: language === 'id' ? 'Rekor Beruntun' : 'Best Streak',
-      sectorHeading: language === 'id' ? 'Pilih Sektor Studi Kasus' : 'Choose a Case Study Sector',
-      questionCountLabel: (count: number): string =>
-        language === 'id' ? `${count} soal tersedia` : `${count} questions available`,
-      startLabel: language === 'id' ? 'Mulai' : 'Start',
-    }),
-    [language],
-  );
-
-  // Selagi cek login, jangan render konten dulu
   if (isCheckingAuth) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -177,81 +71,47 @@ export default function DashboardPage(): JSX.Element {
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10 font-sans text-slate-800 sm:px-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-10">
-        <header className="flex flex-col items-start justify-between gap-6 border-b border-slate-200 pb-8 sm:flex-row sm:items-center">
-          <div>
-            <h1 className="font-mono text-3xl font-semibold tracking-tight text-slate-900">
-              QuizMe
-            </h1>
-            <p className="mt-1 text-sm text-slate-500">
-              {copy.greeting}{userName ? `, ${userName}` : ''} — {copy.subtitle}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-end rounded-xl border border-slate-200 bg-white px-4 py-2 shadow-sm">
-              <span className="text-xs uppercase tracking-wide text-slate-400">
-                {copy.streakLabel}
-              </span>
-              <span className="font-mono text-lg font-semibold text-emerald-600">{bestStreak}</span>
-            </div>
-
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              aria-label="Toggle language"
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 font-mono text-sm font-medium text-slate-600 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
-            >
-              {language === 'id' ? 'EN' : 'ID'}
-            </button>
-          </div>
+      <div className="mx-auto flex max-w-2xl flex-col gap-8">
+        <header className="flex items-center justify-between">
+          <h1 className="font-mono text-2xl font-semibold tracking-tight text-slate-900">
+            QuizMe
+          </h1>
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            aria-label="Toggle language"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2 font-mono text-sm font-medium text-slate-600 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
+          >
+            {language === 'id' ? 'EN' : 'ID'}
+          </button>
         </header>
 
-        <section>
-          <h2 className="mb-5 text-lg font-semibold text-slate-800">{copy.sectorHeading}</h2>
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-lg font-semibold text-slate-900">
+            {greeting}{userName ? `, ${userName}` : ''}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {SECTOR_META.map((sector) => {
-              const isEmerald = sector.accent === 'emerald';
-              const count = sectorCounts[sector.key] ?? 0;
-
-              return (
-                <Link
-                  key={sector.key}
-                  href={`/quiz/${sector.key}`}
-                  className={`group flex flex-col justify-between rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-                    isEmerald
-                      ? 'border-emerald-100 hover:border-emerald-300'
-                      : 'border-rose-100 hover:border-rose-300'
-                  }`}
-                >
-                  <div>
-                    <h3 className="text-base font-semibold text-slate-900">
-                      {sector.label[language]}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                      {sector.description[language]}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-between">
-                    <span className="font-mono text-xs text-slate-400">
-                      {isLoadingCounts ? '···' : copy.questionCountLabel(count)}
-                    </span>
-                    <span
-                      className={`font-mono text-sm font-medium ${
-                        isEmerald ? 'text-emerald-600' : 'text-rose-600'
-                      }`}
-                    >
-                      {copy.startLabel} →
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+          <div className="mt-6 flex gap-4">
+            <div className="flex flex-1 flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-4 py-4">
+              <span className="font-mono text-2xl font-semibold text-emerald-600">
+                {bestStreak}
+              </span>
+              <span className="mt-1 text-xs uppercase tracking-wide text-slate-400">
+                {streakLabel}
+              </span>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => router.push('/topics')}
+            className="mt-6 w-full rounded-xl bg-emerald-600 px-4 py-3 font-mono text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
+          >
+            {exploreLabel}
+          </button>
         </section>
       </div>
     </main>
   );
-    }
+}

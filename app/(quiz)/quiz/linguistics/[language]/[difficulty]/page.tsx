@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getSupabaseBrowserClient } from '../../../../../../lib/supabase/client';
 import { useLanguage } from '../../../../../../context/LanguageContext';
 import { useQuizEngine } from '../../../../../../hooks/useQuizEngine';
@@ -142,6 +142,7 @@ export default function LinguisticsQuizPage(): JSX.Element {
   const params = useParams<{ language: string; difficulty: string }>();
   const router = useRouter();
   const { language: uiLanguage } = useLanguage();
+  const searchParams = useSearchParams();
 
   const languageCode = params.language;
   const difficultyParam = params.difficulty;
@@ -149,12 +150,15 @@ export default function LinguisticsQuizPage(): JSX.Element {
     ? difficultyParam
     : null;
 
+  const countParam = searchParams.get('count');
+  const selectedCount = countParam ? Number.parseInt(countParam, 10) : null;
+
   const [questions, setQuestions] = useState<readonly QuestionData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!difficulty || !languageCode) {
+    if (!difficulty || !languageCode || !selectedCount) {
       setIsLoading(false);
       return;
     }
@@ -188,7 +192,9 @@ export default function LinguisticsQuizPage(): JSX.Element {
       }
 
       const mapped = (data as QuestionRow[]).map(mapQuestionRowToQuestionData);
-      setQuestions(randomizeQuestions(mapped));
+      const randomized = randomizeQuestions(mapped);
+      const limited = selectedCount ? randomized.slice(0, selectedCount) : randomized;
+      setQuestions(limited);
       setIsLoading(false);
     }
 
@@ -197,7 +203,7 @@ export default function LinguisticsQuizPage(): JSX.Element {
     return () => {
       isMounted = false;
     };
-  }, [difficulty, languageCode, uiLanguage]);
+  }, [difficulty, languageCode, uiLanguage, selectedCount]);
 
   const engine = useQuizEngine('linguistics', questions);
 
@@ -229,6 +235,8 @@ export default function LinguisticsQuizPage(): JSX.Element {
       accuracyLabel: uiLanguage === 'id' ? 'Akurasi' : 'Accuracy',
       bestStreakLabel: uiLanguage === 'id' ? 'Beruntun Terbaik' : 'Best Streak',
       returnToDashboard: uiLanguage === 'id' ? 'Kembali ke Dashboard' : 'Return to Dashboard',
+      howMany: uiLanguage === 'id' ? 'Berapa soal?' : 'How many questions?',
+      questionsUnit: uiLanguage === 'id' ? 'soal' : 'questions',
     }),
     [uiLanguage],
   );
@@ -237,6 +245,32 @@ export default function LinguisticsQuizPage(): JSX.Element {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-center">
         <p className="font-mono text-sm text-rose-500">{copy.invalidParams}</p>
+      </main>
+    );
+  }
+
+  if (!selectedCount) {
+    const countOptions = [10, 20];
+
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <h1 className="text-lg font-semibold text-slate-800">{copy.howMany}</h1>
+          <div className="mt-6 flex flex-col gap-3">
+            {countOptions.map((count) => (
+              <button
+                key={count}
+                type="button"
+                onClick={() =>
+                  router.push(`/quiz/linguistics/${languageCode}/${difficulty}?count=${count}`)
+                }
+                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
+              >
+                {count} {copy.questionsUnit}
+              </button>
+            ))}
+          </div>
+        </div>
       </main>
     );
   }
@@ -388,6 +422,21 @@ export default function LinguisticsQuizPage(): JSX.Element {
               {question.dossier.reasoning[uiLanguage]}
             </p>
 
+            {question.dossier.references.length > 0 ? (
+              <>
+                <h3 className="mt-6 font-mono text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  {copy.referencesHeading}
+                </h3>
+                <ul className="mt-2 flex flex-col gap-1">
+                  {question.dossier.references.map((reference) => (
+                    <li key={reference} className="font-mono text-xs text-slate-400">
+                      {reference}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+
             <button
               type="button"
               onClick={engine.goToNextQuestion}
@@ -400,4 +449,4 @@ export default function LinguisticsQuizPage(): JSX.Element {
       </div>
     </main>
   );
-}
+      }

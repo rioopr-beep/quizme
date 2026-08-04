@@ -329,21 +329,25 @@ export default function LinguisticsQuizPage(): JSX.Element {
           </div>
 
           <div className="mt-6 flex flex-col gap-3">
-  <button
-    type="button"
-    onClick={() => router.push(`/quiz/linguistics/${languageCode}/${difficulty}/review`)}
-    className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700"
-  >
-    {uiLanguage === 'id' ? 'Lihat Pembahasan' : 'View Review'}
-  </button>
-  <button
-    type="button"
-    onClick={() => router.push('/dashboard')}
-    className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
-  >
-    {copy.returnToDashboard}
-  </button>
-</div> 
+            <button
+              type="button"
+              onClick={() => router.push(`/quiz/linguistics/${languageCode}/${difficulty}/review`)}
+              className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700"
+            >
+              {uiLanguage === 'id' ? 'Lihat Pembahasan' : 'View Review'}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard')}
+              className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
+            >
+              {copy.returnToDashboard}
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const question = engine.currentQuestion;
 

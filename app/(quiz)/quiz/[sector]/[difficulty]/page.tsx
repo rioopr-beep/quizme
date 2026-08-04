@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getSupabaseBrowserClient } from '../../../../../lib/supabase/client';
 import { useLanguage } from '../../../../../context/LanguageContext';
 import { useQuizEngine } from '../../../../../hooks/useQuizEngine';
@@ -155,6 +155,7 @@ export default function QuizPage(): JSX.Element {
   const params = useParams<{ sector: string; difficulty: string }>();
   const router = useRouter();
   const { language } = useLanguage();
+  const searchParams = useSearchParams();
 
   const sectorParam = params.sector;
   const difficultyParam = params.difficulty;
@@ -163,12 +164,15 @@ export default function QuizPage(): JSX.Element {
     ? difficultyParam
     : null;
 
+  const countParam = searchParams.get('count');
+  const selectedCount = countParam ? Number.parseInt(countParam, 10) : null;
+
   const [questions, setQuestions] = useState<readonly QuestionData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!sector || !difficulty) {
+    if (!sector || !difficulty || !selectedCount) {
       setIsLoading(false);
       return;
     }
@@ -201,7 +205,9 @@ export default function QuizPage(): JSX.Element {
       }
 
       const mapped = (data as QuestionRow[]).map(mapQuestionRowToQuestionData);
-      setQuestions(randomizeQuestions(mapped));
+      const randomized = randomizeQuestions(mapped);
+      const limited = selectedCount ? randomized.slice(0, selectedCount) : randomized;
+      setQuestions(limited);
       setIsLoading(false);
     }
 
@@ -210,7 +216,7 @@ export default function QuizPage(): JSX.Element {
     return () => {
       isMounted = false;
     };
-  }, [sector, difficulty, language]);
+  }, [sector, difficulty, language, selectedCount]);
 
   const engine = useQuizEngine(sector ?? 'science', questions);
 
@@ -242,6 +248,8 @@ export default function QuizPage(): JSX.Element {
       accuracyLabel: language === 'id' ? 'Akurasi' : 'Accuracy',
       bestStreakLabel: language === 'id' ? 'Beruntun Terbaik' : 'Best Streak',
       returnToDashboard: language === 'id' ? 'Kembali ke Dashboard' : 'Return to Dashboard',
+      howMany: language === 'id' ? 'Berapa soal?' : 'How many questions?',
+      questionsUnit: language === 'id' ? 'soal' : 'questions',
     }),
     [language],
   );
@@ -250,6 +258,30 @@ export default function QuizPage(): JSX.Element {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-center">
         <p className="font-mono text-sm text-rose-500">{copy.invalidSector}</p>
+      </main>
+    );
+  }
+
+  if (!selectedCount) {
+    const countOptions = [10, 20];
+
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <h1 className="text-lg font-semibold text-slate-800">{copy.howMany}</h1>
+          <div className="mt-6 flex flex-col gap-3">
+            {countOptions.map((count) => (
+              <button
+                key={count}
+                type="button"
+                onClick={() => router.push(`/quiz/${sector}/${difficulty}?count=${count}`)}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
+              >
+                {count} {copy.questionsUnit}
+              </button>
+            ))}
+          </div>
+        </div>
       </main>
     );
   }
@@ -435,4 +467,4 @@ export default function QuizPage(): JSX.Element {
       </div>
     </main>
   );
-}
+                                      }

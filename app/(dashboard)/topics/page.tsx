@@ -62,6 +62,15 @@ const TOPIC_META: readonly SectorMeta[] = [
     },
     accent: 'rose',
   },
+{
+  key: 'book-trivia',
+  label: { id: 'Trivia Buku', en: 'Book Trivia' },
+  description: {
+    id: 'Tebak topik dari buku-buku yang berpengaruh dan menggugah rasa penasaran.',
+    en: 'Guess the topic from influential books and spark your curiosity.',
+  },
+  accent: 'emerald',
+},
 ];
 
 type TopicCountMap = Readonly<Record<string, number>>;

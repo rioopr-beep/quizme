@@ -199,7 +199,7 @@ export default function QuizPage(): JSX.Element {
         language === 'id'
           ? 'Belum ada soal untuk kombinasi ini.'
           : 'No questions available for this combination yet.',
-      invalidSector: language === 'id' ? 'Sektor atau mode tidak dikenal.' : 'Unknown sector or mode.',
+      invalidSector: language === 'id' ? 'Topik atau mode tidak dikenal.' : 'Unknown topic or mode.',
       completedTitle: language === 'id' ? 'Sesi Selesai' : 'Session Complete',
       accuracyLabel: language === 'id' ? 'Akurasi' : 'Accuracy',
       bestStreakLabel: language === 'id' ? 'Beruntun Terbaik' : 'Best Streak',

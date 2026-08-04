@@ -22,6 +22,7 @@ const SECTOR_LABEL: Record<string, { id: string; en: string }> = {
   physics: { id: 'Fisika', en: 'Physics' },
   science: { id: 'Sains Umum', en: 'General Science' },
   linguistics: { id: 'Linguistik', en: 'Linguistics' },
+  'book-trivia': { id: 'Trivia Buku', en: 'Book Trivia' },
 };
 
 const DIFFICULTY_LABEL: Record<string, { id: string; en: string }> = {

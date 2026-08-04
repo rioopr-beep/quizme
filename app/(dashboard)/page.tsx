@@ -2,20 +2,22 @@
 
 // ============================================================================
 // QuizMe — Dashboard Interface
-// Ringkasan personal: sapaan, streak dari Supabase, dan tombol menuju
-// halaman pilih Topik. Grid sektor dipindah ke /topics.
+// Ringkasan personal: sapaan, streak dari Supabase, NavMenu (profil, riwayat,
+// statistik, bahasa, logout), dan tombol menuju halaman pilih Topik.
 // ============================================================================
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '../../lib/supabase/client';
 import { useLanguage } from '../../context/LanguageContext';
+import NavMenu from '../../components/NavMenu';
 
 export default function DashboardPage(): JSX.Element {
   const router = useRouter();
-  const { language, toggleLanguage } = useLanguage();
+  const { language } = useLanguage();
 
   const [userName, setUserName] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>('');
   const [bestStreak, setBestStreak] = useState<number>(0);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 
@@ -31,6 +33,10 @@ export default function DashboardPage(): JSX.Element {
       if (!user) {
         router.push('/login');
         return;
+      }
+
+      if (isMounted) {
+        setUserEmail(user.email ?? '');
       }
 
       const { data: profile } = await supabase
@@ -76,14 +82,7 @@ export default function DashboardPage(): JSX.Element {
           <h1 className="font-mono text-2xl font-semibold tracking-tight text-slate-900">
             QuizMe
           </h1>
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            aria-label="Toggle language"
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 font-mono text-sm font-medium text-slate-600 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
-          >
-            {language === 'id' ? 'EN' : 'ID'}
-          </button>
+          <NavMenu userName={userName} userEmail={userEmail} />
         </header>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

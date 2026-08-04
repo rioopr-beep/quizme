@@ -48,6 +48,44 @@ function isValidDifficulty(value: string): value is DifficultyLevel {
   return (VALID_DIFFICULTIES as readonly string[]).includes(value);
 }
 
+function shuffleArray<T>(array: readonly T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function shuffleQuestionOptions(question: QuestionData): QuestionData {
+  const keys: OptionKey[] = ['A', 'B', 'C', 'D'];
+  const shuffledKeys = shuffleArray(keys);
+
+  const newOptionsId: Record<OptionKey, string> = {} as Record<OptionKey, string>;
+  const newOptionsEn: Record<OptionKey, string> = {} as Record<OptionKey, string>;
+  let newCorrectOption: OptionKey = question.correctOption;
+
+  keys.forEach((newKey, index) => {
+    const originalKey = shuffledKeys[index];
+    newOptionsId[newKey] = question.options.id[originalKey];
+    newOptionsEn[newKey] = question.options.en[originalKey];
+    if (originalKey === question.correctOption) {
+      newCorrectOption = newKey;
+    }
+  });
+
+  return {
+    ...question,
+    options: { id: newOptionsId, en: newOptionsEn },
+    correctOption: newCorrectOption,
+  };
+}
+
+function randomizeQuestions(questions: readonly QuestionData[]): QuestionData[] {
+  const shuffledOrder = shuffleArray(questions);
+  return shuffledOrder.map(shuffleQuestionOptions);
+}
+
 async function persistBestStreak(candidate: number): Promise<void> {
   const supabase = getSupabaseBrowserClient();
   const {
@@ -163,7 +201,7 @@ export default function QuizPage(): JSX.Element {
       }
 
       const mapped = (data as QuestionRow[]).map(mapQuestionRowToQuestionData);
-      setQuestions(mapped);
+      setQuestions(randomizeQuestions(mapped));
       setIsLoading(false);
     }
 
@@ -397,4 +435,4 @@ export default function QuizPage(): JSX.Element {
       </div>
     </main>
   );
-    }
+}

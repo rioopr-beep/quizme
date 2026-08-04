@@ -11,6 +11,7 @@ interface LeaderboardRow {
   total_questions: number;
 }
 
+
 const SECTOR_LABEL: Record<string, { id: string; en: string }> = {
   financial: { id: 'Keuangan', en: 'Financial' },
   cryptography: { id: 'Kriptografi', en: 'Cryptography' },
@@ -18,6 +19,7 @@ const SECTOR_LABEL: Record<string, { id: string; en: string }> = {
   physics: { id: 'Fisika', en: 'Physics' },
   science: { id: 'Sains Umum', en: 'General Science' },
   linguistics: { id: 'Linguistik', en: 'Linguistics' },
+  'book-trivia': { id: 'Trivia Buku', en: 'Book Trivia' },
 };
 
 export default function LeaderboardPage(): JSX.Element {

@@ -23,6 +23,7 @@ const VALID_SECTORS: readonly SectorType[] = [
   'physics',
   'science',
   'linguistics',
+  'book-trivia',
 ];
 
 const VALID_DIFFICULTIES: readonly DifficultyLevel[] = [

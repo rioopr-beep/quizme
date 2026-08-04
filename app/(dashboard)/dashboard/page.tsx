@@ -8,9 +8,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSupabaseBrowserClient } from '../../lib/supabase/client';
-import { useLanguage } from '../../context/LanguageContext';
-import NavMenu from '../../components/NavMenu';
+import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
+import { useLanguage } from '../../../context/LanguageContext';
+import NavMenu from '../../../components/NavMenu';
 
 export default function DashboardPage(): JSX.Element {
   const router = useRouter();

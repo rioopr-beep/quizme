@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { useLanguage } from '../../../context/LanguageContext';
+import { useLanguage } from '../../../../context/LanguageContext';
 
 const MODES = [
   { key: 'foundational', label: { id: 'Mudah', en: 'Easy' } },

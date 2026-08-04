@@ -10,7 +10,8 @@ export type SectorType =
   | 'psychology'
   | 'physics'
   | 'science'
-  | 'linguistics';
+  | 'linguistics'
+  | 'book-trivia';
 
 export type DifficultyLevel = 'foundational' | 'intermediate' | 'advanced';
 

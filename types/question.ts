@@ -110,6 +110,36 @@ export type QuestionRowInsert = Omit<QuestionRow, 'id' | 'created_at' | 'updated
 
 export type QuestionRowUpdate = Partial<QuestionRow>;
 
+export interface ProfileRow {
+  readonly id: string;
+  readonly name: string | null;
+  readonly current_streak: number;
+  readonly best_streak: number;
+  readonly last_active_date: string | null;
+  readonly created_at: string;
+}
+
+export type ProfileRowInsert = Partial<ProfileRow> & { readonly id: string };
+export type ProfileRowUpdate = Partial<ProfileRow>;
+
+export interface QuizAttemptRow {
+  readonly id: string;
+  readonly user_id: string;
+  readonly sector: string;
+  readonly difficulty: string;
+  readonly question_count: number;
+  readonly score: number;
+  readonly answers: unknown;
+  readonly language: string | null;
+  readonly created_at: string;
+}
+
+export type QuizAttemptRowInsert = Omit<QuizAttemptRow, 'id' | 'created_at'> & {
+  readonly id?: string;
+  readonly created_at?: string;
+};
+export type QuizAttemptRowUpdate = Partial<QuizAttemptRow>;
+
 export interface Database {
   readonly public: {
     readonly Tables: {
@@ -119,9 +149,30 @@ export interface Database {
         readonly Update: QuestionRowUpdate;
         readonly Relationships: [];
       };
+      readonly profiles: {
+        readonly Row: ProfileRow;
+        readonly Insert: ProfileRowInsert;
+        readonly Update: ProfileRowUpdate;
+        readonly Relationships: [];
+      };
+      readonly quiz_attempts: {
+        readonly Row: QuizAttemptRow;
+        readonly Insert: QuizAttemptRowInsert;
+        readonly Update: QuizAttemptRowUpdate;
+        readonly Relationships: [];
+      };
     };
     readonly Views: Record<string, never>;
-    readonly Functions: Record<string, never>;
+    readonly Functions: {
+      readonly get_leaderboard: {
+        readonly Args: { readonly target_sector: string };
+        readonly Returns: {
+          readonly user_id: string;
+          readonly name: string;
+          readonly total_questions: number;
+        }[];
+      };
+    };
     readonly Enums: Record<string, never>;
     readonly CompositeTypes: Record<string, never>;
   };

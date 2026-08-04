@@ -6,6 +6,7 @@ import { getSupabaseBrowserClient } from '../../../../../lib/supabase/client';
 import { useLanguage } from '../../../../../context/LanguageContext';
 import { useQuizEngine } from '../../../../../hooks/useQuizEngine';
 import { mapQuestionRowToQuestionData } from '../../../../../types/question';
+import ExitConfirmModal from '../../../../../components/ExitConfirmModal';
 import type {
   OptionKey,
   OptionVisualState,
@@ -171,6 +172,7 @@ export default function QuizPage(): JSX.Element {
   const [questions, setQuestions] = useState<readonly QuestionData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
 
   useEffect(() => {
     if (!sector || !difficulty || !selectedCount) {
@@ -377,7 +379,7 @@ export default function QuizPage(): JSX.Element {
         <header className="flex items-center justify-between">
           <button
             type="button"
-            onClick={() => router.push(`/quiz/${sector}`)}
+            onClick={() => setShowExitConfirm(true)}
             className="font-mono text-sm text-slate-400 transition hover:text-slate-600"
           >
             {copy.back}
@@ -466,6 +468,13 @@ export default function QuizPage(): JSX.Element {
           </section>
         ) : null}
       </div>
+
+      <ExitConfirmModal
+        isOpen={showExitConfirm}
+        onCancel={() => setShowExitConfirm(false)}
+        onConfirm={() => router.push(`/quiz/${sector}`)}
+        language={language}
+      />
     </main>
   );
-                                      }
+    }

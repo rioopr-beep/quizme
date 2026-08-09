@@ -36,7 +36,7 @@ export default function LinguisticsModeSelectPage(): JSX.Element {
               key={mode.key}
               type="button"
               onClick={() => router.push(`/quiz/linguistics/${params.language}/${mode.key}`)}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-4 text-left text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-4 text-left text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
             >
               {mode.label[language]}
             </button>

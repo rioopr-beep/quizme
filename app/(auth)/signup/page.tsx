@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import Link from 'next/link';
+import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -21,9 +22,7 @@ export default function SignupPage() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { name },
-      },
+      options: { data: { name } },
     });
 
     if (error) {
@@ -32,7 +31,6 @@ export default function SignupPage() {
       return;
     }
 
-    // Buat baris di tabel profiles begitu user berhasil signup
     if (data.user) {
       await supabase.from('profiles').insert({
         id: data.user.id,
@@ -48,39 +46,62 @@ export default function SignupPage() {
   }
 
   return (
-    <form onSubmit={handleSignup}>
-      <h1>Buat akun</h1>
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
+      <div className="w-full max-w-sm">
+        <p className="mb-6 text-center font-mono text-2xl font-semibold text-slate-900">
+          QuizMe
+        </p>
 
-      <input
-        type="text"
-        placeholder="Nama kamu"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <h1 className="text-lg font-semibold text-slate-900">Buat akun</h1>
+          <p className="mt-1 text-sm text-slate-500">Mulai latihan analisismu</p>
 
-      <input
-        type="email"
-        placeholder="nama@email.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
+          <form onSubmit={handleSignup} className="mt-6 flex flex-col gap-3">
+            <input
+              type="text"
+              placeholder="Nama kamu"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-emerald-400"
+            />
+            <input
+              type="email"
+              placeholder="nama@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-emerald-400"
+            />
+            <input
+              type="password"
+              placeholder="Kata sandi (min. 6 karakter)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              required
+              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-emerald-400"
+            />
 
-      <input
-        type="password"
-        placeholder="Kata sandi (min. 6 karakter)"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        minLength={6}
-        required
-      />
+            {error ? <p className="text-sm text-rose-500">{error}</p> : null}
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
+            >
+              {loading ? 'Memproses...' : 'Daftar'}
+            </button>
+          </form>
 
-      <button type="submit" disabled={loading}>
-        {loading ? 'Memproses...' : 'Daftar'}
-      </button>
-    </form>
+          <p className="mt-6 text-center text-sm text-slate-400">
+            Sudah punya akun?{' '}
+            <Link href="/login" className="font-medium text-emerald-600">
+              Masuk
+            </Link>
+          </p>
+        </div>
+      </div>
+    </main>
   );
 }

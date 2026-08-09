@@ -142,4 +142,44 @@ export default function TopicsPage(): JSX.Element {
 
   const heading = language === 'id' ? 'Semua Topik' : 'All Topics';
   const questionCountLabel = (count: number): string =>
-    language === 'id' ? `${count} soal tersedia` :
+    language === 'id' ? `${count} soal tersedia` : `${count} questions available`;
+
+  return (
+    <main className="min-h-screen bg-slate-50 px-6 py-10 sm:px-10">
+      <div className="mx-auto max-w-5xl">
+        <h1 className="text-2xl font-bold text-slate-900">{heading}</h1>
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {TOPIC_META.map((topic) => {
+            const count = topicCounts[topic.key] ?? 0;
+            return (
+              <Link
+                key={topic.key}
+                href={`/quiz/${topic.key}`}
+                className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
+              >
+                <div>
+                  <div
+                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${topic.bgClass} ${topic.accentClass}`}
+                  >
+                    <i className={`ti ${topic.icon} text-2xl`} />
+                  </div>
+                  <h2 className="mt-4 text-lg font-semibold text-slate-900 group-hover:text-indigo-900">
+                    {topic.label[language]}
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                    {topic.description[language]}
+                  </p>
+                </div>
+                <div className="mt-6 border-t border-slate-100 pt-4">
+                  <span className="font-mono text-xs text-slate-400">
+                    {isLoadingCounts ? '...' : questionCountLabel(count)}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </main>
+  );
+}

@@ -38,7 +38,7 @@ export default function LinguisticsLanguageSelectPage(): JSX.Element {
               key={lang.key}
               type="button"
               onClick={() => router.push(`/quiz/linguistics/${lang.key}`)}
-              className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-2 py-4 text-center text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
+              className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-2 py-4 text-center text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
             >
               {lang.label[language]}
             </button>

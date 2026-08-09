@@ -87,34 +87,34 @@ export default function LandingPage(): JSX.Element {
             </Link>
             <Link
               href="/signup"
-              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm"
+              className="rounded-lg bg-indigo-900 px-3 py-1.5 text-sm font-medium text-white shadow-sm"
             >
               {copy.signup}
             </Link>
           </div>
         </header>
 
-        <section className="px-6 py-10 text-center">
+        <section className="mx-6 mt-4 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white px-6 py-10 text-center">
           <h1 className="text-2xl font-semibold leading-snug text-slate-900">{copy.title}</h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-500">
             {copy.subtitle}
           </p>
           <Link
             href="/signup"
-            className="mt-6 inline-block rounded-xl bg-emerald-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
+            className="mt-6 inline-block rounded-xl bg-indigo-900 px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-800"
           >
             {copy.cta}
           </Link>
         </section>
 
-        <section className="px-6 pb-16">
+        <section className="px-6 py-10">
           <p className="mb-4 text-xs font-medium uppercase tracking-wide text-slate-400">
             {copy.howItWorks}
           </p>
           <div className="flex flex-col gap-4">
             {[copy.step1, copy.step2, copy.step3].map((step, index) => (
               <div key={step} className="flex items-start gap-3">
-                <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-emerald-50 font-mono text-xs font-medium text-emerald-600">
+                <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-50 font-mono text-xs font-medium text-indigo-900">
                   {index + 1}
                 </span>
                 <p className="mt-0.5 text-sm text-slate-600">{step}</p>

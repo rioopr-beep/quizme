@@ -38,7 +38,7 @@ export default function LoginPage() {
           QuizMe
         </p>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-8 shadow-sm">
           <h1 className="text-lg font-semibold text-slate-900">Masuk</h1>
           <p className="mt-1 text-sm text-slate-500">Lanjutkan belajar analisismu</p>
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-emerald-400"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
             />
             <input
               type="password"
@@ -57,10 +57,10 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-emerald-400"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
             />
 
-            <Link href="/forgot-password" className="text-right text-xs text-slate-400 hover:text-emerald-600">
+            <Link href="/forgot-password" className="text-right text-xs text-slate-400 hover:text-indigo-900">
               Lupa kata sandi?
             </Link>
 
@@ -69,7 +69,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
+              className="mt-2 rounded-xl bg-indigo-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-800 disabled:opacity-60"
             >
               {loading ? 'Memproses...' : 'Masuk'}
             </button>
@@ -77,7 +77,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-slate-400">
             Belum punya akun?{' '}
-            <Link href="/signup" className="font-medium text-emerald-600">
+            <Link href="/signup" className="font-medium text-indigo-900">
               Daftar
             </Link>
           </p>
@@ -85,4 +85,4 @@ export default function LoginPage() {
       </div>
     </main>
   );
-}
+              }

@@ -29,6 +29,12 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
   return (
     <html lang="id" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
+        />
+      </head>
       <body className="bg-slate-50 font-sans antialiased">
         <LanguageProvider>{children}</LanguageProvider>
       </body>

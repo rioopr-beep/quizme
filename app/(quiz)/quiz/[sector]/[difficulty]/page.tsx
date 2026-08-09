@@ -154,13 +154,16 @@ async function saveQuizAttempt(
 }
 
 export default function QuizPage(): JSX.Element {
-  const params = useParams<{ sector: string; difficulty: string }>();
+  const rawParams = useParams();
   const router = useRouter();
   const { language } = useLanguage();
   const searchParams = useSearchParams();
 
-  const sectorParam = params.sector;
-  const difficultyParam = params.difficulty;
+  // Membaca parameter sector & difficulty secara aman (otomatis dipaksa ke huruf kecil)
+  const sectorParam = typeof rawParams?.sector === 'string' ? rawParams.sector.toLowerCase() : '';
+  const difficultyParam =
+    typeof rawParams?.difficulty === 'string' ? rawParams.difficulty.toLowerCase() : '';
+
   const sector: SectorType | null = isValidSector(sectorParam) ? sectorParam : null;
   const difficulty: DifficultyLevel | null = isValidDifficulty(difficultyParam)
     ? difficultyParam
@@ -477,4 +480,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-        }
+}

@@ -41,38 +41,44 @@ export default function ForgotPasswordPage(): JSX.Element {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-lg font-semibold text-slate-900">{heading}</h1>
-        <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      <div className="w-full max-w-sm">
+        <p className="mb-6 text-center font-mono text-2xl font-semibold text-slate-900">
+          QuizMe
+        </p>
 
-        {status === 'sent' ? (
-          <p className="mt-6 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-            {sentMessage}
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
-            <input
-              type="email"
-              placeholder={emailPlaceholder}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
-            />
+        <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-8 shadow-sm">
+          <h1 className="text-lg font-semibold text-slate-900">{heading}</h1>
+          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
 
-            {status === 'error' ? (
-              <p className="text-sm text-rose-500">{errorMessage}</p>
-            ) : null}
+          {status === 'sent' ? (
+            <p className="mt-6 rounded-xl bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+              {sentMessage}
+            </p>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+              <input
+                type="email"
+                placeholder={emailPlaceholder}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+              />
 
-            <button
-              type="submit"
-              disabled={status === 'sending'}
-              className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
-            >
-              {status === 'sending' ? sendingLabel : submitLabel}
-            </button>
-          </form>
-        )}
+              {status === 'error' ? (
+                <p className="text-sm text-rose-500">{errorMessage}</p>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={status === 'sending'}
+                className="rounded-xl bg-indigo-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-800 disabled:opacity-60"
+              >
+                {status === 'sending' ? sendingLabel : submitLabel}
+              </button>
+            </form>
+          )}
+        </div>
       </div>
     </main>
   );

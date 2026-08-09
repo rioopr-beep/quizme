@@ -11,7 +11,6 @@ interface LeaderboardRow {
   total_questions: number;
 }
 
-
 const SECTOR_LABEL: Record<string, { id: string; en: string }> = {
   financial: { id: 'Keuangan', en: 'Financial' },
   cryptography: { id: 'Kriptografi', en: 'Cryptography' },
@@ -84,7 +83,7 @@ export default function LeaderboardPage(): JSX.Element {
         <header className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => router.push('/leaderboard')}
             className="font-mono text-sm text-slate-400 transition hover:text-slate-600"
           >
             {back}
@@ -95,7 +94,7 @@ export default function LeaderboardPage(): JSX.Element {
         </header>
 
         {rows.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
+          <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white px-6 py-10 text-center shadow-sm">
             <p className="text-sm text-slate-500">{emptyText}</p>
           </div>
         ) : (
@@ -106,7 +105,7 @@ export default function LeaderboardPage(): JSX.Element {
                 <div
                   key={row.user_id}
                   className={`flex items-center justify-between px-5 py-3 ${
-                    isMe ? 'bg-emerald-50' : ''
+                    isMe ? 'bg-indigo-50' : ''
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -117,7 +116,11 @@ export default function LeaderboardPage(): JSX.Element {
                     >
                       {index + 1}
                     </span>
-                    <span className={`text-sm ${isMe ? 'font-semibold text-emerald-700' : 'text-slate-700'}`}>
+                    <span
+                      className={`text-sm ${
+                        isMe ? 'font-semibold text-indigo-900' : 'text-slate-700'
+                      }`}
+                    >
                       {row.name || (language === 'id' ? 'Pengguna' : 'User')}
                       {isMe ? ` (${youLabel})` : ''}
                     </span>

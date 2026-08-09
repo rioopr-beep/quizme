@@ -53,46 +53,52 @@ export default function ResetPasswordPage(): JSX.Element {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-lg font-semibold text-slate-900">{heading}</h1>
-        <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      <div className="w-full max-w-sm">
+        <p className="mb-6 text-center font-mono text-2xl font-semibold text-slate-900">
+          QuizMe
+        </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
-          <input
-            type="password"
-            placeholder={passwordPlaceholder}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={6}
-            required
-            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
-          />
+        <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-8 shadow-sm">
+          <h1 className="text-lg font-semibold text-slate-900">{heading}</h1>
+          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
 
-          <input
-            type="password"
-            placeholder={confirmPlaceholder}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            minLength={6}
-            required
-            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
-          />
+          <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+            <input
+              type="password"
+              placeholder={passwordPlaceholder}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              required
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+            />
 
-          {status === 'mismatch' ? (
-            <p className="text-sm text-rose-500">{mismatchMessage}</p>
-          ) : null}
-          {status === 'error' ? (
-            <p className="text-sm text-rose-500">{errorMessage}</p>
-          ) : null}
+            <input
+              type="password"
+              placeholder={confirmPlaceholder}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength={6}
+              required
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+            />
 
-          <button
-            type="submit"
-            disabled={status === 'saving'}
-            className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
-          >
-            {status === 'saving' ? savingLabel : submitLabel}
-          </button>
-        </form>
+            {status === 'mismatch' ? (
+              <p className="text-sm text-rose-500">{mismatchMessage}</p>
+            ) : null}
+            {status === 'error' ? (
+              <p className="text-sm text-rose-500">{errorMessage}</p>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={status === 'saving'}
+              className="rounded-xl bg-indigo-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-800 disabled:opacity-60"
+            >
+              {status === 'saving' ? savingLabel : submitLabel}
+            </button>
+          </form>
+        </div>
       </div>
     </main>
   );

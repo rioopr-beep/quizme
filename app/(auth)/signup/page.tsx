@@ -52,7 +52,7 @@ export default function SignupPage() {
           QuizMe
         </p>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-8 shadow-sm">
           <h1 className="text-lg font-semibold text-slate-900">Buat akun</h1>
           <p className="mt-1 text-sm text-slate-500">Mulai latihan analisismu</p>
 
@@ -63,7 +63,7 @@ export default function SignupPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-emerald-400"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
             />
             <input
               type="email"
@@ -71,7 +71,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-emerald-400"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
             />
             <input
               type="password"
@@ -80,7 +80,7 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               minLength={6}
               required
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-emerald-400"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
             />
 
             {error ? <p className="text-sm text-rose-500">{error}</p> : null}
@@ -88,7 +88,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
+              className="mt-2 rounded-xl bg-indigo-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-800 disabled:opacity-60"
             >
               {loading ? 'Memproses...' : 'Daftar'}
             </button>
@@ -96,7 +96,7 @@ export default function SignupPage() {
 
           <p className="mt-6 text-center text-sm text-slate-400">
             Sudah punya akun?{' '}
-            <Link href="/login" className="font-medium text-emerald-600">
+            <Link href="/login" className="font-medium text-indigo-900">
               Masuk
             </Link>
           </p>

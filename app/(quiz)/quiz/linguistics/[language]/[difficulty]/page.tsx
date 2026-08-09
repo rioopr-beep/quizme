@@ -26,7 +26,7 @@ const OPTION_ORDER: readonly OptionKey[] = ['A', 'B', 'C', 'D'];
 
 const OPTION_VISUAL_CLASS_MAP: Record<OptionVisualState, string> = {
   default: 'border-slate-200 bg-white text-slate-700 hover:border-slate-300',
-  correct: 'border-emerald-300 bg-emerald-50 text-emerald-700',
+  correct: 'border-indigo-300 bg-indigo-50 text-indigo-900',
   incorrect: 'border-rose-300 bg-rose-50 text-rose-700',
   muted: 'border-slate-100 bg-slate-50 text-slate-400',
 };
@@ -266,7 +266,7 @@ export default function LinguisticsQuizPage(): JSX.Element {
                 onClick={() =>
                   router.push(`/quiz/linguistics/${languageCode}/${difficulty}?count=${count}`)
                 }
-                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
               >
                 {count} {copy.questionsUnit}
               </button>
@@ -300,7 +300,7 @@ export default function LinguisticsQuizPage(): JSX.Element {
         <button
           type="button"
           onClick={() => router.push(`/quiz/linguistics/${languageCode}`)}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
         >
           {copy.returnToDashboard}
         </button>
@@ -311,16 +311,16 @@ export default function LinguisticsQuizPage(): JSX.Element {
   if (engine.state.status === 'completed') {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
-        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <div className="w-full max-w-md rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-8 text-center shadow-sm">
           <h1 className="font-mono text-xl font-semibold text-slate-900">{copy.completedTitle}</h1>
           <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="rounded-xl bg-slate-50 p-4">
+            <div className="rounded-xl bg-white/70 p-4">
               <p className="text-xs uppercase tracking-wide text-slate-400">{copy.accuracyLabel}</p>
-              <p className="mt-1 font-mono text-2xl font-semibold text-emerald-600">
+              <p className="mt-1 font-mono text-2xl font-semibold text-indigo-900">
                 {engine.accuracy}%
               </p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-4">
+            <div className="rounded-xl bg-white/70 p-4">
               <p className="text-xs uppercase tracking-wide text-slate-400">
                 {copy.bestStreakLabel}
               </p>
@@ -334,14 +334,14 @@ export default function LinguisticsQuizPage(): JSX.Element {
             <button
               type="button"
               onClick={() => router.push(`/quiz/linguistics/${languageCode}/${difficulty}/review`)}
-              className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700"
+              className="w-full rounded-xl bg-indigo-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-800"
             >
               {uiLanguage === 'id' ? 'Lihat Pembahasan' : 'View Review'}
             </button>
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
-              className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               {copy.returnToDashboard}
             </button>
@@ -377,7 +377,7 @@ export default function LinguisticsQuizPage(): JSX.Element {
             <span className="font-mono text-xs text-slate-400">
               {copy.progress(engine.progress.current, engine.progress.total)}
             </span>
-            <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 font-mono text-xs font-medium text-emerald-600">
+            <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 font-mono text-xs font-medium text-indigo-900">
               {copy.streak}: {engine.state.streak}
             </span>
           </div>
@@ -449,7 +449,7 @@ export default function LinguisticsQuizPage(): JSX.Element {
             <button
               type="button"
               onClick={engine.goToNextQuestion}
-              className="mt-8 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
+              className="mt-8 w-full rounded-xl bg-indigo-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-800"
             >
               {engine.progress.current === engine.progress.total ? copy.finish : copy.next}
             </button>
@@ -465,4 +465,4 @@ export default function LinguisticsQuizPage(): JSX.Element {
       />
     </main>
   );
-}
+      }

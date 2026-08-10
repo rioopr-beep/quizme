@@ -159,7 +159,6 @@ export default function QuizPage(): JSX.Element {
   const { language } = useLanguage();
   const searchParams = useSearchParams();
 
-  // Membaca parameter sector & difficulty secara aman (otomatis dipaksa ke huruf kecil)
   const sectorParam = typeof rawParams?.sector === 'string' ? rawParams.sector.toLowerCase() : '';
   const difficultyParam =
     typeof rawParams?.difficulty === 'string' ? rawParams.difficulty.toLowerCase() : '';
@@ -262,8 +261,14 @@ export default function QuizPage(): JSX.Element {
 
   if (!sector || !difficulty) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-center">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-slate-50 px-6 text-center">
         <p className="font-mono text-sm text-rose-500">{copy.invalidSector}</p>
+        <p className="font-mono text-xs text-slate-400">
+          sectorParam: "{sectorParam}" | difficultyParam: "{difficultyParam}"
+        </p>
+        <p className="font-mono text-xs text-slate-400">
+          sector valid: {String(sector)} | difficulty valid: {String(difficulty)}
+        </p>
       </main>
     );
   }

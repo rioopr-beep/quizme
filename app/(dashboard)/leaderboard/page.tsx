@@ -50,6 +50,18 @@ const TOPIC_META: readonly SectorMeta[] = [
     description: { id: '', en: '' },
     accent: 'emerald',
   },
+{
+  key: 'curiosities',
+  label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' },
+  description: { id: '', en: '' },
+  accent: 'emerald',
+},
+{
+  key: 'mathematics',
+  label: { id: 'Matematika', en: 'Mathematics' },
+  description: { id: '', en: '' },
+  accent: 'rose',
+},
 ];
 
 export default function LeaderboardTopicSelectPage(): JSX.Element {

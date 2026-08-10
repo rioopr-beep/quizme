@@ -93,6 +93,28 @@ const TOPIC_META: readonly TopicMeta[] = [
       en: 'Guess the topic from influential books and spark your curiosity.',
     },
   },
+  {
+    key: 'curiosities',
+    icon: 'ti-bulb',
+    accentClass: 'text-blue-800',
+    bgClass: 'bg-blue-50',
+    label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' },
+    description: {
+      id: 'Jawaban dari pertanyaan sehari-hari yang jarang kamu tanyakan.',
+      en: 'Answers to everyday questions you rarely stop to ask.',
+    },
+  },
+  {
+    key: 'mathematics',
+    icon: 'ti-math-function',
+    accentClass: 'text-indigo-900',
+    bgClass: 'bg-indigo-50',
+    label: { id: 'Matematika', en: 'Mathematics' },
+    description: {
+      id: 'Pemecahan masalah aljabar, geometri, dan logika matematis.',
+      en: 'Problem-solving in algebra, geometry, and mathematical logic.',
+    },
+  },
 ];
 
 type TopicCountMap = Readonly<Record<string, number>>;

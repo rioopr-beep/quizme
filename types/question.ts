@@ -11,7 +11,9 @@ export type SectorType =
   | 'physics'
   | 'science'
   | 'linguistics'
-  | 'book-trivia';
+  | 'book-trivia'
+  | 'curiosities'
+  | 'mathematics';
 
 export type DifficultyLevel = 'foundational' | 'intermediate' | 'advanced';
 

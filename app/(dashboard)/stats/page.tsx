@@ -26,6 +26,8 @@ const SECTOR_LABEL: Record<string, { id: string; en: string }> = {
   science: { id: 'Sains Umum', en: 'General Science' },
   linguistics: { id: 'Linguistik', en: 'Linguistics' },
   'book-trivia': { id: 'Trivia Buku', en: 'Book Trivia' },
+  curiosities: { id: 'Rasa Ingin Tahu', en: 'Curiosities' },
+  mathematics: { id: 'Matematika', en: 'Mathematics' },
 };
 
 function aggregateBySector(attempts: readonly AttemptRow[]): SectorStat[] {

@@ -6,7 +6,7 @@
 // kalkulasi streak, dan navigasi antar soal. Tidak bergantung pada UI.
 // ============================================================================
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   OptionKey,
   OptionVisualState,
@@ -51,6 +51,11 @@ export function useQuizEngine(
   questions: readonly QuestionData[],
 ): UseQuizEngineResult {
   const [state, setState] = useState<QuizState>(() => buildInitialState(sector, questions));
+
+  // Sync state ketika data questions selesai dimuat (misal dari async fetch)
+  useEffect(() => {
+    setState(buildInitialState(sector, questions));
+  }, [sector, questions]);
 
   const currentQuestion = useMemo<QuestionData | null>(
     () => state.questions[state.currentIndex] ?? null,

@@ -37,7 +37,7 @@ export default function BottomNav(): JSX.Element {
   const { language } = useLanguage();
 
   return (
-    <nav className="fixed inset-x-0 bottom-4 z-40 px-4">
+    <nav className="fixed inset-x-0 bottom-4 z-40 px-4 animate-nav-in">
       <div className="mx-auto flex max-w-md items-center justify-between rounded-floating border border-base-border bg-base-surface/90 px-3 py-2 shadow-floating backdrop-blur-md">
         {NAV_ITEMS.map((item) => {
           const isActive =
@@ -49,14 +49,21 @@ export default function BottomNav(): JSX.Element {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-1.5 transition ${
-                isActive ? 'bg-accent-soft text-accent' : 'text-slate-400'
+              className={`flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition-all duration-300 ease-out ${
+                isActive
+                  ? 'bg-accent-soft text-accent scale-105'
+                  : 'text-slate-400 scale-100 hover:text-slate-500'
               }`}
             >
-              <i className={`ti ${item.icon} text-xl`} aria-hidden="true" />
+              <i
+                className={`ti ${item.icon} text-xl transition-transform duration-300 ease-out ${
+                  isActive ? '-translate-y-0.5' : 'translate-y-0'
+                }`}
+                aria-hidden="true"
+              />
               <span
-                className={`text-[11px] ${
-                  isActive ? 'font-semibold' : 'font-medium'
+                className={`text-[11px] transition-all duration-300 ${
+                  isActive ? 'font-semibold opacity-100' : 'font-medium opacity-70'
                 }`}
               >
                 {item.label[language]}
@@ -67,4 +74,4 @@ export default function BottomNav(): JSX.Element {
       </div>
     </nav>
   );
-}
+                }

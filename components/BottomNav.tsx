@@ -37,8 +37,8 @@ export default function BottomNav(): JSX.Element {
   const { language } = useLanguage();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-2">
+    <nav className="fixed inset-x-0 bottom-4 z-40 px-4">
+      <div className="mx-auto flex max-w-md items-center justify-between rounded-floating border border-base-border bg-base-surface/90 px-3 py-2 shadow-floating backdrop-blur-md">
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === '/dashboard'
@@ -49,8 +49,8 @@ export default function BottomNav(): JSX.Element {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 rounded-xl px-2 py-1.5 transition ${
-                isActive ? 'text-emerald-600' : 'text-slate-400'
+              className={`flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-1.5 transition ${
+                isActive ? 'bg-accent-soft text-accent' : 'text-slate-400'
               }`}
             >
               <i className={`ti ${item.icon} text-xl`} aria-hidden="true" />

@@ -85,11 +85,6 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
   };
 }
 
-function randomizeQuestions(questions: readonly QuestionData[]): QuestionData[] {
-  const shuffledOrder = shuffleArray(questions);
-  return shuffledOrder.map(shuffleQuestionOptions);
-}
-
 async function persistBestStreak(candidate: number): Promise<void> {
   const supabase = getSupabaseBrowserClient();
   const {
@@ -192,29 +187,65 @@ export default function QuizPage(): JSX.Element {
     ): Promise<void> {
       const supabase = getSupabaseBrowserClient();
 
-      const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('sector', activeSector)
-        .eq('difficulty', activeDifficulty)
-        .order('created_at', { ascending: true });
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      if (!isMounted) return;
+      let mapped: QuestionData[];
 
-      if (error || !data) {
-        setLoadError(
-          language === 'id'
-            ? 'Gagal memuat studi kasus. Silakan coba lagi.'
-            : 'Failed to load case studies. Please try again.',
-        );
-        setIsLoading(false);
-        return;
+      if (user) {
+        // User login: pakai RPC yang prioritaskan soal belum pernah muncul,
+        // baru soal lama kalau stok soal baru sudah habis
+        const { data, error } = await supabase.rpc('get_quiz_questions', {
+          p_user_id: user.id,
+          p_sector: activeSector,
+          p_difficulty: activeDifficulty,
+          p_limit: selectedCount,
+        });
+
+        if (!isMounted) return;
+
+        if (error || !data) {
+          setLoadError(
+            language === 'id'
+              ? 'Gagal memuat studi kasus. Silakan coba lagi.'
+              : 'Failed to load case studies. Please try again.',
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        // Urutan dari RPC sudah diprioritaskan, JANGAN diacak ulang di sini
+        mapped = (data as QuestionRow[]).map(mapQuestionRowToQuestionData);
+      } else {
+        // Guest/belum login: tidak ada user_id untuk cek riwayat,
+        // fallback ke random polos dari seluruh pool
+        const { data, error } = await supabase
+          .from('questions')
+          .select('*')
+          .eq('sector', activeSector)
+          .eq('difficulty', activeDifficulty);
+
+        if (!isMounted) return;
+
+        if (error || !data) {
+          setLoadError(
+            language === 'id'
+              ? 'Gagal memuat studi kasus. Silakan coba lagi.'
+              : 'Failed to load case studies. Please try again.',
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        const rawMapped = (data as QuestionRow[]).map(mapQuestionRowToQuestionData);
+        const shuffledOrder = shuffleArray(rawMapped);
+        mapped = shuffledOrder.slice(0, selectedCount);
       }
 
-      const mapped = (data as QuestionRow[]).map(mapQuestionRowToQuestionData);
-      const randomized = randomizeQuestions(mapped);
-      const limited = selectedCount ? randomized.slice(0, selectedCount) : randomized;
-      setQuestions(limited);
+      // Acak posisi opsi A/B/C/D untuk tiap soal (independen dari urutan soal)
+      const withShuffledOptions = mapped.map(shuffleQuestionOptions);
+      setQuestions(withShuffledOptions);
       setIsLoading(false);
     }
 

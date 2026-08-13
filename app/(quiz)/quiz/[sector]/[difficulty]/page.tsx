@@ -7,6 +7,7 @@ import { useLanguage } from '../../../../../context/LanguageContext';
 import { useQuizEngine } from '../../../../../hooks/useQuizEngine';
 import { mapQuestionRowToQuestionData } from '../../../../../types/question';
 import ExitConfirmModal from '../../../../../components/ExitConfirmModal';
+import DiscussionThread from '../../../../../components/DiscussionThread';
 import type {
   OptionKey,
   OptionVisualState,
@@ -502,6 +503,11 @@ export default function QuizPage(): JSX.Element {
             </button>
           </section>
         ) : null}
+
+        {/* Diskusi — muncul di bawah dossier, hanya setelah jawaban di-reveal */}
+        {engine.state.isRevealed ? (
+          <DiscussionThread questionId={question.id} />
+        ) : null}
       </div>
 
       <ExitConfirmModal
@@ -512,4 +518,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-}
+  }

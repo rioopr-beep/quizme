@@ -40,10 +40,10 @@ const VALID_DIFFICULTIES: readonly DifficultyLevel[] = [
 const OPTION_ORDER: readonly OptionKey[] = ['A', 'B', 'C', 'D'];
 
 const OPTION_VISUAL_CLASS_MAP: Record<OptionVisualState, string> = {
-  default: 'border-slate-200 bg-white text-slate-700 hover:border-slate-300',
-  correct: 'border-indigo-300 bg-indigo-50 text-indigo-900',
-  incorrect: 'border-rose-300 bg-rose-50 text-rose-700',
-  muted: 'border-slate-100 bg-slate-50 text-slate-400',
+  default: 'border-base-border bg-base-surface text-text-secondary hover:border-accent/40',
+  correct: 'border-status-correct bg-status-correctSoft text-status-correct',
+  incorrect: 'border-status-incorrect bg-status-incorrectSoft text-status-incorrect',
+  muted: 'border-base-border bg-base-bg text-text-muted',
 };
 
 function isValidSector(value: string): value is SectorType {
@@ -391,35 +391,35 @@ export default function QuizPage(): JSX.Element {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 sm:px-10">
+    <main className="min-h-screen bg-base-bg px-6 py-10 sm:px-10">
       <div className="mx-auto flex max-w-3xl flex-col gap-8">
         <header className="flex items-center justify-between">
           <button
             type="button"
             onClick={() => setShowExitConfirm(true)}
-            className="font-mono text-sm text-slate-400 transition hover:text-slate-600"
+            className="text-sm text-text-muted transition active:scale-95 hover:text-text-secondary"
           >
             {copy.back}
           </button>
 
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-xs text-slate-400">
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-text-muted">
               {copy.progress(engine.progress.current, engine.progress.total)}
             </span>
-            <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 font-mono text-xs font-medium text-indigo-900">
+            <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent">
               {copy.streak}: {engine.state.streak}
             </span>
           </div>
         </header>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <section className="rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
           {question.context ? (
-            <p className="mb-4 rounded-xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-500">
+            <p className="mb-4 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary">
               {question.context[language]}
             </p>
           ) : null}
 
-          <h1 className="text-lg font-semibold leading-relaxed text-slate-900">
+          <h1 className="text-lg font-semibold leading-relaxed text-text-primary">
             {question.prompt[language]}
           </h1>
 
@@ -434,9 +434,9 @@ export default function QuizPage(): JSX.Element {
                   type="button"
                   disabled={isLocked || engine.state.isRevealed}
                   onClick={() => engine.selectOption(optionKey)}
-                  className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm transition disabled:cursor-not-allowed ${OPTION_VISUAL_CLASS_MAP[visualState]}`}
+                  className={`flex items-start gap-3 rounded-floating border px-4 py-3.5 text-left text-sm transition active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed ${OPTION_VISUAL_CLASS_MAP[visualState]}`}
                 >
-                  <span className="font-mono text-xs font-semibold">{optionKey}</span>
+                  <span className="text-xs font-semibold">{optionKey}</span>
                   <span className="leading-relaxed">{question.options[language][optionKey]}</span>
                 </button>
               );
@@ -502,4 +502,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-    }
+      }

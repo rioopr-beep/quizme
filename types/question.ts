@@ -9,11 +9,17 @@ export type SectorType =
   | 'cryptography'
   | 'psychology'
   | 'physics'
-  | 'science'
   | 'linguistics'
   | 'book-trivia'
   | 'curiosities'
-  | 'mathematics';
+  | 'mathematics'
+  | 'chemistry'
+  | 'biology'
+  | 'computer_science'
+  | 'astronomy'
+  | 'earth_science'
+  | 'economics'
+  | 'engineering';
 
 export type DifficultyLevel = 'foundational' | 'intermediate' | 'advanced';
 
@@ -78,7 +84,15 @@ export interface SectorMeta {
   readonly key: SectorType;
   readonly label: LocalizedContent;
   readonly description: LocalizedContent;
-  readonly accent: 'emerald' | 'rose';
+  readonly accent:
+    | 'emerald'
+    | 'rose'
+    | 'amber'
+    | 'sky'
+    | 'violet'
+    | 'teal'
+    | 'stone'
+    | 'indigo';
 }
 
 // ----------------------------------------------------------------------------

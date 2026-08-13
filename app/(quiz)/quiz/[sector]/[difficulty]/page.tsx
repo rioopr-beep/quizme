@@ -8,6 +8,7 @@ import { useQuizEngine } from '../../../../../hooks/useQuizEngine';
 import { mapQuestionRowToQuestionData } from '../../../../../types/question';
 import ExitConfirmModal from '../../../../../components/ExitConfirmModal';
 import DiscussionThread from '../../../../../components/DiscussionThread';
+import ReportQuestionButton from '../../../../../components/ReportQuestionButton';
 import type {
   OptionKey,
   OptionVisualState,
@@ -465,9 +466,12 @@ export default function QuizPage(): JSX.Element {
 
         {engine.state.isRevealed ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <h2 className="font-mono text-sm font-semibold uppercase tracking-wide text-slate-400">
-              {copy.dossierHeading}
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-mono text-sm font-semibold uppercase tracking-wide text-slate-400">
+                {copy.dossierHeading}
+              </h2>
+              <ReportQuestionButton questionId={question.id} />
+            </div>
             <p className="mt-3 text-sm leading-relaxed text-slate-700">
               {question.dossier.summary[language]}
             </p>
@@ -518,4 +522,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-  }
+    }

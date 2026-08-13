@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 import { useLanguage } from '../../../context/LanguageContext';
+import CheckInCard from '../../../components/CheckInCard';
 
 export default function DashboardPage(): JSX.Element {
   const router = useRouter();
@@ -103,6 +104,9 @@ export default function DashboardPage(): JSX.Element {
             {exploreLabel}
           </button>
         </section>
+
+        {/* Tambahan baru: check-in mingguan */}
+        <CheckInCard />
       </div>
     </main>
   );

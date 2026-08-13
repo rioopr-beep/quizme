@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '../../lib/supabase/client';
 
 const DAY_LABELS = ['S', 'S', 'R', 'K', 'J', 'S', 'M']; // Sen-Min (mulai Senin)
 
@@ -30,6 +30,7 @@ export default function CheckInCard() {
 
   useEffect(() => {
     const loadCheckIns = async () => {
+      const supabase = getSupabaseBrowserClient();
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
         setLoading(false);
@@ -56,6 +57,7 @@ export default function CheckInCard() {
     if (alreadyCheckedToday || submitting) return;
     setSubmitting(true);
 
+    const supabase = getSupabaseBrowserClient();
     const { data: userData } = await supabase.auth.getUser();
     if (!userData.user) {
       setSubmitting(false);
@@ -138,4 +140,4 @@ export default function CheckInCard() {
       </button>
     </div>
   );
-    }
+}

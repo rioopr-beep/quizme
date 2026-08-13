@@ -88,30 +88,10 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
 }
 
 async function persistBestStreak(candidate: number): Promise<void> {
-  const supabase = getSupabaseBrowserClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return;
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('best_streak')
-    .eq('id', user.id)
-    .single();
-
-  const previousBest = profile?.best_streak ?? 0;
-  const nextBest = Math.max(previousBest, candidate);
-
-  await supabase
-    .from('profiles')
-    .update({
-      best_streak: nextBest,
-      current_streak: candidate,
-      last_active_date: new Date().toISOString().slice(0, 10),
-    })
-    .eq('id', user.id);
+  // Streak sekarang dihitung dari check-in (lihat CheckInCard.tsx),
+  // bukan dari jawaban benar beruntun. Fungsi ini sengaja tidak lagi
+  // menulis ke profiles.best_streak / current_streak.
+  void candidate;
 }
 
 async function saveQuizAttempt(

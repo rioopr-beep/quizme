@@ -445,32 +445,32 @@ export default function QuizPage(): JSX.Element {
         </section>
 
         {engine.state.isRevealed ? (
-          <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <section className="rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
             <div className="flex items-center justify-between">
-              <h2 className="font-mono text-sm font-semibold uppercase tracking-wide text-slate-400">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
                 {copy.dossierHeading}
               </h2>
               <ReportQuestionButton questionId={question.id} />
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700">
+            <p className="mt-3 text-sm leading-relaxed text-text-primary">
               {question.dossier.summary[language]}
             </p>
 
-            <h3 className="mt-6 font-mono text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
               {copy.reasoningHeading}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
               {question.dossier.reasoning[language]}
             </p>
 
             {question.dossier.references.length > 0 ? (
               <>
-                <h3 className="mt-6 font-mono text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
                   {copy.referencesHeading}
                 </h3>
                 <ul className="mt-2 flex flex-col gap-1">
                   {question.dossier.references.map((reference) => (
-                    <li key={reference} className="font-mono text-xs text-slate-400">
+                    <li key={reference} className="text-xs text-text-muted">
                       {reference}
                     </li>
                   ))}
@@ -481,7 +481,7 @@ export default function QuizPage(): JSX.Element {
             <button
               type="button"
               onClick={engine.goToNextQuestion}
-              className="mt-8 w-full rounded-xl bg-indigo-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-800"
+              className="mt-8 w-full rounded-floating bg-accent px-4 py-3 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
             >
               {engine.progress.current === engine.progress.total ? copy.finish : copy.next}
             </button>

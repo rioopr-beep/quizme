@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { getSupabaseBrowserClient } from '../lib/supabase/client';
+import { useLanguage } from '../context/LanguageContext';
 
-const DAY_LABELS = ['S', 'S', 'R', 'K', 'J', 'S', 'M']; // Sen-Min (mulai Senin)
+const DAY_LABELS_ID = ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
+const DAY_LABELS_EN = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 function getWeekDates(): string[] {
   const now = new Date();
@@ -20,9 +22,16 @@ function getWeekDates(): string[] {
 }
 
 export default function CheckInCard() {
+  const { language } = useLanguage();
   const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  const dayLabels = language === 'id' ? DAY_LABELS_ID : DAY_LABELS_EN;
+  const title = language === 'id' ? 'Check-in Minggu Ini' : 'This Week\'s Check-in';
+  const daysLabel = language === 'id' ? 'hari' : 'days';
+  const checkedInLabel = language === 'id' ? 'Sudah check-in hari ini' : 'Checked in today';
+  const checkInLabel = language === 'id' ? 'Check-in Sekarang' : 'Check In Now';
 
   const weekDates = getWeekDates();
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -78,9 +87,9 @@ export default function CheckInCard() {
   return (
     <div className="rounded-floating bg-base-surface shadow-floating-sm p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-text-primary">Check-in Minggu Ini</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
         <span className="text-xs text-text-muted">
-          {checkedDates.size}/7 hari
+          {checkedDates.size}/7 {daysLabel}
         </span>
       </div>
 
@@ -91,7 +100,7 @@ export default function CheckInCard() {
 
           return (
             <div key={date} className="flex flex-col items-center gap-1.5">
-              <span className="text-[10px] text-text-muted">{DAY_LABELS[i]}</span>
+              <span className="text-[10px] text-text-muted">{dayLabels[i]}</span>
               <div
                 className={[
                   'w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300',
@@ -135,9 +144,9 @@ export default function CheckInCard() {
         {loading
           ? '...'
           : alreadyCheckedToday
-          ? 'Sudah check-in hari ini'
-          : 'Check-in Sekarang'}
+          ? checkedInLabel
+          : checkInLabel}
       </button>
     </div>
   );
-      }
+                    }

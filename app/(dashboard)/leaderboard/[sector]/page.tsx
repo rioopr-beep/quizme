@@ -68,68 +68,74 @@ export default function LeaderboardPage(): JSX.Element {
   const heading = language === 'id' ? 'Papan Peringkat' : 'Leaderboard';
   const loadingText = language === 'id' ? 'Memuat…' : 'Loading…';
   const emptyText = language === 'id' ? 'Belum ada data peringkat.' : 'No ranking data yet.';
-  const questionsLabel = language === 'id' ? 'soal' : 'questions';
   const youLabel = language === 'id' ? 'kamu' : 'you';
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-center">
-        <p className="font-mono text-sm text-slate-400">{loadingText}</p>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg px-6 text-center">
+        <p className="text-sm text-text-muted">{loadingText}</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 sm:px-10">
-      <div className="mx-auto flex max-w-md flex-col gap-6">
+    <main className="min-h-screen bg-base-bg px-6 py-10 sm:px-10">
+      <div className="mx-auto flex max-w-md flex-col gap-5">
         <header className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => router.push('/leaderboard')}
-            className="font-mono text-sm text-slate-400 transition hover:text-slate-600"
+            className="text-sm text-text-muted transition active:scale-95 hover:text-text-secondary"
           >
             {back}
           </button>
-          <h1 className="text-lg font-semibold text-slate-800">
+          <h1 className="text-base font-semibold text-text-primary">
             {heading} · {sectorLabel}
           </h1>
         </header>
 
         {rows.length === 0 ? (
-          <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white px-6 py-10 text-center shadow-sm">
-            <p className="text-sm text-slate-500">{emptyText}</p>
+          <div className="rounded-floating bg-base-surface shadow-floating-sm px-6 py-10 text-center">
+            <p className="text-sm text-text-muted">{emptyText}</p>
           </div>
         ) : (
-          <div className="flex flex-col divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-2">
             {rows.map((row, index) => {
               const isMe = row.user_id === currentUserId;
+              const isTopThree = index < 3;
+
               return (
                 <div
                   key={row.user_id}
-                  className={`flex items-center justify-between px-5 py-3 ${
-                    isMe ? 'bg-indigo-50' : ''
-                  }`}
+                  className={[
+                    'flex items-center justify-between rounded-floating px-4 py-3 transition',
+                    isMe
+                      ? 'bg-accent-soft shadow-floating-sm'
+                      : 'bg-base-surface shadow-floating-sm',
+                  ].join(' ')}
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className={`w-6 font-mono text-sm ${
-                        index === 0 ? 'text-amber-500' : 'text-slate-400'
-                      }`}
+                      className={[
+                        'flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold',
+                        isTopThree
+                          ? 'bg-accent text-base-surface'
+                          : 'text-text-muted',
+                      ].join(' ')}
                     >
                       {index + 1}
                     </span>
                     <span
-                      className={`text-sm ${
-                        isMe ? 'font-semibold text-indigo-900' : 'text-slate-700'
-                      }`}
+                      className={[
+                        'text-sm',
+                        isMe ? 'font-semibold text-accent' : 'text-text-primary',
+                      ].join(' ')}
                     >
                       {row.name || (language === 'id' ? 'Pengguna' : 'User')}
                       {isMe ? ` (${youLabel})` : ''}
                     </span>
                   </div>
-                  <span className="font-mono text-sm text-slate-500">
-                    {row.total_questions} {questionsLabel}
-                  </span>
+                  <span className="text-xs text-text-muted">{row.total_questions}</span>
                 </div>
               );
             })}
@@ -138,4 +144,4 @@ export default function LeaderboardPage(): JSX.Element {
       </div>
     </main>
   );
-}
+                  }

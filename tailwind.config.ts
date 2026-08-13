@@ -24,6 +24,17 @@ const config: Config = {
           DEFAULT: '#5b7fd6', // biru soft, dipakai untuk highlight/active state
           soft: '#dde6fa',    // versi pucat, buat background icon aktif dsb
         },
+        text: {
+          primary: '#1e2947',   // biru gelap, teks utama (judul, prompt soal)
+          secondary: '#5c6b8a', // biru abu, teks sekunder/caption/deskripsi
+          muted: '#93a0bd',     // placeholder, teks nonaktif/disabled
+        },
+        status: {
+          correct: '#4a9c6d',
+          incorrect: '#d1665a',
+          correctSoft: '#e3f2e9',
+          incorrectSoft: '#fbe8e6',
+        },
       },
       boxShadow: {
         floating: '0 8px 30px -8px rgba(30, 41, 82, 0.15)',

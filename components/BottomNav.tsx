@@ -1,77 +1,84 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useLanguage } from '../context/LanguageContext';
+import { usePathname, useRouter } from 'next/navigation';
+import {
+  Home,
+  LayoutGrid,
+  Trophy,
+  History,
+  User,
+  type LucideIcon,
+} from 'lucide-react';
 
-const NAV_ITEMS = [
-  {
-    href: '/dashboard',
-    icon: 'ti-home',
-    label: { id: 'Beranda', en: 'Home' },
-  },
-  {
-    href: '/topics',
-    icon: 'ti-list',
-    label: { id: 'Topik', en: 'Topics' },
-  },
-  {
-    href: '/leaderboard',
-    icon: 'ti-trophy',
-    label: { id: 'Peringkat', en: 'Leaderboard' },
-  },
-  {
-    href: '/history',
-    icon: 'ti-history',
-    label: { id: 'Riwayat', en: 'History' },
-  },
-  {
-    href: '/profile',
-    icon: 'ti-user',
-    label: { id: 'Profil', en: 'Profile' },
-  },
-] as const;
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+};
 
-export default function BottomNav(): JSX.Element {
+const NAV_ITEMS: NavItem[] = [
+  { href: '/', label: 'Beranda', icon: Home },
+  { href: '/topics', label: 'Topik', icon: LayoutGrid },
+  { href: '/leaderboard', label: 'Peringkat', icon: Trophy },
+  { href: '/history', label: 'Riwayat', icon: History },
+  { href: '/profile', label: 'Profil', icon: User },
+];
+
+export default function BottomNav() {
   const pathname = usePathname();
-  const { language } = useLanguage();
+  const router = useRouter();
 
   return (
-    <nav className="fixed inset-x-0 bottom-4 z-40 px-4 animate-nav-in">
-      <div className="mx-auto flex max-w-md items-center justify-between rounded-floating border border-base-border bg-base-surface/90 px-3 py-2 shadow-floating backdrop-blur-md">
+    <nav
+      aria-label="Navigasi utama"
+      className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-4 pointer-events-none"
+    >
+      <div className="flex items-end gap-3 pointer-events-auto">
         {NAV_ITEMS.map((item) => {
           const isActive =
-            item.href === '/dashboard'
-              ? pathname === '/dashboard'
-              : pathname.startsWith(item.href);
+            item.href === '/'
+              ? pathname === '/'
+              : pathname?.startsWith(item.href);
+          const Icon = item.icon;
 
           return (
-            <Link
+            <button
               key={item.href}
-              href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition-all duration-300 ease-out ${
+              type="button"
+              onClick={() => router.push(item.href)}
+              aria-current={isActive ? 'page' : undefined}
+              aria-label={item.label}
+              className={[
+                'group flex flex-col items-center justify-center',
+                'rounded-floating transition-all duration-300 ease-out',
+                'active:scale-95',
                 isActive
-                  ? 'bg-accent-soft text-accent scale-105'
-                  : 'text-slate-400 scale-100 hover:text-slate-500'
-              }`}
+                  ? 'w-16 h-16 -translate-y-2 bg-accent shadow-floating'
+                  : 'w-12 h-12 bg-base-surface shadow-floating-sm hover:-translate-y-1',
+              ].join(' ')}
             >
-              <i
-                className={`ti ${item.icon} text-xl transition-transform duration-300 ease-out ${
-                  isActive ? '-translate-y-0.5' : 'translate-y-0'
-                }`}
-                aria-hidden="true"
+              <Icon
+                size={isActive ? 22 : 20}
+                strokeWidth={isActive ? 2.25 : 2}
+                className={[
+                  'transition-colors duration-300',
+                  isActive ? 'text-base-surface' : 'text-text-secondary',
+                ].join(' ')}
               />
               <span
-                className={`text-[11px] transition-all duration-300 ${
-                  isActive ? 'font-semibold opacity-100' : 'font-medium opacity-70'
-                }`}
+                className={[
+                  'mt-0.5 text-[10px] font-medium transition-all duration-300',
+                  isActive
+                    ? 'text-base-surface opacity-100'
+                    : 'text-text-muted opacity-0 h-0 group-hover:opacity-100 group-hover:h-auto',
+                ].join(' ')}
               >
-                {item.label[language]}
+                {item.label}
               </span>
-            </Link>
+            </button>
           );
         })}
       </div>
     </nav>
   );
-                }
+}

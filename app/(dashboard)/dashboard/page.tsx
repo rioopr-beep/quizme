@@ -11,6 +11,8 @@ import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 import { useLanguage } from '../../../context/LanguageContext';
 import CheckInCard from '../../../components/CheckInCard';
+import QuickStats from '../../../components/QuickStats';
+import ContinueLearningCard from '../../../components/ContinueLearningCard';
 
 export default function DashboardPage(): JSX.Element {
   const router = useRouter();
@@ -104,8 +106,11 @@ export default function DashboardPage(): JSX.Element {
         {/* Check-in mingguan */}
         <CheckInCard />
 
-        {/* TODO: Quick stats row (total soal, topik dicoba, akurasi) */}
-        {/* TODO: Lanjutkan belajar — progress topik terakhir */}
+        {/* Quick stats */}
+        <QuickStats />
+
+        {/* Lanjutkan belajar — muncul otomatis kalau ada riwayat */}
+        <ContinueLearningCard />
       </div>
     </main>
   );

@@ -2,8 +2,8 @@
 
 // ============================================================================
 // QuizMe — Dashboard Interface
-// Ringkasan personal: sapaan, streak dari Supabase, tombol menuju halaman
-// pilih Topik. Navigasi ditangani oleh BottomNav lewat layout.
+// Ringkasan personal: sapaan minimal di atas, badge streak floating,
+// check-in mingguan, dan ruang untuk quick stats + progress topik.
 // ============================================================================
 
 import { useEffect, useState } from 'react';
@@ -59,54 +59,53 @@ export default function DashboardPage(): JSX.Element {
     language === 'id'
       ? 'Yuk lanjut belajar hari ini'
       : "Let's keep learning today";
-  const streakLabel = language === 'id' ? 'Rekor Beruntun' : 'Best Streak';
   const exploreLabel = language === 'id' ? 'Jelajahi Topik' : 'Explore Topics';
 
   if (isCheckingAuth) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="font-mono text-sm text-slate-400">Memuat…</p>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg">
+        <p className="font-mono text-sm text-text-muted">Memuat…</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 font-sans text-slate-800 sm:px-10">
-      <div className="mx-auto flex max-w-2xl flex-col gap-8">
-        <header>
-          <h1 className="font-mono text-2xl font-semibold tracking-tight text-slate-900">
-            QuizMe
-          </h1>
-        </header>
-
-        <section className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-6 shadow-sm">
-          <p className="text-lg font-semibold text-slate-900">
-            {greeting}{userName ? `, ${userName}` : ''}
-          </p>
-          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
-
-          <div className="mt-6 flex gap-4">
-            <div className="flex flex-1 flex-col items-center rounded-xl bg-white/70 px-4 py-4">
-              <span className="font-mono text-2xl font-semibold text-indigo-900">
-                {bestStreak}
-              </span>
-              <span className="mt-1 text-xs uppercase tracking-wide text-slate-400">
-                {streakLabel}
-              </span>
-            </div>
+    <main className="min-h-screen bg-base-bg px-6 py-8 font-sans text-text-primary sm:px-10">
+      <div className="mx-auto flex max-w-2xl flex-col gap-5">
+        {/* Sapaan minimal, bukan di dalam card */}
+        <header className="flex items-start justify-between pt-2">
+          <div>
+            <p className="text-2xl font-semibold tracking-tight text-text-primary">
+              {greeting}{userName ? `, ${userName}` : ''}
+            </p>
+            <p className="mt-1 text-sm text-text-secondary">{subtitle}</p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => router.push('/topics')}
-            className="mt-6 w-full rounded-xl bg-indigo-900 px-4 py-3 font-mono text-sm font-medium text-white shadow-sm transition hover:bg-indigo-800"
-          >
-            {exploreLabel}
-          </button>
-        </section>
+          {/* Badge streak kecil floating, bukan kotak besar */}
+          <div className="flex flex-col items-center rounded-floating bg-base-surface shadow-floating-sm px-4 py-2.5 shrink-0">
+            <span className="text-lg font-bold text-accent leading-none">
+              {bestStreak}
+            </span>
+            <span className="mt-1 text-[9px] uppercase tracking-wide text-text-muted">
+              Streak
+            </span>
+          </div>
+        </header>
 
-        {/* Tambahan baru: check-in mingguan */}
+        {/* Tombol pill, bukan block full-width */}
+        <button
+          type="button"
+          onClick={() => router.push('/topics')}
+          className="self-start rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
+        >
+          {exploreLabel}
+        </button>
+
+        {/* Check-in mingguan */}
         <CheckInCard />
+
+        {/* TODO: Quick stats row (total soal, topik dicoba, akurasi) */}
+        {/* TODO: Lanjutkan belajar — progress topik terakhir */}
       </div>
     </main>
   );

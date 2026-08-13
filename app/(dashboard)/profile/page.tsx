@@ -110,21 +110,20 @@ export default function ProfilePage(): JSX.Element {
 
   const loadingText = language === 'id' ? 'Memuat…' : 'Loading…';
   const streakLabel = language === 'id' ? 'Streak' : 'Streak';
-  const questionsLabel = language === 'id' ? 'Soal dijawab' : 'Questions answered';
-  const topicsLabel = language === 'id' ? 'Topik dicoba' : 'Topics tried';
+  const questionsLabel = language === 'id' ? 'Soal' : 'Questions';
+  const topicsLabel = language === 'id' ? 'Topik' : 'Topics';
   const statsHeading = language === 'id' ? 'Statistik per Topik' : 'Stats per Topic';
   const statsEmpty =
     language === 'id'
       ? 'Belum ada data. Kerjakan beberapa kuis dulu.'
       : 'No data yet. Complete a few quizzes first.';
-  const settingsHeading = language === 'id' ? 'Pengaturan' : 'Settings';
   const languageRowLabel = language === 'id' ? 'Bahasa tampilan' : 'Display language';
   const logoutLabel = language === 'id' ? 'Keluar' : 'Logout';
 
   if (isLoading || !summary) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="font-mono text-sm text-slate-400">{loadingText}</p>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg">
+        <p className="text-sm text-text-muted">{loadingText}</p>
       </main>
     );
   }
@@ -132,61 +131,57 @@ export default function ProfilePage(): JSX.Element {
   const initial = summary.name ? summary.name.charAt(0).toUpperCase() : '?';
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 sm:px-10">
-      <div className="mx-auto flex max-w-2xl flex-col gap-5">
-        <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-6 shadow-sm">
+    <main className="min-h-screen bg-base-bg px-6 py-10 sm:px-10">
+      <div className="mx-auto flex max-w-2xl flex-col gap-4">
+        {/* Identitas + quick stats */}
+        <div className="rounded-floating bg-base-surface shadow-floating-sm p-6">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-indigo-900 font-mono text-xl font-semibold text-white">
+            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent text-lg font-semibold text-base-surface">
               {initial}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-slate-900">
+              <p className="truncate text-base font-semibold text-text-primary">
                 {summary.name || (language === 'id' ? 'Pengguna' : 'User')}
               </p>
-              <p className="truncate text-xs text-slate-400">{summary.email}</p>
+              <p className="truncate text-xs text-text-muted">{summary.email}</p>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-3">
-            <div className="rounded-xl bg-white/70 p-3 text-center">
-              <p className="font-mono text-lg font-semibold text-indigo-900">
-                {summary.bestStreak}
-              </p>
-              <p className="mt-0.5 text-[11px] text-slate-500">{streakLabel}</p>
+          <div className="mt-5 grid grid-cols-3 gap-2.5">
+            <div className="rounded-floating bg-base-bg p-3 text-center">
+              <p className="text-lg font-semibold text-accent">{summary.bestStreak}</p>
+              <p className="mt-0.5 text-[10px] text-text-muted">{streakLabel}</p>
             </div>
-            <div className="rounded-xl bg-white/70 p-3 text-center">
-              <p className="font-mono text-lg font-semibold text-indigo-900">
-                {summary.totalQuestions}
-              </p>
-              <p className="mt-0.5 text-[11px] text-slate-500">{questionsLabel}</p>
+            <div className="rounded-floating bg-base-bg p-3 text-center">
+              <p className="text-lg font-semibold text-accent">{summary.totalQuestions}</p>
+              <p className="mt-0.5 text-[10px] text-text-muted">{questionsLabel}</p>
             </div>
-            <div className="rounded-xl bg-white/70 p-3 text-center">
-              <p className="font-mono text-lg font-semibold text-indigo-900">
-                {summary.topicsAttempted}
-              </p>
-              <p className="mt-0.5 text-[11px] text-slate-500">{topicsLabel}</p>
+            <div className="rounded-floating bg-base-bg p-3 text-center">
+              <p className="text-lg font-semibold text-accent">{summary.topicsAttempted}</p>
+              <p className="mt-0.5 text-[10px] text-text-muted">{topicsLabel}</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="mb-4 text-sm font-semibold text-slate-700">{statsHeading}</p>
+        {/* Statistik per topik */}
+        <div className="rounded-floating bg-base-surface shadow-floating-sm p-6">
+          <p className="mb-4 text-sm font-semibold text-text-primary">{statsHeading}</p>
 
           {stats.length === 0 ? (
-            <p className="text-sm text-slate-400">{statsEmpty}</p>
+            <p className="text-sm text-text-muted">{statsEmpty}</p>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3.5">
               {stats.map((stat) => {
                 const label = SECTOR_LABEL[stat.sector]?.[language] ?? stat.sector;
                 return (
                   <div key={stat.sector}>
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="text-sm text-slate-700">{label}</span>
-                      <span className="font-mono text-xs text-slate-400">{stat.accuracy}%</span>
+                      <span className="text-sm text-text-secondary">{label}</span>
+                      <span className="text-xs text-text-muted">{stat.accuracy}%</span>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-base-bg">
                       <div
-                        className="h-full rounded-full bg-indigo-800"
+                        className="h-full rounded-full bg-accent transition-all duration-500"
                         style={{ width: `${stat.accuracy}%` }}
                       />
                     </div>
@@ -197,18 +192,15 @@ export default function ProfilePage(): JSX.Element {
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <p className="px-6 pt-5 pb-2 text-sm font-semibold text-slate-700">
-            {settingsHeading}
-          </p>
-
+        {/* Pengaturan */}
+        <div className="rounded-floating bg-base-surface shadow-floating-sm overflow-hidden">
           <button
             type="button"
             onClick={toggleLanguage}
-            className="flex w-full items-center justify-between border-t border-slate-100 px-6 py-3.5 text-left transition hover:bg-slate-50"
+            className="flex w-full items-center justify-between px-6 py-3.5 text-left transition active:scale-[0.99] hover:bg-base-bg"
           >
-            <span className="text-sm text-slate-700">{languageRowLabel}</span>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-text-secondary">{languageRowLabel}</span>
+            <span className="text-sm text-text-muted">
               {language === 'id' ? 'Indonesia' : 'English'}
             </span>
           </button>
@@ -216,10 +208,10 @@ export default function ProfilePage(): JSX.Element {
           <button
             type="button"
             onClick={() => void handleLogout()}
-            className="flex w-full items-center gap-2 border-t border-slate-100 px-6 py-3.5 text-left text-rose-500 transition hover:bg-rose-50"
+            className="flex w-full items-center gap-2 border-t border-base-border px-6 py-3.5 text-left transition active:scale-[0.99] hover:bg-status-incorrectSoft"
           >
-            <i className="ti ti-logout text-base" aria-hidden="true" />
-            <span className="text-sm font-medium">{logoutLabel}</span>
+            <i className="ti ti-logout text-base text-status-incorrect" aria-hidden="true" />
+            <span className="text-sm font-medium text-status-incorrect">{logoutLabel}</span>
           </button>
         </div>
       </div>

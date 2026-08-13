@@ -55,19 +55,29 @@ export default function DiscussionThread({ questionId }: Props) {
 
       const { data, error } = await supabase
         .from('discussion_comments')
-        .select('id, user_id, parent_comment_id, content, created_at, profiles(name)')
+        .select('id, user_id, parent_comment_id, content, created_at')
         .eq('question_id', questionId)
         .order('created_at', { ascending: true });
 
       if (!error && data) {
+        const userIds = Array.from(new Set(data.map((row) => row.user_id)));
+        const { data: profileRows } = await supabase
+          .from('profiles')
+          .select('id, name')
+          .in('id', userIds);
+
+        const nameById = new Map(
+          (profileRows ?? []).map((p) => [p.id, p.name as string])
+        );
+
         setComments(
-          data.map((row: any) => ({
+          data.map((row) => ({
             id: row.id,
             user_id: row.user_id,
             parent_comment_id: row.parent_comment_id,
             content: row.content,
             created_at: row.created_at,
-            authorName: row.profiles?.name ?? '—',
+            authorName: nameById.get(row.user_id) ?? '—',
           }))
         );
       }
@@ -96,10 +106,16 @@ export default function DiscussionThread({ questionId }: Props) {
         parent_comment_id: parentId,
         content: content.trim(),
       })
-      .select('id, user_id, parent_comment_id, content, created_at, profiles(name)')
+      .select('id, user_id, parent_comment_id, content, created_at')
       .single();
 
     if (!error && data) {
+      const { data: profileRow } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', userData.user.id)
+        .single();
+
       setComments((prev) => [
         ...prev,
         {
@@ -108,7 +124,7 @@ export default function DiscussionThread({ questionId }: Props) {
           parent_comment_id: data.parent_comment_id,
           content: data.content,
           created_at: data.created_at,
-          authorName: (data as any).profiles?.name ?? '—',
+          authorName: profileRow?.name ?? '—',
         },
       ]);
     }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getSupabaseBrowserClient } from '../../lib/supabase/client';
+import { getSupabaseBrowserClient } from '../lib/supabase/client';
 
 const DAY_LABELS = ['S', 'S', 'R', 'K', 'J', 'S', 'M']; // Sen-Min (mulai Senin)
 
@@ -140,4 +140,4 @@ export default function CheckInCard() {
       </button>
     </div>
   );
-}
+      }

@@ -55,7 +55,6 @@ export default function AdminReportsPage() {
     } as Record<ReportStatus, string>,
     markReviewed: language === 'id' ? 'Tandai Selesai' : 'Mark Reviewed',
     dismiss: language === 'id' ? 'Tolak' : 'Dismiss',
-    viewQuestion: language === 'id' ? 'Lihat Soal' : 'View Question',
     reportedBy: language === 'id' ? 'Dilaporkan oleh' : 'Reported by',
   };
 
@@ -96,25 +95,44 @@ export default function AdminReportsPage() {
 
       const { data, error } = await supabase
         .from('question_reports')
-        .select(
-          'id, question_id, reason, note, status, created_at, profiles(name), questions(prompt_id, sector)'
-        )
+        .select('id, question_id, user_id, reason, note, status, created_at')
         .eq('status', statusFilter)
         .order('created_at', { ascending: false });
 
       if (!error && data) {
+        const userIds = Array.from(new Set(data.map((row) => row.user_id)));
+        const questionIds = Array.from(new Set(data.map((row) => row.question_id)));
+
+        const [{ data: profileRows }, { data: questionRows }] = await Promise.all([
+          supabase.from('profiles').select('id, name').in('id', userIds),
+          supabase
+            .from('questions')
+            .select('id, prompt_id, sector')
+            .in('id', questionIds),
+        ]);
+
+        const nameById = new Map(
+          (profileRows ?? []).map((p) => [p.id, p.name as string])
+        );
+        const questionById = new Map(
+          (questionRows ?? []).map((q) => [q.id, q])
+        );
+
         setReports(
-          data.map((row: any) => ({
-            id: row.id,
-            question_id: row.question_id,
-            reason: row.reason,
-            note: row.note,
-            status: row.status,
-            created_at: row.created_at,
-            reporterName: row.profiles?.name ?? '—',
-            questionPrompt: row.questions?.prompt_id ?? null,
-            sector: row.questions?.sector ?? null,
-          }))
+          data.map((row) => {
+            const question = questionById.get(row.question_id);
+            return {
+              id: row.id,
+              question_id: row.question_id,
+              reason: row.reason,
+              note: row.note,
+              status: row.status,
+              created_at: row.created_at,
+              reporterName: nameById.get(row.user_id) ?? '—',
+              questionPrompt: question?.prompt_id ?? null,
+              sector: question?.sector ?? null,
+            };
+          })
         );
       }
       setLoading(false);
@@ -212,15 +230,7 @@ export default function AdminReportsPage() {
                   </p>
                 </div>
 
-                <div className="mt-3 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/quiz/review/${report.question_id}`)}
-                    className="text-xs font-medium text-accent"
-                  >
-                    {t.viewQuestion}
-                  </button>
-                  <div className="flex-1" />
+                <div className="mt-3 flex gap-2 justify-end">
                   {statusFilter === 'pending' && (
                     <>
                       <button
@@ -249,4 +259,4 @@ export default function AdminReportsPage() {
       </div>
     </main>
   );
-}
+                }

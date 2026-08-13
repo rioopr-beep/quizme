@@ -80,8 +80,56 @@ export default function CheckInCard() {
 
     if (!error) {
       setCheckedDates((prev) => new Set(prev).add(todayStr));
+      await updateStreakFromCheckIns(userData.user.id);
     }
     setSubmitting(false);
+  };
+
+  const updateStreakFromCheckIns = async (userId: string) => {
+    const supabase = getSupabaseBrowserClient();
+
+    // Ambil semua tanggal check-in user, terbaru dulu
+    const { data, error } = await supabase
+      .from('check_ins')
+      .select('checked_in_date')
+      .eq('user_id', userId)
+      .order('checked_in_date', { ascending: false });
+
+    if (error || !data || data.length === 0) return;
+
+    // Hitung streak berjalan (hari berurutan mundur dari hari ini)
+    let streak = 0;
+    let cursor = new Date();
+    cursor.setHours(0, 0, 0, 0);
+
+    const dateSet = new Set(data.map((row) => row.checked_in_date));
+
+    for (;;) {
+      const cursorStr = cursor.toISOString().slice(0, 10);
+      if (dateSet.has(cursorStr)) {
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('best_streak')
+      .eq('id', userId)
+      .single();
+
+    const previousBest = profile?.best_streak ?? 0;
+    const nextBest = Math.max(previousBest, streak);
+
+    await supabase
+      .from('profiles')
+      .update({
+        current_streak: streak,
+        best_streak: nextBest,
+      })
+      .eq('id', userId);
   };
 
   return (
@@ -149,4 +197,4 @@ export default function CheckInCard() {
       </button>
     </div>
   );
-                    }
+      }

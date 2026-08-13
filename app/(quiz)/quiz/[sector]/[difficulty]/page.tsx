@@ -470,8 +470,16 @@ export default function QuizPage(): JSX.Element {
                 </h3>
                 <ul className="mt-2 flex flex-col gap-1">
                   {question.dossier.references.map((reference) => (
-                    <li key={reference} className="text-xs text-text-muted">
-                      {reference}
+                    <li key={reference}>
+                      <a
+                        href={reference}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
+                        title={reference}
+                      >
+                        {reference}
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -502,4 +510,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-}
+        }

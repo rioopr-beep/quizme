@@ -276,8 +276,8 @@ export default function QuizPage(): JSX.Element {
 
   if (!sector || !difficulty) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-center">
-        <p className="font-mono text-sm text-rose-500">{copy.invalidSector}</p>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg px-6 text-center">
+        <p className="text-sm text-status-incorrect">{copy.invalidSector}</p>
       </main>
     );
   }
@@ -286,16 +286,16 @@ export default function QuizPage(): JSX.Element {
     const countOptions = [10, 20];
 
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
-        <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-lg font-semibold text-slate-800">{copy.howMany}</h1>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg px-6">
+        <div className="w-full max-w-sm rounded-floating bg-base-surface shadow-floating p-8 text-center">
+          <h1 className="text-lg font-semibold text-text-primary">{copy.howMany}</h1>
           <div className="mt-6 flex flex-col gap-3">
             {countOptions.map((count) => (
               <button
                 key={count}
                 type="button"
                 onClick={() => router.push(`/quiz/${sector}/${difficulty}?count=${count}`)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
+                className="rounded-floating bg-base-bg px-4 py-3 text-sm font-medium text-text-secondary transition active:scale-95 hover:bg-accent-soft hover:text-accent"
               >
                 {count} {copy.questionsUnit}
               </button>
@@ -308,28 +308,28 @@ export default function QuizPage(): JSX.Element {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-center">
-        <p className="font-mono text-sm text-slate-400">{copy.loading}</p>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg px-6 text-center">
+        <p className="text-sm text-text-muted">{copy.loading}</p>
       </main>
     );
   }
 
   if (loadError) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-center">
-        <p className="font-mono text-sm text-rose-500">{loadError}</p>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg px-6 text-center">
+        <p className="text-sm text-status-incorrect">{loadError}</p>
       </main>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-50 px-6 text-center">
-        <p className="font-mono text-sm text-slate-400">{copy.empty}</p>
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-base-bg px-6 text-center">
+        <p className="text-sm text-text-muted">{copy.empty}</p>
         <button
           type="button"
           onClick={() => router.push(`/quiz/${sector}`)}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
+          className="rounded-floating bg-base-surface px-4 py-2 text-sm font-medium text-text-secondary shadow-floating-sm transition active:scale-95 hover:text-accent"
         >
           {copy.returnToDashboard}
         </button>
@@ -339,21 +339,21 @@ export default function QuizPage(): JSX.Element {
 
   if (engine.state.status === 'completed') {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
-        <div className="w-full max-w-md rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-8 text-center shadow-sm">
-          <h1 className="font-mono text-xl font-semibold text-slate-900">{copy.completedTitle}</h1>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg px-6">
+        <div className="w-full max-w-md rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8 text-center">
+          <h1 className="text-xl font-semibold text-text-primary">{copy.completedTitle}</h1>
           <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="rounded-xl bg-white/70 p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-400">{copy.accuracyLabel}</p>
-              <p className="mt-1 font-mono text-2xl font-semibold text-indigo-900">
+            <div className="rounded-floating bg-base-bg p-4">
+              <p className="text-xs uppercase tracking-wide text-text-muted">{copy.accuracyLabel}</p>
+              <p className="mt-1 text-2xl font-semibold text-accent">
                 {engine.accuracy}%
               </p>
             </div>
-            <div className="rounded-xl bg-white/70 p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-400">
+            <div className="rounded-floating bg-base-bg p-4">
+              <p className="text-xs uppercase tracking-wide text-text-muted">
                 {copy.bestStreakLabel}
               </p>
-              <p className="mt-1 font-mono text-2xl font-semibold text-rose-500">
+              <p className="mt-1 text-2xl font-semibold text-status-correct">
                 {engine.state.bestStreak}
               </p>
             </div>
@@ -363,14 +363,14 @@ export default function QuizPage(): JSX.Element {
             <button
               type="button"
               onClick={() => router.push(`/quiz/${sector}/${difficulty}/review`)}
-              className="w-full rounded-xl bg-indigo-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-800"
+              className="w-full rounded-floating bg-accent px-4 py-3 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
             >
               {language === 'id' ? 'Lihat Pembahasan' : 'View Review'}
             </button>
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              className="w-full rounded-floating bg-base-bg px-4 py-3 text-sm font-medium text-text-secondary transition active:scale-95 hover:bg-base-border"
             >
               {copy.returnToDashboard}
             </button>
@@ -384,8 +384,8 @@ export default function QuizPage(): JSX.Element {
 
   if (!question) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-center">
-        <p className="font-mono text-sm text-rose-500">{copy.invalidSector}</p>
+      <main className="flex min-h-screen items-center justify-center bg-base-bg px-6 text-center">
+        <p className="text-sm text-status-incorrect">{copy.invalidSector}</p>
       </main>
     );
   }
@@ -502,4 +502,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-      }
+}

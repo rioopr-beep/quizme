@@ -28,6 +28,14 @@ const TOPIC_META: readonly TopicMeta[] = [
   { key: 'book-trivia', icon: 'ti-book', label: { id: 'Trivia Buku', en: 'Book Trivia' } },
   { key: 'curiosities', icon: 'ti-bulb', label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' } },
   { key: 'mathematics', icon: 'ti-math-function', label: { id: 'Matematika', en: 'Mathematics' } },
+  { key: 'football', icon: 'ti-ball-football', label: { id: 'Sepak Bola', en: 'Football' } },
+  { key: 'basketball', icon: 'ti-ball-basketball', label: { id: 'Basket', en: 'Basketball' } },
+  { key: 'badminton', icon: 'ti-ball-badminton', label: { id: 'Bulu Tangkis', en: 'Badminton' } },
+  { key: 'olympics_history', icon: 'ti-medal', label: { id: 'Olimpiade & Sejarah Olahraga', en: 'Olympics & Sports History' } },
+  { key: 'tennis', icon: 'ti-ball-tennis', label: { id: 'Tenis', en: 'Tennis' } },
+  { key: 'esports', icon: 'ti-device-gamepad-2', label: { id: 'E-Sports', en: 'Esports' } },
+  { key: 'motorsport', icon: 'ti-steering-wheel', label: { id: 'Formula 1 / Balap', en: 'Motorsport' } },
+  { key: 'general_sports', icon: 'ti-run', label: { id: 'Olahraga Umum', en: 'General Sports' } },
 ];
 
 type TopicCountMap = Readonly<Record<string, number>>;

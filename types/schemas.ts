@@ -12,8 +12,17 @@ export const sectorSchema = z.enum([
   'cryptography',
   'psychology',
   'physics',
-  'science',
   'linguistics',
+  'book-trivia',
+  'curiosities',
+  'mathematics',
+  'chemistry',
+  'biology',
+  'computer_science',
+  'astronomy',
+  'earth_science',
+  'economics',
+  'engineering',
 ]);
 
 export const difficultySchema = z.enum(['foundational', 'intermediate', 'advanced']);

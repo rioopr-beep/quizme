@@ -19,7 +19,15 @@ export type SectorType =
   | 'astronomy'
   | 'earth_science'
   | 'economics'
-  | 'engineering';
+  | 'engineering'
+  | 'football'
+  | 'basketball'
+  | 'badminton'
+  | 'olympics_history'
+  | 'tennis'
+  | 'esports'
+  | 'motorsport'
+  | 'general_sports';
 
 export type DifficultyLevel = 'foundational' | 'intermediate' | 'advanced';
 
@@ -216,4 +224,4 @@ export function mapQuestionRowToQuestionData(row: QuestionRow): QuestionData {
     },
     createdAt: row.created_at,
   };
-    }
+      }

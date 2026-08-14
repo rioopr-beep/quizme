@@ -24,18 +24,49 @@ const SECTOR_LABEL: Record<string, { id: string; en: string }> = {
   cryptography: { id: 'Kriptografi', en: 'Cryptography' },
   psychology: { id: 'Psikologi', en: 'Psychology' },
   physics: { id: 'Fisika', en: 'Physics' },
-  science: { id: 'Sains Umum', en: 'General Science' },
   linguistics: { id: 'Linguistik', en: 'Linguistics' },
   'book-trivia': { id: 'Trivia Buku', en: 'Book Trivia' },
+  curiosities: { id: 'Rasa Ingin Tahu', en: 'Curiosities' },
+  mathematics: { id: 'Matematika', en: 'Mathematics' },
+  chemistry: { id: 'Kimia', en: 'Chemistry' },
+  biology: { id: 'Biologi', en: 'Biology' },
+  computer_science: { id: 'Ilmu Komputer', en: 'Computer Science' },
+  astronomy: { id: 'Astronomi', en: 'Astronomy' },
+  earth_science: { id: 'Ilmu Bumi', en: 'Earth Science' },
+  economics: { id: 'Ekonomi', en: 'Economics' },
+  civil_engineering: { id: 'Teknik Sipil', en: 'Civil Engineering' },
+  mechanical_engineering: { id: 'Teknik Mesin', en: 'Mechanical Engineering' },
+  electrical_engineering: { id: 'Teknik Elektro', en: 'Electrical Engineering' },
+  software_engineering: { id: 'Teknik Perangkat Lunak', en: 'Software Engineering' },
+  industrial_engineering: { id: 'Teknik Industri', en: 'Industrial Engineering' },
+  aerospace_engineering: { id: 'Teknik Kedirgantaraan', en: 'Aerospace Engineering' },
+  automotive_engineering: { id: 'Teknik Otomotif', en: 'Automotive Engineering' },
+  environmental_engineering: { id: 'Teknik Lingkungan', en: 'Environmental Engineering' },
+  football: { id: 'Sepak Bola', en: 'Football' },
+  basketball: { id: 'Basket', en: 'Basketball' },
+  badminton: { id: 'Bulu Tangkis', en: 'Badminton' },
+  olympics_history: { id: 'Olimpiade & Sejarah Olahraga', en: 'Olympics & Sports History' },
+  tennis: { id: 'Tenis', en: 'Tennis' },
+  esports: { id: 'E-Sports', en: 'Esports' },
+  motorsport: { id: 'Formula 1 / Balap', en: 'Motorsport' },
+  general_sports: { id: 'Olahraga Umum', en: 'General Sports' },
 };
+
+const UNIQUE_VIOLATION_CODE = '23505';
 
 export default function ProfilePage(): JSX.Element {
   const router = useRouter();
   const { language, toggleLanguage } = useLanguage();
 
+  const [userId, setUserId] = useState<string | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [stats, setStats] = useState<readonly SectorStat[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [isEditingName, setIsEditingName] = useState<boolean>(false);
+  const [nameDraft, setNameDraft] = useState<string>('');
+  const [isSavingName, setIsSavingName] = useState<boolean>(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -82,6 +113,7 @@ export default function ProfilePage(): JSX.Element {
         .sort((a, b) => b.accuracy - a.accuracy);
 
       if (isMounted) {
+        setUserId(user.id);
         setSummary({
           name: profile?.name ?? '',
           email: user.email ?? '',
@@ -90,6 +122,7 @@ export default function ProfilePage(): JSX.Element {
           totalQuestions,
           topicsAttempted,
         });
+        setNameDraft(profile?.name ?? '');
         setStats(computedStats);
         setIsLoading(false);
       }
@@ -108,6 +141,67 @@ export default function ProfilePage(): JSX.Element {
     router.refresh();
   }
 
+  function startEditingName(): void {
+    setNameDraft(summary?.name ?? '');
+    setNameError(null);
+    setIsEditingName(true);
+  }
+
+  function cancelEditingName(): void {
+    setNameDraft(summary?.name ?? '');
+    setNameError(null);
+    setIsEditingName(false);
+  }
+
+  async function handleSaveName(): Promise<void> {
+    if (!userId) return;
+
+    const trimmed = nameDraft.trim();
+
+    if (trimmed.length === 0) {
+      setNameError(
+        language === 'id' ? 'Username tidak boleh kosong.' : 'Username cannot be empty.',
+      );
+      return;
+    }
+
+    if (trimmed === summary?.name) {
+      setIsEditingName(false);
+      return;
+    }
+
+    setIsSavingName(true);
+    setNameError(null);
+
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase
+      .from('profiles')
+      .update({ name: trimmed })
+      .eq('id', userId);
+
+    setIsSavingName(false);
+
+    if (error) {
+      if (error.code === UNIQUE_VIOLATION_CODE) {
+        setNameError(
+          language === 'id'
+            ? 'Username sudah dipakai orang lain, coba yang lain.'
+            : 'That username is already taken, try another.',
+        );
+      } else {
+        setNameError(
+          language === 'id'
+            ? 'Gagal menyimpan username. Coba lagi.'
+            : 'Failed to save username. Please try again.',
+        );
+      }
+      return;
+    }
+
+    setSummary((previous) => (previous ? { ...previous, name: trimmed } : previous));
+    setIsEditingName(false);
+  }
+
   const loadingText = language === 'id' ? 'Memuat…' : 'Loading…';
   const streakLabel = language === 'id' ? 'Streak' : 'Streak';
   const questionsLabel = language === 'id' ? 'Soal' : 'Questions';
@@ -119,6 +213,9 @@ export default function ProfilePage(): JSX.Element {
       : 'No data yet. Complete a few quizzes first.';
   const languageRowLabel = language === 'id' ? 'Bahasa tampilan' : 'Display language';
   const logoutLabel = language === 'id' ? 'Keluar' : 'Logout';
+  const saveLabel = language === 'id' ? 'Simpan' : 'Save';
+  const cancelLabel = language === 'id' ? 'Batal' : 'Cancel';
+  const namePlaceholder = language === 'id' ? 'Masukkan username' : 'Enter username';
 
   if (isLoading || !summary) {
     return (
@@ -139,10 +236,52 @@ export default function ProfilePage(): JSX.Element {
             <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent text-lg font-semibold text-base-surface">
               {initial}
             </div>
-            <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-text-primary">
-                {summary.name || (language === 'id' ? 'Pengguna' : 'User')}
-              </p>
+            <div className="min-w-0 flex-1">
+              {isEditingName ? (
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="text"
+                    value={nameDraft}
+                    onChange={(event) => setNameDraft(event.target.value)}
+                    placeholder={namePlaceholder}
+                    autoFocus
+                    disabled={isSavingName}
+                    className="w-full rounded-floating border border-base-border bg-base-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
+                  />
+                  {nameError ? (
+                    <p className="text-xs text-status-incorrect">{nameError}</p>
+                  ) : null}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void handleSaveName()}
+                      disabled={isSavingName}
+                      className="rounded-full bg-accent px-4 py-1.5 text-xs font-medium text-base-surface transition active:scale-95 hover:opacity-90 disabled:opacity-60"
+                    >
+                      {isSavingName ? '...' : saveLabel}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEditingName}
+                      disabled={isSavingName}
+                      className="rounded-full bg-base-bg px-4 py-1.5 text-xs font-medium text-text-secondary transition active:scale-95 hover:bg-base-border disabled:opacity-60"
+                    >
+                      {cancelLabel}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={startEditingName}
+                  className="group flex items-center gap-1.5 text-left"
+                >
+                  <p className="truncate text-base font-semibold text-text-primary">
+                    {summary.name || (language === 'id' ? 'Pengguna' : 'User')}
+                  </p>
+                  <i className="ti ti-pencil text-xs text-text-muted transition group-hover:text-accent" aria-hidden="true" />
+                </button>
+              )}
               <p className="truncate text-xs text-text-muted">{summary.email}</p>
             </div>
           </div>
@@ -217,4 +356,4 @@ export default function ProfilePage(): JSX.Element {
       </div>
     </main>
   );
-}
+    }

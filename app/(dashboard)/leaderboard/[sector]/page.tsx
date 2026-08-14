@@ -26,7 +26,14 @@ const SECTOR_LABEL: Record<string, { id: string; en: string }> = {
   astronomy: { id: 'Astronomi', en: 'Astronomy' },
   earth_science: { id: 'Ilmu Bumi', en: 'Earth Science' },
   economics: { id: 'Ekonomi', en: 'Economics' },
-  engineering: { id: 'Teknik', en: 'Engineering' },
+  civil_engineering: { id: 'Teknik Sipil', en: 'Civil Engineering' },
+  mechanical_engineering: { id: 'Teknik Mesin', en: 'Mechanical Engineering' },
+  electrical_engineering: { id: 'Teknik Elektro', en: 'Electrical Engineering' },
+  software_engineering: { id: 'Teknik Perangkat Lunak', en: 'Software Engineering' },
+  industrial_engineering: { id: 'Teknik Industri', en: 'Industrial Engineering' },
+  aerospace_engineering: { id: 'Teknik Kedirgantaraan', en: 'Aerospace Engineering' },
+  automotive_engineering: { id: 'Teknik Otomotif', en: 'Automotive Engineering' },
+  environmental_engineering: { id: 'Teknik Lingkungan', en: 'Environmental Engineering' },
   football: { id: 'Sepak Bola', en: 'Football' },
   basketball: { id: 'Basket', en: 'Basketball' },
   badminton: { id: 'Bulu Tangkis', en: 'Badminton' },
@@ -164,4 +171,4 @@ export default function LeaderboardPage(): JSX.Element {
       </div>
     </main>
   );
-          }
+                    }

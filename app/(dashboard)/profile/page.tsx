@@ -332,6 +332,9 @@ export default function ProfilePage(): JSX.Element {
           )}
         </div>
 
+         {/* Bookmarks */}
+        <BookmarksSection />
+
         {/* Pengaturan */}
         <div className="rounded-floating bg-base-surface shadow-floating-sm overflow-hidden">
           <button

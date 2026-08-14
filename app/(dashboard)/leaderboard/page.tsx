@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 import { useLanguage } from '../../../context/LanguageContext';
+import { CATEGORY_LABEL } from '../../../lib/topicCategories';
 
 interface StandaloneTopic {
   kind: 'standalone';
@@ -20,37 +21,6 @@ interface CategoryTopic {
 
 type TopicEntry = StandaloneTopic | CategoryTopic;
 
-export const LEADERBOARD_CATEGORY_CHILDREN: Record<string, readonly { key: string; label: { id: string; en: string } }[]> = {
-  science: [
-    { key: 'chemistry', label: { id: 'Kimia', en: 'Chemistry' } },
-    { key: 'biology', label: { id: 'Biologi', en: 'Biology' } },
-    { key: 'computer_science', label: { id: 'Ilmu Komputer', en: 'Computer Science' } },
-    { key: 'astronomy', label: { id: 'Astronomi', en: 'Astronomy' } },
-    { key: 'earth_science', label: { id: 'Ilmu Bumi', en: 'Earth Science' } },
-    { key: 'economics', label: { id: 'Ekonomi', en: 'Economics' } },
-  ],
-  engineering: [
-    { key: 'civil_engineering', label: { id: 'Teknik Sipil', en: 'Civil Engineering' } },
-    { key: 'mechanical_engineering', label: { id: 'Teknik Mesin', en: 'Mechanical Engineering' } },
-    { key: 'electrical_engineering', label: { id: 'Teknik Elektro', en: 'Electrical Engineering' } },
-    { key: 'software_engineering', label: { id: 'Teknik Perangkat Lunak', en: 'Software Engineering' } },
-    { key: 'industrial_engineering', label: { id: 'Teknik Industri', en: 'Industrial Engineering' } },
-    { key: 'aerospace_engineering', label: { id: 'Teknik Kedirgantaraan', en: 'Aerospace Engineering' } },
-    { key: 'automotive_engineering', label: { id: 'Teknik Otomotif', en: 'Automotive Engineering' } },
-    { key: 'environmental_engineering', label: { id: 'Teknik Lingkungan', en: 'Environmental Engineering' } },
-  ],
-  sports: [
-    { key: 'football', label: { id: 'Sepak Bola', en: 'Football' } },
-    { key: 'basketball', label: { id: 'Basket', en: 'Basketball' } },
-    { key: 'badminton', label: { id: 'Bulu Tangkis', en: 'Badminton' } },
-    { key: 'olympics_history', label: { id: 'Olimpiade & Sejarah Olahraga', en: 'Olympics & Sports History' } },
-    { key: 'tennis', label: { id: 'Tenis', en: 'Tennis' } },
-    { key: 'esports', label: { id: 'E-Sports', en: 'Esports' } },
-    { key: 'motorsport', label: { id: 'Formula 1 / Balap', en: 'Motorsport' } },
-    { key: 'general_sports', label: { id: 'Olahraga Umum', en: 'General Sports' } },
-  ],
-};
-
 const TOPIC_ENTRIES: readonly TopicEntry[] = [
   { kind: 'standalone', key: 'financial', label: { id: 'Keuangan', en: 'Financial' } },
   { kind: 'standalone', key: 'cryptography', label: { id: 'Kriptografi', en: 'Cryptography' } },
@@ -60,9 +30,9 @@ const TOPIC_ENTRIES: readonly TopicEntry[] = [
   { kind: 'standalone', key: 'book-trivia', label: { id: 'Trivia Buku', en: 'Book Trivia' } },
   { kind: 'standalone', key: 'curiosities', label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' } },
   { kind: 'standalone', key: 'mathematics', label: { id: 'Matematika', en: 'Mathematics' } },
-  { kind: 'category', key: 'science', label: { id: 'Science', en: 'Science' } },
-  { kind: 'category', key: 'engineering', label: { id: 'Engineering', en: 'Engineering' } },
-  { kind: 'category', key: 'sports', label: { id: 'Olahraga', en: 'Sports' } },
+  { kind: 'category', key: 'science', label: CATEGORY_LABEL.science },
+  { kind: 'category', key: 'engineering', label: CATEGORY_LABEL.engineering },
+  { kind: 'category', key: 'sports', label: CATEGORY_LABEL.sports },
 ];
 
 export default function LeaderboardTopicSelectPage(): JSX.Element {

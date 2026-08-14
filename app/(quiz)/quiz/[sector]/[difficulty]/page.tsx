@@ -259,7 +259,7 @@ export default function QuizPage(): JSX.Element {
     };
   }, [sector, difficulty, language, selectedCount]);
 
-  const engine = useQuizEngine(sector ?? 'science', questions);
+  const engine = useQuizEngine(sector ?? 'financial', questions);
 
   useEffect(() => {
     if (engine.state.status === 'completed' && sector && difficulty) {

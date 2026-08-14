@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { LanguageProvider } from '@/context/LanguageContext';
 import './globals.css';
 
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
       <body className="bg-slate-50 font-sans antialiased">
         <LanguageProvider>{children}</LanguageProvider>
       </body>
+      <GoogleAnalytics gaId="G-VNHDY1V50Z" />
     </html>
   );
 }

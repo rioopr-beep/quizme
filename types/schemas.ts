@@ -23,6 +23,14 @@ export const sectorSchema = z.enum([
   'earth_science',
   'economics',
   'engineering',
+  'football',
+  'basketball',
+  'badminton',
+  'olympics_history',
+  'tennis',
+  'esports',
+  'motorsport',
+  'general_sports',
 ]);
 
 export const difficultySchema = z.enum(['foundational', 'intermediate', 'advanced']);

@@ -10,13 +10,27 @@ import type { SectorMeta } from '../../../types/question';
 const TOPIC_META: readonly SectorMeta[] = [
   { key: 'financial', label: { id: 'Keuangan', en: 'Financial' }, description: { id: '', en: '' }, accent: 'emerald' },
   { key: 'cryptography', label: { id: 'Kriptografi', en: 'Cryptography' }, description: { id: '', en: '' }, accent: 'rose' },
-  { key: 'psychology', label: { id: 'Psikologi', en: 'Psychology' }, description: { id: '', en: '' }, accent: 'emerald' },
-  { key: 'physics', label: { id: 'Fisika', en: 'Physics' }, description: { id: '', en: '' }, accent: 'rose' },
-  { key: 'science', label: { id: 'Sains Umum', en: 'General Science' }, description: { id: '', en: '' }, accent: 'emerald' },
-  { key: 'linguistics', label: { id: 'Linguistik', en: 'Linguistics' }, description: { id: '', en: '' }, accent: 'rose' },
-  { key: 'book-trivia', label: { id: 'Trivia Buku', en: 'Book Trivia' }, description: { id: '', en: '' }, accent: 'emerald' },
-  { key: 'curiosities', label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' }, description: { id: '', en: '' }, accent: 'emerald' },
-  { key: 'mathematics', label: { id: 'Matematika', en: 'Mathematics' }, description: { id: '', en: '' }, accent: 'rose' },
+  { key: 'psychology', label: { id: 'Psikologi', en: 'Psychology' }, description: { id: '', en: '' }, accent: 'amber' },
+  { key: 'physics', label: { id: 'Fisika', en: 'Physics' }, description: { id: '', en: '' }, accent: 'sky' },
+  { key: 'chemistry', label: { id: 'Kimia', en: 'Chemistry' }, description: { id: '', en: '' }, accent: 'violet' },
+  { key: 'biology', label: { id: 'Biologi', en: 'Biology' }, description: { id: '', en: '' }, accent: 'teal' },
+  { key: 'computer_science', label: { id: 'Ilmu Komputer', en: 'Computer Science' }, description: { id: '', en: '' }, accent: 'stone' },
+  { key: 'astronomy', label: { id: 'Astronomi', en: 'Astronomy' }, description: { id: '', en: '' }, accent: 'indigo' },
+  { key: 'earth_science', label: { id: 'Ilmu Bumi', en: 'Earth Science' }, description: { id: '', en: '' }, accent: 'emerald' },
+  { key: 'economics', label: { id: 'Ekonomi', en: 'Economics' }, description: { id: '', en: '' }, accent: 'rose' },
+  { key: 'engineering', label: { id: 'Teknik', en: 'Engineering' }, description: { id: '', en: '' }, accent: 'amber' },
+  { key: 'linguistics', label: { id: 'Linguistik', en: 'Linguistics' }, description: { id: '', en: '' }, accent: 'sky' },
+  { key: 'book-trivia', label: { id: 'Trivia Buku', en: 'Book Trivia' }, description: { id: '', en: '' }, accent: 'violet' },
+  { key: 'curiosities', label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' }, description: { id: '', en: '' }, accent: 'teal' },
+  { key: 'mathematics', label: { id: 'Matematika', en: 'Mathematics' }, description: { id: '', en: '' }, accent: 'stone' },
+  { key: 'football', label: { id: 'Sepak Bola', en: 'Football' }, description: { id: '', en: '' }, accent: 'indigo' },
+  { key: 'basketball', label: { id: 'Basket', en: 'Basketball' }, description: { id: '', en: '' }, accent: 'emerald' },
+  { key: 'badminton', label: { id: 'Bulu Tangkis', en: 'Badminton' }, description: { id: '', en: '' }, accent: 'rose' },
+  { key: 'olympics_history', label: { id: 'Olimpiade & Sejarah Olahraga', en: 'Olympics & Sports History' }, description: { id: '', en: '' }, accent: 'amber' },
+  { key: 'tennis', label: { id: 'Tenis', en: 'Tennis' }, description: { id: '', en: '' }, accent: 'sky' },
+  { key: 'esports', label: { id: 'E-Sports', en: 'Esports' }, description: { id: '', en: '' }, accent: 'violet' },
+  { key: 'motorsport', label: { id: 'Formula 1 / Balap', en: 'Motorsport' }, description: { id: '', en: '' }, accent: 'teal' },
+  { key: 'general_sports', label: { id: 'Olahraga Umum', en: 'General Sports' }, description: { id: '', en: '' }, accent: 'stone' },
 ];
 
 export default function LeaderboardTopicSelectPage(): JSX.Element {
@@ -82,4 +96,4 @@ export default function LeaderboardTopicSelectPage(): JSX.Element {
       </div>
     </main>
   );
-}
+      }

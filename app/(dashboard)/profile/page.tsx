@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 import { useLanguage } from '../../../context/LanguageContext';
+import BookmarksSection from '../../../components/BookmarksSection';
 
 interface ProfileSummary {
   name: string;

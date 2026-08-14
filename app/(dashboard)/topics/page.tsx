@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 import { useLanguage } from '../../../context/LanguageContext';
+import { TOPIC_CATEGORY_CHILDREN } from '../../../lib/topicCategories';
 
 interface StandaloneTopic {
   kind: 'standalone';
@@ -23,37 +24,6 @@ interface CategoryTopic {
 
 type TopicEntry = StandaloneTopic | CategoryTopic;
 
-export const CATEGORY_CHILDREN: Record<string, readonly { key: string; icon: string; label: { id: string; en: string } }[]> = {
-  science: [
-    { key: 'chemistry', icon: 'ti-flask', label: { id: 'Kimia', en: 'Chemistry' } },
-    { key: 'biology', icon: 'ti-dna-2', label: { id: 'Biologi', en: 'Biology' } },
-    { key: 'computer_science', icon: 'ti-code', label: { id: 'Ilmu Komputer', en: 'Computer Science' } },
-    { key: 'astronomy', icon: 'ti-telescope', label: { id: 'Astronomi', en: 'Astronomy' } },
-    { key: 'earth_science', icon: 'ti-world', label: { id: 'Ilmu Bumi', en: 'Earth Science' } },
-    { key: 'economics', icon: 'ti-chart-line', label: { id: 'Ekonomi', en: 'Economics' } },
-  ],
-  engineering: [
-    { key: 'civil_engineering', icon: 'ti-building-bridge-2', label: { id: 'Teknik Sipil', en: 'Civil Engineering' } },
-    { key: 'mechanical_engineering', icon: 'ti-settings', label: { id: 'Teknik Mesin', en: 'Mechanical Engineering' } },
-    { key: 'electrical_engineering', icon: 'ti-bolt', label: { id: 'Teknik Elektro', en: 'Electrical Engineering' } },
-    { key: 'software_engineering', icon: 'ti-code', label: { id: 'Teknik Perangkat Lunak', en: 'Software Engineering' } },
-    { key: 'industrial_engineering', icon: 'ti-building-factory-2', label: { id: 'Teknik Industri', en: 'Industrial Engineering' } },
-    { key: 'aerospace_engineering', icon: 'ti-rocket', label: { id: 'Teknik Kedirgantaraan', en: 'Aerospace Engineering' } },
-    { key: 'automotive_engineering', icon: 'ti-car', label: { id: 'Teknik Otomotif', en: 'Automotive Engineering' } },
-    { key: 'environmental_engineering', icon: 'ti-leaf', label: { id: 'Teknik Lingkungan', en: 'Environmental Engineering' } },
-  ],
-  sports: [
-    { key: 'football', icon: 'ti-ball-football', label: { id: 'Sepak Bola', en: 'Football' } },
-    { key: 'basketball', icon: 'ti-ball-basketball', label: { id: 'Basket', en: 'Basketball' } },
-    { key: 'badminton', icon: 'ti-ball-badminton', label: { id: 'Bulu Tangkis', en: 'Badminton' } },
-    { key: 'olympics_history', icon: 'ti-medal', label: { id: 'Olimpiade & Sejarah Olahraga', en: 'Olympics & Sports History' } },
-    { key: 'tennis', icon: 'ti-ball-tennis', label: { id: 'Tenis', en: 'Tennis' } },
-    { key: 'esports', icon: 'ti-device-gamepad-2', label: { id: 'E-Sports', en: 'Esports' } },
-    { key: 'motorsport', icon: 'ti-steering-wheel', label: { id: 'Formula 1 / Balap', en: 'Motorsport' } },
-    { key: 'general_sports', icon: 'ti-run', label: { id: 'Olahraga Umum', en: 'General Sports' } },
-  ],
-};
-
 const TOPIC_ENTRIES: readonly TopicEntry[] = [
   { kind: 'standalone', key: 'financial', icon: 'ti-currency-dollar', label: { id: 'Keuangan', en: 'Financial' } },
   { kind: 'standalone', key: 'cryptography', icon: 'ti-lock', label: { id: 'Kriptografi', en: 'Cryptography' } },
@@ -68,21 +38,21 @@ const TOPIC_ENTRIES: readonly TopicEntry[] = [
     key: 'science',
     icon: 'ti-atom',
     label: { id: 'Science', en: 'Science' },
-    childCount: CATEGORY_CHILDREN.science.length,
+    childCount: TOPIC_CATEGORY_CHILDREN.science.length,
   },
   {
     kind: 'category',
     key: 'engineering',
     icon: 'ti-tool',
     label: { id: 'Engineering', en: 'Engineering' },
-    childCount: CATEGORY_CHILDREN.engineering.length,
+    childCount: TOPIC_CATEGORY_CHILDREN.engineering.length,
   },
   {
     kind: 'category',
     key: 'sports',
     icon: 'ti-trophy',
     label: { id: 'Olahraga', en: 'Sports' },
-    childCount: CATEGORY_CHILDREN.sports.length,
+    childCount: TOPIC_CATEGORY_CHILDREN.sports.length,
   },
 ];
 
@@ -93,7 +63,7 @@ function getAllLeafKeys(): string[] {
     (entry): entry is StandaloneTopic => entry.kind === 'standalone',
   ).map((entry) => entry.key);
 
-  const categoryChildKeys = Object.values(CATEGORY_CHILDREN).flatMap((children) =>
+  const categoryChildKeys = Object.values(TOPIC_CATEGORY_CHILDREN).flatMap((children) =>
     children.map((child) => child.key),
   );
 

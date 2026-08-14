@@ -9,6 +9,7 @@ import { mapQuestionRowToQuestionData } from '../../../../../types/question';
 import ExitConfirmModal from '../../../../../components/ExitConfirmModal';
 import DiscussionThread from '../../../../../components/DiscussionThread';
 import ReportQuestionButton from '../../../../../components/ReportQuestionButton';
+import BookmarkButton from '../../../../../components/BookmarkButton';
 import type {
   OptionKey,
   OptionVisualState,
@@ -434,16 +435,20 @@ export default function QuizPage(): JSX.Element {
         </header>
 
         <section className="rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
-          {question.context ? (
-            <p className="mb-4 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary">
-              {question.context[language]}
-            </p>
-          ) : null}
+  <div className="flex items-start justify-between gap-3">
+    <div className="flex-1">
+      {question.context ? (
+        <p className="mb-4 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary">
+          {question.context[language]}
+        </p>
+      ) : null}
 
-          <h1 className="text-lg font-semibold leading-relaxed text-text-primary">
-            {question.prompt[language]}
-          </h1>
-
+      <h1 className="text-lg font-semibold leading-relaxed text-text-primary">
+        {question.prompt[language]}
+      </h1>
+    </div>
+    <BookmarkButton questionId={question.id} />
+  </div>
           <div className="mt-6 flex flex-col gap-3">
             {OPTION_ORDER.map((optionKey) => {
               const visualState = engine.getOptionVisualState(optionKey);

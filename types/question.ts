@@ -19,7 +19,14 @@ export type SectorType =
   | 'astronomy'
   | 'earth_science'
   | 'economics'
-  | 'engineering'
+  | 'civil_engineering'
+  | 'mechanical_engineering'
+  | 'electrical_engineering'
+  | 'software_engineering'
+  | 'industrial_engineering'
+  | 'aerospace_engineering'
+  | 'automotive_engineering'
+  | 'environmental_engineering'
   | 'football'
   | 'basketball'
   | 'badminton'
@@ -224,4 +231,4 @@ export function mapQuestionRowToQuestionData(row: QuestionRow): QuestionData {
     },
     createdAt: row.created_at,
   };
-      }
+  }

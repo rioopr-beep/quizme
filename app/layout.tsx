@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import Script from 'next/script';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { LanguageProvider } from '@/context/LanguageContext';
+import MathJaxProvider from '@/components/MathJaxProvider';
 import './globals.css';
 
 const inter = Inter({
@@ -36,29 +37,37 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
         />
-
-        {/* Konfigurasi MathJax untuk merender tanda $ dan $$ */}
-        <Script id="mathjax-config" strategy="beforeInteractive">
+      </head>
+      <body className="bg-slate-50 font-sans antialiased">
+        {/* 1. Konfigurasi MathJax dipasang sebelum skrip CDN */}
+        <Script id="mathjax-config" strategy="afterInteractive">
           {`
             window.MathJax = {
               tex: {
                 inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
                 displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+              },
+              svg: {
+                fontCache: 'global'
               }
             };
           `}
         </Script>
 
-        {/* Load CDN MathJax */}
+        {/* 2. Pemanggilan skrip utama MathJax */}
         <Script
           src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
           strategy="afterInteractive"
         />
-      </head>
-      <body className="bg-slate-50 font-sans antialiased">
-        <LanguageProvider>{children}</LanguageProvider>
+
+        <LanguageProvider>
+          <MathJaxProvider>
+            {children}
+          </MathJaxProvider>
+        </LanguageProvider>
+
+        <GoogleAnalytics gaId="G-VNHDY1V50Z" />
       </body>
-      <GoogleAnalytics gaId="G-VNHDY1V50Z" />
     </html>
   );
 }

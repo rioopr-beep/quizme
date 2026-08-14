@@ -16,11 +16,25 @@ const SECTOR_LABEL: Record<string, { id: string; en: string }> = {
   cryptography: { id: 'Kriptografi', en: 'Cryptography' },
   psychology: { id: 'Psikologi', en: 'Psychology' },
   physics: { id: 'Fisika', en: 'Physics' },
-  science: { id: 'Sains Umum', en: 'General Science' },
   linguistics: { id: 'Linguistik', en: 'Linguistics' },
   'book-trivia': { id: 'Trivia Buku', en: 'Book Trivia' },
   curiosities: { id: 'Rasa Ingin Tahu', en: 'Curiosities' },
   mathematics: { id: 'Matematika', en: 'Mathematics' },
+  chemistry: { id: 'Kimia', en: 'Chemistry' },
+  biology: { id: 'Biologi', en: 'Biology' },
+  computer_science: { id: 'Ilmu Komputer', en: 'Computer Science' },
+  astronomy: { id: 'Astronomi', en: 'Astronomy' },
+  earth_science: { id: 'Ilmu Bumi', en: 'Earth Science' },
+  economics: { id: 'Ekonomi', en: 'Economics' },
+  engineering: { id: 'Teknik', en: 'Engineering' },
+  football: { id: 'Sepak Bola', en: 'Football' },
+  basketball: { id: 'Basket', en: 'Basketball' },
+  badminton: { id: 'Bulu Tangkis', en: 'Badminton' },
+  olympics_history: { id: 'Olimpiade & Sejarah Olahraga', en: 'Olympics & Sports History' },
+  tennis: { id: 'Tenis', en: 'Tennis' },
+  esports: { id: 'E-Sports', en: 'Esports' },
+  motorsport: { id: 'Formula 1 / Balap', en: 'Motorsport' },
+  general_sports: { id: 'Olahraga Umum', en: 'General Sports' },
 };
 
 export default function LeaderboardPage(): JSX.Element {
@@ -64,8 +78,8 @@ export default function LeaderboardPage(): JSX.Element {
   }, [params.sector, router]);
 
   const sectorLabel = SECTOR_LABEL[params.sector]?.[language] ?? params.sector;
-  const back = language === 'id' ? '← Kembali' : '← Back';
-  const heading = language === 'id' ? 'Papan Peringkat' : 'Leaderboard';
+  const backAriaLabel = language === 'id' ? 'Kembali' : 'Back';
+  const eyebrow = language === 'id' ? 'Papan Peringkat' : 'Leaderboard';
   const loadingText = language === 'id' ? 'Memuat…' : 'Loading…';
   const emptyText = language === 'id' ? 'Belum ada data peringkat.' : 'No ranking data yet.';
   const youLabel = language === 'id' ? 'kamu' : 'you';
@@ -85,13 +99,19 @@ export default function LeaderboardPage(): JSX.Element {
           <button
             type="button"
             onClick={() => router.push('/leaderboard')}
-            className="text-sm text-text-muted transition active:scale-95 hover:text-text-secondary"
+            aria-label={backAriaLabel}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-base-surface text-text-secondary shadow-floating-sm transition active:scale-95 hover:text-text-primary"
           >
-            {back}
+            <i className="ti ti-arrow-left text-base" />
           </button>
-          <h1 className="text-base font-semibold text-text-primary">
-            {heading} · {sectorLabel}
-          </h1>
+          <div className="flex flex-col">
+            <span className="text-[11px] uppercase tracking-wide text-text-muted">
+              {eyebrow}
+            </span>
+            <h1 className="text-lg font-semibold leading-tight text-text-primary">
+              {sectorLabel}
+            </h1>
+          </div>
         </header>
 
         {rows.length === 0 ? (
@@ -144,4 +164,4 @@ export default function LeaderboardPage(): JSX.Element {
       </div>
     </main>
   );
-                  }
+          }

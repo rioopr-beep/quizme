@@ -17,7 +17,13 @@ const TOPIC_META: readonly TopicMeta[] = [
   { key: 'cryptography', icon: 'ti-lock', label: { id: 'Kriptografi', en: 'Cryptography' } },
   { key: 'psychology', icon: 'ti-brain', label: { id: 'Psikologi', en: 'Psychology' } },
   { key: 'physics', icon: 'ti-atom-2', label: { id: 'Fisika', en: 'Physics' } },
-  { key: 'science', icon: 'ti-flask', label: { id: 'Sains Umum', en: 'General Science' } },
+  { key: 'chemistry', icon: 'ti-flask', label: { id: 'Kimia', en: 'Chemistry' } },
+  { key: 'biology', icon: 'ti-dna-2', label: { id: 'Biologi', en: 'Biology' } },
+  { key: 'computer_science', icon: 'ti-code', label: { id: 'Ilmu Komputer', en: 'Computer Science' } },
+  { key: 'astronomy', icon: 'ti-telescope', label: { id: 'Astronomi', en: 'Astronomy' } },
+  { key: 'earth_science', icon: 'ti-world', label: { id: 'Ilmu Bumi', en: 'Earth Science' } },
+  { key: 'economics', icon: 'ti-chart-line', label: { id: 'Ekonomi', en: 'Economics' } },
+  { key: 'engineering', icon: 'ti-settings', label: { id: 'Teknik', en: 'Engineering' } },
   { key: 'linguistics', icon: 'ti-language', label: { id: 'Linguistik', en: 'Linguistics' } },
   { key: 'book-trivia', icon: 'ti-book', label: { id: 'Trivia Buku', en: 'Book Trivia' } },
   { key: 'curiosities', icon: 'ti-bulb', label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' } },
@@ -103,4 +109,4 @@ export default function TopicsPage(): JSX.Element {
       </div>
     </main>
   );
-            }
+}

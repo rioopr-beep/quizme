@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 import { useLanguage } from '../../../context/LanguageContext';
 import BookmarksSection from '../../../components/BookmarksSection';
+import AvatarUpload from '../../../components/AvatarUpload';
 
 interface ProfileSummary {
   name: string;
   email: string;
+  avatarUrl: string | null;
   currentStreak: number;
   bestStreak: number;
   totalQuestions: number;
@@ -86,7 +88,7 @@ export default function ProfilePage(): JSX.Element {
       const [{ data: profile }, { data: attempts }] = await Promise.all([
         supabase
           .from('profiles')
-          .select('name, current_streak, best_streak')
+          .select('name, current_streak, best_streak, avatar_url')
           .eq('id', user.id)
           .single(),
         supabase
@@ -118,6 +120,7 @@ export default function ProfilePage(): JSX.Element {
         setSummary({
           name: profile?.name ?? '',
           email: user.email ?? '',
+          avatarUrl: profile?.avatar_url ?? null,
           currentStreak: profile?.current_streak ?? 0,
           bestStreak: profile?.best_streak ?? 0,
           totalQuestions,
@@ -218,7 +221,7 @@ export default function ProfilePage(): JSX.Element {
   const cancelLabel = language === 'id' ? 'Batal' : 'Cancel';
   const namePlaceholder = language === 'id' ? 'Masukkan username' : 'Enter username';
 
-  if (isLoading || !summary) {
+  if (isLoading || !summary || !userId) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base-bg">
         <p className="text-sm text-text-muted">{loadingText}</p>
@@ -234,9 +237,16 @@ export default function ProfilePage(): JSX.Element {
         {/* Identitas + quick stats */}
         <div className="rounded-floating bg-base-surface shadow-floating-sm p-6">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent text-lg font-semibold text-base-surface">
-              {initial}
-            </div>
+            <AvatarUpload
+              userId={userId}
+              currentAvatarUrl={summary.avatarUrl}
+              fallbackInitial={initial}
+              onUploadSuccess={(newUrl) =>
+                setSummary((previous) =>
+                  previous ? { ...previous, avatarUrl: newUrl } : previous,
+                )
+              }
+            />
             <div className="min-w-0 flex-1">
               {isEditingName ? (
                 <div className="flex flex-col gap-2">

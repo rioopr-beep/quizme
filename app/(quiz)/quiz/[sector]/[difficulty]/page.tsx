@@ -176,6 +176,7 @@ export default function QuizPage(): JSX.Element {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
+  const [isReasoningExpanded, setIsReasoningExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     if (!sector || !difficulty || !selectedCount) {
@@ -269,6 +270,10 @@ export default function QuizPage(): JSX.Element {
     }
   }, [engine.state.status, engine.state.bestStreak, sector, difficulty, questions, engine.state.answers]);
 
+  useEffect(() => {
+    setIsReasoningExpanded(false);
+  }, [engine.currentQuestion?.id]);
+
   const copy = useMemo(
     () => ({
       back: language === 'id' ? '← Kembali' : '← Back',
@@ -277,6 +282,8 @@ export default function QuizPage(): JSX.Element {
       streak: language === 'id' ? 'Beruntun' : 'Streak',
       dossierHeading: language === 'id' ? 'Dossier Pembahasan' : 'Discussion Dossier',
       reasoningHeading: language === 'id' ? 'Penalaran' : 'Reasoning',
+      showReasoning: language === 'id' ? 'Lihat detail perhitungan' : 'Show calculation details',
+      hideReasoning: language === 'id' ? 'Sembunyikan detail' : 'Hide details',
       referencesHeading: language === 'id' ? 'Referensi' : 'References',
       next: language === 'id' ? 'Soal Berikutnya' : 'Next Question',
       finish: language === 'id' ? 'Lihat Ringkasan' : 'View Summary',
@@ -482,12 +489,23 @@ export default function QuizPage(): JSX.Element {
               {question.dossier.summary[language]}
             </p>
 
-            <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
-              {copy.reasoningHeading}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-              {question.dossier.reasoning[language]}
-            </p>
+            <div className="mt-6 flex items-center justify-between">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                {copy.reasoningHeading}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsReasoningExpanded((prev) => !prev)}
+                className="text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
+              >
+                {isReasoningExpanded ? copy.hideReasoning : copy.showReasoning}
+              </button>
+            </div>
+            {isReasoningExpanded ? (
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                {question.dossier.reasoning[language]}
+              </p>
+            ) : null}
 
             {question.dossier.references.length > 0 ? (
               <>

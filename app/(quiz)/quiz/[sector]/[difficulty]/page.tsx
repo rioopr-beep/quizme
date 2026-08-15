@@ -177,6 +177,7 @@ export default function QuizPage(): JSX.Element {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
   const [isReasoningExpanded, setIsReasoningExpanded] = useState<boolean>(false);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     if (!sector || !difficulty || !selectedCount) {
@@ -272,6 +273,7 @@ export default function QuizPage(): JSX.Element {
 
   useEffect(() => {
     setIsReasoningExpanded(false);
+    setIsSummaryExpanded(false);
   }, [engine.currentQuestion?.id]);
 
   const copy = useMemo(
@@ -282,9 +284,11 @@ export default function QuizPage(): JSX.Element {
       streak: language === 'id' ? 'Beruntun' : 'Streak',
       dossierHeading: language === 'id' ? 'Dossier Pembahasan' : 'Discussion Dossier',
       reasoningHeading: language === 'id' ? 'Penalaran' : 'Reasoning',
+      referencesHeading: language === 'id' ? 'Referensi' : 'References',
       showReasoning: language === 'id' ? 'Lihat detail perhitungan' : 'Show calculation details',
       hideReasoning: language === 'id' ? 'Sembunyikan detail' : 'Hide details',
-      referencesHeading: language === 'id' ? 'Referensi' : 'References',
+      showSummary: language === 'id' ? 'Baca selengkapnya' : 'Read more',
+      hideSummary: language === 'id' ? 'Ringkas' : 'Show less',
       next: language === 'id' ? 'Soal Berikutnya' : 'Next Question',
       finish: language === 'id' ? 'Lihat Ringkasan' : 'View Summary',
       loading: language === 'id' ? 'Memuat studi kasus…' : 'Loading case studies…',
@@ -485,9 +489,21 @@ export default function QuizPage(): JSX.Element {
               </h2>
               <ReportQuestionButton questionId={question.id} />
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-text-primary">
+
+            <p
+              className={`mt-3 text-sm leading-relaxed text-text-primary ${
+                isSummaryExpanded ? '' : 'line-clamp-2'
+              }`}
+            >
               {question.dossier.summary[language]}
             </p>
+            <button
+              type="button"
+              onClick={() => setIsSummaryExpanded((prev) => !prev)}
+              className="mt-1 text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
+            >
+              {isSummaryExpanded ? copy.hideSummary : copy.showSummary}
+            </button>
 
             <div className="mt-6 flex items-center justify-between">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
@@ -554,4 +570,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-        }
+    }

@@ -56,6 +56,7 @@ export default function BookmarksSection(): JSX.Element {
   const [items, setItems] = useState<readonly BookmarkedQuestion[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [isRoomOpen, setIsRoomOpen] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -103,6 +104,18 @@ export default function BookmarksSection(): JSX.Element {
     };
   }, []);
 
+  // Kunci scroll body saat room terbuka, biar nggak scroll ganda di belakang overlay
+  useEffect(() => {
+    if (isRoomOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isRoomOpen]);
+
   async function removeBookmark(bookmarkId: string): Promise<void> {
     const supabase = getSupabaseBrowserClient();
     await supabase.from('bookmarks').delete().eq('id', bookmarkId);
@@ -115,77 +128,117 @@ export default function BookmarksSection(): JSX.Element {
     language === 'id' ? 'Belum ada soal yang disimpan.' : 'No bookmarked questions yet.';
   const removeLabel = language === 'id' ? 'Hapus' : 'Remove';
   const reasoningHeading = language === 'id' ? 'Penalaran' : 'Reasoning';
+  const countLabel =
+    language === 'id'
+      ? `${items.length} soal disimpan`
+      : `${items.length} saved question${items.length === 1 ? '' : 's'}`;
 
   if (isLoading) return <></>;
 
-  return (
-    <div className="rounded-floating bg-base-surface shadow-floating-sm p-6">
-      <p className="mb-4 text-sm font-semibold text-text-primary">{heading}</p>
+  const list = (
+    <div className="flex flex-col gap-2">
+      {items.map((item) => {
+        const isExpanded = expandedId === item.bookmarkId;
+        const sectorLabel = SECTOR_LABEL[item.sector]?.[language] ?? item.sector;
+        const promptText = language === 'id' ? item.promptId : item.promptEn;
+        const contextText = language === 'id' ? item.contextId : item.contextEn;
 
-      {items.length === 0 ? (
-        <p className="text-sm text-text-muted">{emptyText}</p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {items.map((item) => {
-            const isExpanded = expandedId === item.bookmarkId;
-            const sectorLabel = SECTOR_LABEL[item.sector]?.[language] ?? item.sector;
-            const promptText = language === 'id' ? item.promptId : item.promptEn;
-            const contextText = language === 'id' ? item.contextId : item.contextEn;
+        return (
+          <div key={item.bookmarkId} className="rounded-floating bg-base-bg">
+            <button
+              type="button"
+              onClick={() => setExpandedId(isExpanded ? null : item.bookmarkId)}
+              className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left"
+            >
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] font-medium uppercase tracking-wide text-accent">
+                  {sectorLabel}
+                </span>
+                <p className="mt-0.5 truncate text-sm text-text-secondary">{promptText}</p>
+              </div>
+              <i
+                className={`ti ti-chevron-${isExpanded ? 'up' : 'down'} mt-1 shrink-0 text-sm text-text-muted`}
+                aria-hidden="true"
+              />
+            </button>
 
-            return (
-              <div key={item.bookmarkId} className="rounded-floating bg-base-bg">
+            {isExpanded ? (
+              <div className="border-t border-base-border px-4 py-3.5">
+                {contextText ? (
+                  <p className="mb-3 text-xs leading-relaxed text-text-muted">{contextText}</p>
+                ) : null}
+                <p className="text-sm leading-relaxed text-text-primary">{promptText}</p>
+
+                {item.dossier ? (
+                  <>
+                    <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+                      {item.dossier.summary[language]}
+                    </p>
+                    <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
+                      {reasoningHeading}
+                    </h4>
+                    <p className="mt-1 text-sm leading-relaxed text-text-secondary">
+                      {item.dossier.reasoning[language]}
+                    </p>
+                  </>
+                ) : null}
+
                 <button
                   type="button"
-                  onClick={() => setExpandedId(isExpanded ? null : item.bookmarkId)}
-                  className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left"
+                  onClick={() => void removeBookmark(item.bookmarkId)}
+                  className="mt-4 text-xs font-medium text-status-incorrect transition active:scale-95 hover:opacity-80"
                 >
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-accent">
-                      {sectorLabel}
-                    </span>
-                    <p className="mt-0.5 truncate text-sm text-text-secondary">{promptText}</p>
-                  </div>
-                  <i
-                    className={`ti ti-chevron-${isExpanded ? 'up' : 'down'} mt-1 shrink-0 text-sm text-text-muted`}
-                    aria-hidden="true"
-                  />
+                  {removeLabel}
                 </button>
-
-                {isExpanded ? (
-                  <div className="border-t border-base-border px-4 py-3.5">
-                    {contextText ? (
-                      <p className="mb-3 text-xs leading-relaxed text-text-muted">{contextText}</p>
-                    ) : null}
-                    <p className="text-sm leading-relaxed text-text-primary">{promptText}</p>
-
-                    {item.dossier ? (
-                      <>
-                        <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-                          {item.dossier.summary[language]}
-                        </p>
-                        <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                          {reasoningHeading}
-                        </h4>
-                        <p className="mt-1 text-sm leading-relaxed text-text-secondary">
-                          {item.dossier.reasoning[language]}
-                        </p>
-                      </>
-                    ) : null}
-
-                    <button
-                      type="button"
-                      onClick={() => void removeBookmark(item.bookmarkId)}
-                      className="mt-4 text-xs font-medium text-status-incorrect transition active:scale-95 hover:opacity-80"
-                    >
-                      {removeLabel}
-                    </button>
-                  </div>
-                ) : null}
               </div>
-            );
-          })}
-        </div>
-      )}
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
-}
+
+  return (
+    <>
+      {/* Card ringkasan di halaman Profile */}
+      <button
+        type="button"
+        onClick={() => setIsRoomOpen(true)}
+        disabled={items.length === 0}
+        className="flex w-full items-center justify-between rounded-floating bg-base-surface shadow-floating-sm p-6 text-left transition active:scale-[0.99] disabled:active:scale-100"
+      >
+        <div>
+          <p className="text-sm font-semibold text-text-primary">{heading}</p>
+          <p className="mt-0.5 text-xs text-text-muted">
+            {items.length === 0 ? emptyText : countLabel}
+          </p>
+        </div>
+        {items.length > 0 ? (
+          <i className="ti ti-chevron-right shrink-0 text-lg text-text-muted" aria-hidden="true" />
+        ) : null}
+      </button>
+
+      {/* "Ruangan" fullscreen berisi semua bookmark */}
+      {isRoomOpen ? (
+        <div className="fixed inset-0 z-50 flex flex-col bg-base-bg">
+          <div className="flex shrink-0 items-center justify-between border-b border-base-border bg-base-surface px-6 py-4">
+            <div>
+              <p className="text-sm font-semibold text-text-primary">{heading}</p>
+              <p className="text-xs text-text-muted">{countLabel}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsRoomOpen(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-base-bg text-text-secondary transition active:scale-95"
+              aria-label={language === 'id' ? 'Tutup' : 'Close'}
+            >
+              <i className="ti ti-x text-base" aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-6 py-4">{list}</div>
+        </div>
+      ) : null}
+    </>
+  );
+      }

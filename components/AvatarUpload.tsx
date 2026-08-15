@@ -1,15 +1,19 @@
 'use client';
 
 import { useState, useRef, ChangeEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '../lib/supabase/client';
 
 interface AvatarUploadProps {
+  readonly userId: string;
   readonly currentAvatarUrl: string | null;
+  readonly fallbackInitial: string;
   readonly onUploadSuccess: (newUrl: string) => void;
 }
 
 export default function AvatarUpload({
+  userId,
   currentAvatarUrl,
+  fallbackInitial,
   onUploadSuccess,
 }: AvatarUploadProps): JSX.Element {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -46,19 +50,9 @@ export default function AvatarUpload({
     setErrorMessage(null);
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        setErrorMessage('Kamu harus login untuk mengganti foto profil');
-        setIsUploading(false);
-        return;
-      }
-
       const formData = new FormData();
       formData.append('file', selectedFile);
-      formData.append('userId', user.id);
+      formData.append('userId', userId);
 
       const response = await fetch('/api/upload-avatar', {
         method: 'POST',
@@ -73,11 +67,11 @@ export default function AvatarUpload({
         return;
       }
 
-      // Simpan URL baru ke tabel profiles
+      const supabase = getSupabaseBrowserClient();
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: result.url })
-        .eq('id', user.id);
+        .eq('id', userId);
 
       if (updateError) {
         setErrorMessage('Foto terupload tapi gagal disimpan ke profil');
@@ -111,62 +105,55 @@ export default function AvatarUpload({
   const displayUrl = previewUrl ?? currentAvatarUrl;
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="h-24 w-24 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
-        {displayUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={displayUrl}
-            alt="Foto profil"
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-slate-400">
-            ?
-          </div>
-        )}
-      </div>
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative">
+        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent text-lg font-semibold text-base-surface">
+          {displayUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={displayUrl} alt="Foto profil" className="h-full w-full object-cover" />
+          ) : (
+            fallbackInitial
+          )}
+        </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileSelect}
-        className="hidden"
-        id="avatar-file-input"
-      />
-
-      {!selectedFile ? (
         <label
           htmlFor="avatar-file-input"
-          className="cursor-pointer rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700"
+          className="absolute -bottom-1 -right-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-base-surface shadow-floating-sm"
         >
-          Pilih Foto
+          <i className="ti ti-camera text-[10px] text-text-secondary" aria-hidden="true" />
         </label>
-      ) : (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+          id="avatar-file-input"
+        />
+      </div>
+
+      {selectedFile && (
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={handleUpload}
+            onClick={() => void handleUpload()}
             disabled={isUploading}
-            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-base-surface disabled:opacity-60"
           >
-            {isUploading ? 'Menyimpan...' : 'Simpan'}
+            {isUploading ? '...' : 'Simpan'}
           </button>
           <button
             type="button"
             onClick={handleCancel}
             disabled={isUploading}
-            className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-50"
+            className="rounded-full bg-base-bg px-3 py-1 text-xs font-medium text-text-secondary disabled:opacity-60"
           >
             Batal
           </button>
         </div>
       )}
 
-      {errorMessage && (
-        <p className="text-sm text-red-500">{errorMessage}</p>
-      )}
+      {errorMessage && <p className="text-xs text-status-incorrect">{errorMessage}</p>}
     </div>
   );
-      }
+}

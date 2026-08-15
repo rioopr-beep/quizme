@@ -111,7 +111,7 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
 
 function splitReasoningSteps(text: string): string[] {
   return text
-    .split(/(?=Step\s*\d+\s*:)/gi)
+    .split(/(?=(?:Step|Langkah)\s*\d+\s*:)/gi)
     .map((part) => part.replace(/^\.\s*/, '').replace(/\.\s*$/, '').trim())
     .filter((part) => part.length > 0);
 }
@@ -489,7 +489,7 @@ export default function QuizPage(): JSX.Element {
         </section>
 
         {engine.state.isRevealed ? (
-          <section className="rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
+          <section className="overflow-hidden rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
                 {copy.dossierHeading}
@@ -527,9 +527,11 @@ export default function QuizPage(): JSX.Element {
             {isReasoningExpanded ? (
               <div className="mt-2 flex flex-col gap-4">
                 {splitReasoningSteps(question.dossier.reasoning[language]).map((step, index) => (
-                  <p key={index} className="text-sm leading-relaxed text-text-secondary">
-                    {step}
-                  </p>
+                  <div key={index} className="overflow-x-auto">
+                    <p className="text-sm leading-relaxed text-text-secondary">
+                      {step}
+                    </p>
+                  </div>
                 ))}
               </div>
             ) : null}
@@ -581,4 +583,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-          }
+         }

@@ -21,31 +21,47 @@ interface MathJaxProviderProps {
 export default function MathJaxProvider({ children }: MathJaxProviderProps): JSX.Element {
   const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<MutationObserver | null>(null);
+  const isTypesettingRef = useRef(false);
 
   const typeset = () => {
     const mj = window.MathJax;
-    if (!mj?.typesetPromise) return;
+    if (!mj?.typesetPromise || isTypesettingRef.current) return;
 
-    // Kalau MathJax masih dalam proses startup, tunggu promise-nya dulu
+    isTypesettingRef.current = true;
+    // Matikan observer sementara supaya perubahan DOM yang dibuat
+    // oleh MathJax sendiri (ganti teks -> render rumus) tidak memicu
+    // observer lagi dan bikin loop tak berhenti.
+    observerRef.current?.disconnect();
+
     const ready = mj.startup?.promise ?? Promise.resolve();
     ready
       .then(() => mj.typesetPromise?.())
-      .catch((err) => console.error('MathJax rendering error:', err));
+      .catch((err) => console.error('MathJax rendering error:', err))
+      .finally(() => {
+        isTypesettingRef.current = false;
+        // Nyalakan lagi observer setelah MathJax selesai mengubah DOM
+        if (containerRef.current && observerRef.current) {
+          observerRef.current.observe(containerRef.current, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+          });
+        }
+      });
   };
 
-  // Re-typeset saat pindah halaman
   useEffect(() => {
     typeset();
   }, [pathname]);
 
-  // Re-typeset setiap kali konten di dalam container berubah
-  // (misalnya soal baru selesai di-fetch dari Supabase dan ditulis ke DOM)
   useEffect(() => {
     if (!containerRef.current) return;
 
     const observer = new MutationObserver(() => {
       typeset();
     });
+    observerRef.current = observer;
 
     observer.observe(containerRef.current, {
       childList: true,

@@ -1,12 +1,15 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, ReactNode } from 'react';
+import { useEffect, useRef, ReactNode } from 'react';
 
 declare global {
   interface Window {
     MathJax?: {
-      typesetPromise?: () => Promise<void>;
+      typesetPromise?: (elements?: Element[]) => Promise<void>;
+      startup?: {
+        promise?: Promise<void>;
+      };
     };
   }
 }
@@ -17,15 +20,41 @@ interface MathJaxProviderProps {
 
 export default function MathJaxProvider({ children }: MathJaxProviderProps): JSX.Element {
   const pathname = usePathname();
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  const typeset = () => {
+    const mj = window.MathJax;
+    if (!mj?.typesetPromise) return;
+
+    // Kalau MathJax masih dalam proses startup, tunggu promise-nya dulu
+    const ready = mj.startup?.promise ?? Promise.resolve();
+    ready
+      .then(() => mj.typesetPromise?.())
+      .catch((err) => console.error('MathJax rendering error:', err));
+  };
+
+  // Re-typeset saat pindah halaman
   useEffect(() => {
-    // Memastikan MathJax tersedia di window lalu memicu re-render rumus
-    if (typeof window !== 'undefined' && window.MathJax?.typesetPromise) {
-      window.MathJax.typesetPromise().catch((err) => {
-        console.error('MathJax rendering error:', err);
-      });
-    }
-  }, [pathname, children]);
+    typeset();
+  }, [pathname]);
 
-  return <>{children}</>;
+  // Re-typeset setiap kali konten di dalam container berubah
+  // (misalnya soal baru selesai di-fetch dari Supabase dan ditulis ke DOM)
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new MutationObserver(() => {
+      typeset();
+    });
+
+    observer.observe(containerRef.current, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return <div ref={containerRef}>{children}</div>;
 }

@@ -109,6 +109,13 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
   };
 }
 
+function splitReasoningSteps(text: string): string[] {
+  return text
+    .split(/(?=Step\s*\d+\s*:)/gi)
+    .map((part) => part.replace(/^\.\s*/, '').replace(/\.\s*$/, '').trim())
+    .filter((part) => part.length > 0);
+}
+
 async function persistBestStreak(candidate: number): Promise<void> {
   // Streak sekarang dihitung dari check-in (lihat CheckInCard.tsx),
   // bukan dari jawaban benar beruntun. Fungsi ini sengaja tidak lagi
@@ -518,9 +525,13 @@ export default function QuizPage(): JSX.Element {
               </button>
             </div>
             {isReasoningExpanded ? (
-              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                {question.dossier.reasoning[language]}
-              </p>
+              <div className="mt-2 flex flex-col gap-4">
+                {splitReasoningSteps(question.dossier.reasoning[language]).map((step, index) => (
+                  <p key={index} className="text-sm leading-relaxed text-text-secondary">
+                    {step}
+                  </p>
+                ))}
+              </div>
             ) : null}
 
             {question.dossier.references.length > 0 ? (
@@ -570,4 +581,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-    }
+          }

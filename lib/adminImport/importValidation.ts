@@ -63,14 +63,19 @@ export interface ValidationResult {
 // Sanitasi backslash LaTeX yang invalid di teks JSON mentah
 // ============================================================================
 
-// JSON cuma mengizinkan backslash diikuti oleh salah satu dari: " \ / b f n r t u
-// Soal Matematika/Kimia sering mengandung LaTeX (\approx, \frac, \alpha, dst)
-// yang kadang ditulis AI generator dengan single backslash (bukan \\approx),
-// dan itu bikin JSON.parse gagal total ("Bad escaped character"). Fungsi ini
-// men-dobel backslash yang TIDAK diikuti karakter escape valid, tanpa
-// mengubah escape yang memang sudah benar (\\, \n, \t, dll).
+// Escape yang beneran dipakai di dataset ini cuma: \\ (backslash literal),
+// \" (kutip di dalam string), dan \n (newline, dipakai di context_id/
+// context_en untuk baris baru bernomor). Huruf lain setelah backslash
+// (t, r, b, f, u, a, d, dst) hampir selalu awal command LaTeX (\text,
+// \delta, \approx, \tan, \rightleftharpoons) yang lupa di-double-escape
+// AI generator — semua itu di-treat sebagai butuh di-escape.
+//
+// PENTING: dicocokkan sebagai PASANGAN (\\\\ dulu, baru \\ tunggal), bukan
+// per-karakter — supaya backslash yang SUDAH benar di-escape dobel (\\delta)
+// gak ikut ke-proses ulang jadi \\\delta (3 backslash, invalid). Versi
+// per-karakter sebelumnya punya bug persis ini.
 export function sanitizeInvalidJsonEscapes(raw: string): string {
-  return raw.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
+  return raw.replace(/\\\\|\\["\\n]|\\/g, (match) => (match === '\\' ? '\\\\' : match));
 }
 
 // ============================================================================
@@ -312,4 +317,4 @@ export function validateSchoolRows(rawRows: RawQuestionInput[]): ValidationResul
 
 export function validateRows(target: ImportTarget, rawRows: RawQuestionInput[]): ValidationResult {
   return target === 'sector' ? validateSectorRows(rawRows) : validateSchoolRows(rawRows);
-  }
+      }

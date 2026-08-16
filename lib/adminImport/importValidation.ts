@@ -104,7 +104,18 @@ function jsonbLiteralToValue(expr: unknown): unknown {
   return null;
 }
 
-export function parseSqlInsert(raw: string): { columns: string[]; rows: unknown[][] } {
+// Ubah dollar-quoting Postgres ($$...$$) jadi single-quote biasa ('...'),
+// karena node-sql-parser tidak mengerti sintaks $$ khas Postgres.
+// Semua tanda kutip tunggal literal di dalamnya di-escape jadi '' (standar SQL).
+function normalizeDollarQuoting(raw: string): string {
+  return raw.replace(/\$\$([\s\S]*?)\$\$/g, (_match, inner: string) => {
+    const escaped = inner.replace(/'/g, "''");
+    return `'${escaped}'`;
+  });
+}
+
+export function parseSqlInsert(rawInput: string): { columns: string[]; rows: unknown[][] } {
+  const raw = normalizeDollarQuoting(rawInput);
   const parser = new Parser();
   let ast: unknown;
 
@@ -127,6 +138,7 @@ export function parseSqlInsert(raw: string): { columns: string[]; rows: unknown[
   const valuesClause = stmt.values as Array<{ value: unknown[] }>;
 
   const rows = valuesClause.map((v) => v.value.map((expr) => jsonbLiteralToValue(expr)));
+
 
   return { columns, rows };
 }
@@ -268,4 +280,4 @@ export function validateSchoolRows(rawRows: RawQuestionInput[]): ValidationResul
 
 export function validateRows(target: ImportTarget, rawRows: RawQuestionInput[]): ValidationResult {
   return target === 'sector' ? validateSectorRows(rawRows) : validateSchoolRows(rawRows);
-}
+        }

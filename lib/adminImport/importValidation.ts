@@ -86,10 +86,22 @@ function jsonbLiteralToValue(expr: unknown): unknown {
     }
 
     if (typeof node.value === 'string') {
+      // node-sql-parser tidak meng-unescape '' (doubled single-quote, standar
+      // escaping SQL) balik jadi ' — teks Indonesia yang pakai tanda kutip
+      // tunggal untuk penekanan istilah (mis. 'pencemaran') bakal ke-dobel
+      // jadi ''pencemaran'' oleh normalizeDollarQuoting, dan bikin
+      // JSON.parse gagal kalau tidak di-fix dulu.
+      const unescaped = node.value.replace(/''/g, "'");
       try {
-        return JSON.parse(node.value);
+        return JSON.parse(unescaped);
       } catch {
-        return node.value;
+        // fallback: coba versi asli (belum di-unescape), siapa tau memang
+        // bukan kasus ini
+        try {
+          return JSON.parse(node.value);
+        } catch {
+          return node.value;
+        }
       }
     }
 
@@ -286,4 +298,4 @@ export function validateSchoolRows(rawRows: RawQuestionInput[]): ValidationResul
 
 export function validateRows(target: ImportTarget, rawRows: RawQuestionInput[]): ValidationResult {
   return target === 'sector' ? validateSectorRows(rawRows) : validateSchoolRows(rawRows);
-                                    }
+        }

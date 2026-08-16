@@ -4,6 +4,7 @@ import {
   detectInputFormat,
   parseSqlInsert,
   sqlRowsToObjects,
+  sanitizeInvalidJsonEscapes,
   validateRows,
   type ImportTarget,
   type RawQuestionInput,
@@ -81,7 +82,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     if (format === 'json') {
-      const parsed = JSON.parse(raw);
+      // Sanitasi backslash LaTeX (\approx, \frac, dst) yang di-escape
+      // asal-asalan oleh AI generator sebelum JSON.parse, karena backslash
+      // tunggal yang diikuti huruf non-escape (mis. \a, \f di luar konteks
+      // \\, \n, dst) bikin parse gagal total ("Bad escaped character").
+      const sanitized = sanitizeInvalidJsonEscapes(raw);
+      const parsed = JSON.parse(sanitized);
       rawRows = Array.isArray(parsed) ? parsed : [parsed];
     } else {
       const { columns, rows } = parseSqlInsert(raw);
@@ -139,4 +145,4 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     validationErrors: errors,
     dbErrors,
   });
-}
+        }

@@ -180,7 +180,13 @@ function validateCommonFields(row: RawQuestionInput, rowIndex: number, errors: V
     errors.push({ row: rowIndex, message: `correct_option harus huruf A/B/C/D, ditemukan: ${JSON.stringify(row.correct_option)}` });
   }
   if (!row.dossier || typeof row.dossier !== 'object') {
-    errors.push({ row: rowIndex, message: 'dossier kosong/bukan object' });
+    const actualType = typeof row.dossier;
+    const preview =
+      actualType === 'string' ? (row.dossier as string).slice(0, 80) : JSON.stringify(row.dossier).slice(0, 80);
+    errors.push({
+      row: rowIndex,
+      message: `dossier kosong/bukan object (tipe diterima: ${actualType}, cuplikan: ${preview}...)`,
+    });
   }
 }
 
@@ -280,4 +286,4 @@ export function validateSchoolRows(rawRows: RawQuestionInput[]): ValidationResul
 
 export function validateRows(target: ImportTarget, rawRows: RawQuestionInput[]): ValidationResult {
   return target === 'sector' ? validateSectorRows(rawRows) : validateSchoolRows(rawRows);
-        }
+                                    }

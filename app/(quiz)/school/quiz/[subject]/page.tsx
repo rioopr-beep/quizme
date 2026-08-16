@@ -107,6 +107,14 @@ function splitReasoningSteps(text: string): string[] {
     .filter((part) => part.length > 0);
 }
 
+// Referensi bisa berupa URL asli (sector biasa, sumber artikel web) atau
+// sitasi teks buku/PDF (kolam sekolah, mis. "Ilmu Pengetahuan Alam untuk
+// SMP/MTs Kelas IX..."). Cuma yang beneran URL yang layak jadi <a> + truncate;
+// sitasi teks harus tampil penuh (wrap ke bawah), bukan dipotong kayak link.
+function isUrlReference(reference: string): boolean {
+  return /^https?:\/\//i.test(reference.trim());
+}
+
 function inferLevelAndTrack(subject: string): { level: SchoolLevel; track: SmaTrack | null } {
   if (subject.startsWith('sd_')) return { level: 'sd', track: null };
   if (subject.startsWith('smp_')) return { level: 'smp', track: null };
@@ -444,20 +452,26 @@ export default function SchoolQuizPage(): JSX.Element {
                 <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
                   {copy.referencesHeading}
                 </h3>
-                <ul className="mt-2 flex flex-col gap-1">
-                  {question.dossier.references.map((reference) => (
-                    <li key={reference}>
-                      <a
-                        href={reference}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
-                        title={reference}
-                      >
-                        {reference}
-                      </a>
-                    </li>
-                  ))}
+                <ul className="mt-2 flex flex-col gap-2">
+                  {question.dossier.references.map((reference) =>
+                    isUrlReference(reference) ? (
+                      <li key={reference}>
+                        <a
+                          href={reference}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
+                          title={reference}
+                        >
+                          {reference}
+                        </a>
+                      </li>
+                    ) : (
+                      <li key={reference}>
+                        <p className="text-xs leading-relaxed text-text-muted">{reference}</p>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </>
             ) : null}
@@ -483,4 +497,4 @@ export default function SchoolQuizPage(): JSX.Element {
       />
     </main>
   );
-}
+    }

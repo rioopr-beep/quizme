@@ -117,11 +117,27 @@ export default function TopicsPage(): JSX.Element {
 
   const heading = language === 'id' ? 'Topik' : 'Topics';
   const subTopicsLabel = language === 'id' ? 'sub-topik' : 'sub-topics';
+  const schoolLabel = language === 'id' ? 'Sekolah' : 'School';
+  const schoolSubtitle = language === 'id' ? 'SD • SMP • SMA/SMK' : 'Elementary • Junior • Senior High';
 
   return (
     <main className="min-h-screen bg-base-bg px-6 py-10 sm:px-10">
       <div className="mx-auto max-w-5xl">
         <h1 className="text-xl font-semibold text-text-primary mb-6">{heading}</h1>
+
+        {/* Card khusus Sekolah — dipisah visual dari grid topik biasa, warna netral bukan accent */}
+        <Link
+          href="/school"
+          className="mb-6 flex items-center gap-4 rounded-floating bg-slate-800 p-5 text-white shadow-floating-sm transition active:scale-[0.98] hover:shadow-floating"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
+            <i className="ti ti-school text-2xl" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold">{schoolLabel}</p>
+            <p className="mt-0.5 text-[11px] text-white/70">{schoolSubtitle}</p>
+          </div>
+        </Link>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {TOPIC_ENTRIES.map((topic) => {
@@ -156,4 +172,4 @@ export default function TopicsPage(): JSX.Element {
       </div>
     </main>
   );
-}
+      }

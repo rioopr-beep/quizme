@@ -16,11 +16,13 @@ interface ImportRequestBody {
   raw: string;
 }
 
-async function isRequesterAdmin(request: NextRequest): Promise<boolean> {
+async function checkAdminAccess(request: NextRequest): Promise<{ isAdmin: boolean; reason: string }> {
   const authHeader = request.headers.get('authorization');
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
 
-  if (!token) return false;
+  if (!token) {
+    return { isAdmin: false, reason: 'Tidak ada token di header request (client gagal kirim session).' };
+  }
 
   const supabaseAdmin = getSupabaseAdminClient();
 
@@ -29,21 +31,31 @@ async function isRequesterAdmin(request: NextRequest): Promise<boolean> {
     error: userError,
   } = await supabaseAdmin.auth.getUser(token);
 
-  if (userError || !user) return false;
+  if (userError || !user) {
+    return { isAdmin: false, reason: `Token tidak valid/expired: ${userError?.message ?? 'user tidak ditemukan'}` };
+  }
 
-  const { data: profile } = await supabaseAdmin
+  const { data: profile, error: profileError } = await supabaseAdmin
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single();
 
-  return profile?.role === 'admin';
+  if (profileError) {
+    return { isAdmin: false, reason: `Gagal baca profile: ${profileError.message}` };
+  }
+
+  if (profile?.role !== 'admin') {
+    return { isAdmin: false, reason: `Role user ini adalah "${profile?.role ?? 'null'}", bukan "admin". User ID: ${user.id}` };
+  }
+
+  return { isAdmin: true, reason: 'ok' };
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const isAdmin = await isRequesterAdmin(request);
+  const { isAdmin, reason } = await checkAdminAccess(request);
   if (!isAdmin) {
-    return NextResponse.json({ error: 'Tidak diizinkan. Halaman ini khusus admin.' }, { status: 403 });
+    return NextResponse.json({ error: `Tidak diizinkan. Detail: ${reason}` }, { status: 403 });
   }
 
   let body: ImportRequestBody;

@@ -60,6 +60,20 @@ export interface ValidationResult {
 }
 
 // ============================================================================
+// Sanitasi backslash LaTeX yang invalid di teks JSON mentah
+// ============================================================================
+
+// JSON cuma mengizinkan backslash diikuti oleh salah satu dari: " \ / b f n r t u
+// Soal Matematika/Kimia sering mengandung LaTeX (\approx, \frac, \alpha, dst)
+// yang kadang ditulis AI generator dengan single backslash (bukan \\approx),
+// dan itu bikin JSON.parse gagal total ("Bad escaped character"). Fungsi ini
+// men-dobel backslash yang TIDAK diikuti karakter escape valid, tanpa
+// mengubah escape yang memang sudah benar (\\, \n, \t, dll).
+export function sanitizeInvalidJsonEscapes(raw: string): string {
+  return raw.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
+}
+
+// ============================================================================
 // Deteksi format input: JSON array vs SQL INSERT
 // ============================================================================
 
@@ -298,4 +312,4 @@ export function validateSchoolRows(rawRows: RawQuestionInput[]): ValidationResul
 
 export function validateRows(target: ImportTarget, rawRows: RawQuestionInput[]): ValidationResult {
   return target === 'sector' ? validateSectorRows(rawRows) : validateSchoolRows(rawRows);
-        }
+  }

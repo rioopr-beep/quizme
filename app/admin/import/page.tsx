@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../../context/LanguageContext';
+import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 
 type ImportTarget = 'sector' | 'school';
 
@@ -45,9 +46,24 @@ export default function AdminImportPage(): JSX.Element {
     setSubmitError(null);
 
     try {
+      const supabase = getSupabaseBrowserClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setSubmitError(
+          language === 'id' ? 'Sesi login habis, silakan login ulang.' : 'Session expired, please log in again.',
+        );
+        return;
+      }
+
       const response = await fetch('/api/admin/import-questions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({ target, raw }),
       });
 

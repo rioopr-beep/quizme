@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { getSupabaseAdminClient } from '../../../../lib/supabase/admin';
 import {
   detectInputFormat,
@@ -18,15 +16,22 @@ interface ImportRequestBody {
   raw: string;
 }
 
-async function isRequesterAdmin(): Promise<boolean> {
-  const supabase = createRouteHandlerClient({ cookies });
+async function isRequesterAdmin(request: NextRequest): Promise<boolean> {
+  const authHeader = request.headers.get('authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
+
+  if (!token) return false;
+
+  const supabaseAdmin = getSupabaseAdminClient();
+
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+    error: userError,
+  } = await supabaseAdmin.auth.getUser(token);
 
-  if (!user) return false;
+  if (userError || !user) return false;
 
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('role')
     .eq('id', user.id)
@@ -36,7 +41,7 @@ async function isRequesterAdmin(): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const isAdmin = await isRequesterAdmin();
+  const isAdmin = await isRequesterAdmin(request);
   if (!isAdmin) {
     return NextResponse.json({ error: 'Tidak diizinkan. Halaman ini khusus admin.' }, { status: 403 });
   }

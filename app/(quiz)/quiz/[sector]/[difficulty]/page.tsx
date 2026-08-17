@@ -85,6 +85,29 @@ function shuffleArray<T>(array: readonly T[]): T[] {
   return result;
 }
 
+// Ganti semua penyebutan "opsi X" / "option X" supaya ikut huruf posisi BARU
+// setelah shuffle, bukan huruf posisi lama yang tersimpan di database.
+// Menerima string ATAU array of steps (dossier.reasoning bisa dua-duanya,
+// tergantung soal — lihat catatan migrasi mechanical_engineering sebelumnya).
+function remapLettersInString(text: string, oldToNewKey: Record<OptionKey, OptionKey>): string {
+  if (!text) return text;
+  return text.replace(/\b(opsi|option)\s+([A-D])\b/gi, (_match, label: string, letter: string) => {
+    const oldKey = letter.toUpperCase() as OptionKey;
+    const newKey = oldToNewKey[oldKey] ?? oldKey;
+    return `${label} ${newKey}`;
+  });
+}
+
+function remapOptionLettersInText(
+  text: string | string[],
+  oldToNewKey: Record<OptionKey, OptionKey>,
+): string | string[] {
+  if (Array.isArray(text)) {
+    return text.map((part) => remapLettersInString(part, oldToNewKey));
+  }
+  return remapLettersInString(text, oldToNewKey);
+}
+
 function shuffleQuestionOptions(question: QuestionData): QuestionData {
   const keys: OptionKey[] = ['A', 'B', 'C', 'D'];
   const shuffledKeys = shuffleArray(keys);
@@ -93,10 +116,15 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
   const newOptionsEn: Record<OptionKey, string> = {} as Record<OptionKey, string>;
   let newCorrectOption: OptionKey = question.correctOption;
 
+  // oldKey -> newKey: dipakai buat nge-remap huruf opsi yang disebut di teks
+  // dossier (mis. "Pilih opsi B") biar sinkron sama posisi baru hasil shuffle
+  const oldToNewKey: Record<OptionKey, OptionKey> = {} as Record<OptionKey, OptionKey>;
+
   keys.forEach((newKey, index) => {
     const originalKey = shuffledKeys[index];
     newOptionsId[newKey] = question.options.id[originalKey];
     newOptionsEn[newKey] = question.options.en[originalKey];
+    oldToNewKey[originalKey] = newKey;
     if (originalKey === question.correctOption) {
       newCorrectOption = newKey;
     }
@@ -106,6 +134,17 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
     ...question,
     options: { id: newOptionsId, en: newOptionsEn },
     correctOption: newCorrectOption,
+    dossier: {
+      ...question.dossier,
+      summary: {
+        id: remapLettersInString(question.dossier.summary.id, oldToNewKey),
+        en: remapLettersInString(question.dossier.summary.en, oldToNewKey),
+      },
+      reasoning: {
+        id: remapOptionLettersInText(question.dossier.reasoning.id, oldToNewKey),
+        en: remapOptionLettersInText(question.dossier.reasoning.en, oldToNewKey),
+      },
+    },
   };
 }
 
@@ -456,20 +495,20 @@ export default function QuizPage(): JSX.Element {
         </header>
 
         <section className="rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
-  <div className="flex items-start justify-between gap-3">
-    <div className="flex-1">
-      {question.context ? (
-        <p className="mb-4 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary">
-          {question.context[language]}
-        </p>
-      ) : null}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1">
+              {question.context ? (
+                <p className="mb-4 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary">
+                  {question.context[language]}
+                </p>
+              ) : null}
 
-      <h1 className="text-lg font-semibold leading-relaxed text-text-primary">
-        {question.prompt[language]}
-      </h1>
-    </div>
-    <BookmarkButton questionId={question.id} />
-  </div>
+              <h1 className="text-lg font-semibold leading-relaxed text-text-primary">
+                {question.prompt[language]}
+              </h1>
+            </div>
+            <BookmarkButton questionId={question.id} />
+          </div>
           <div className="mt-6 flex flex-col gap-3">
             {OPTION_ORDER.map((optionKey) => {
               const visualState = engine.getOptionVisualState(optionKey);
@@ -586,4 +625,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-         }
+}

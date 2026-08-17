@@ -109,7 +109,10 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
   };
 }
 
-function splitReasoningSteps(text: string): string[] {
+function splitReasoningSteps(text: string | string[]): string[] {
+  if (Array.isArray(text)) {
+    return text.map((part) => part.trim()).filter((part) => part.length > 0);
+  }
   return text
     .split(/(?=(?:Step|Langkah)\s*\d+\s*:)/gi)
     .map((part) => part.replace(/^\.\s*/, '').replace(/\.\s*$/, '').trim())

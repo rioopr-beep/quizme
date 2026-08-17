@@ -3,20 +3,14 @@
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '../../../../../context/LanguageContext';
-import { LEADERBOARD_CATEGORY_CHILDREN } from '../../page';
-
-const CATEGORY_LABEL: Record<string, { id: string; en: string }> = {
-  science: { id: 'Science', en: 'Science' },
-  engineering: { id: 'Engineering', en: 'Engineering' },
-  sports: { id: 'Olahraga', en: 'Sports' },
-};
+import { TOPIC_CATEGORY_CHILDREN, CATEGORY_LABEL } from '../../../../../lib/topicCategories';
 
 export default function LeaderboardCategoryPage(): JSX.Element {
   const params = useParams<{ category: string }>();
   const router = useRouter();
   const { language } = useLanguage();
 
-  const children = LEADERBOARD_CATEGORY_CHILDREN[params.category] ?? [];
+  const children = TOPIC_CATEGORY_CHILDREN[params.category] ?? [];
   const categoryLabel = CATEGORY_LABEL[params.category]?.[language] ?? params.category;
   const backAriaLabel = language === 'id' ? 'Kembali' : 'Back';
   const eyebrow = language === 'id' ? 'Papan Peringkat' : 'Leaderboard';
@@ -60,4 +54,4 @@ export default function LeaderboardCategoryPage(): JSX.Element {
       </div>
     </main>
   );
-      }
+}

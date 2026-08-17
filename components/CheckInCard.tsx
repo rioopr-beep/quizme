@@ -21,7 +21,11 @@ function getWeekDates(): string[] {
   });
 }
 
-export default function CheckInCard() {
+interface CheckInCardProps {
+  onStreakUpdate?: (bestStreak: number) => void;
+}
+
+export default function CheckInCard({ onStreakUpdate }: CheckInCardProps) {
   const { language } = useLanguage();
   const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -130,6 +134,8 @@ export default function CheckInCard() {
         best_streak: nextBest,
       })
       .eq('id', userId);
+
+    onStreakUpdate?.(nextBest);
   };
 
   return (
@@ -197,4 +203,4 @@ export default function CheckInCard() {
       </button>
     </div>
   );
-      }
+}

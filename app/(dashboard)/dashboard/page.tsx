@@ -104,7 +104,7 @@ export default function DashboardPage(): JSX.Element {
         </button>
 
         {/* Check-in mingguan */}
-        <CheckInCard />
+        <CheckInCard onStreakUpdate={setBestStreak} />
 
         {/* Quick stats */}
         <QuickStats />

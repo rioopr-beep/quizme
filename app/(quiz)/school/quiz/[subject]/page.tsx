@@ -76,6 +76,24 @@ function shuffleArray<T>(array: readonly T[]): T[] {
   return result;
 }
 
+// Ganti semua penyebutan "opsi X" / "option X" di teks reasoning supaya ikut
+// huruf posisi BARU setelah shuffle, bukan huruf posisi lama yang tersimpan
+// di database. Tanpa ini, teks dossier bisa nyebut huruf yang udah gak nyambung
+// lagi sama posisi opsi yang ditampilkan ke user (bug yang sempat ditemukan
+// di soal Ekonomi kolam sekolah: highlight jawaban benar udah tepat, tapi
+// kalimat "Pilih opsi X" di reasoning masih nyebut huruf lama).
+function remapOptionLettersInText(
+  text: string,
+  oldToNewKey: Record<OptionKey, OptionKey>,
+): string {
+  if (!text) return text;
+  return text.replace(/\b(opsi|option)\s+([A-D])\b/gi, (_match, label: string, letter: string) => {
+    const oldKey = letter.toUpperCase() as OptionKey;
+    const newKey = oldToNewKey[oldKey] ?? oldKey;
+    return `${label} ${newKey}`;
+  });
+}
+
 function shuffleQuestionOptions(question: QuestionData): QuestionData {
   const keys: OptionKey[] = ['A', 'B', 'C', 'D'];
   const shuffledKeys = shuffleArray(keys);
@@ -84,10 +102,15 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
   const newOptionsEn: Record<OptionKey, string> = {} as Record<OptionKey, string>;
   let newCorrectOption: OptionKey = question.correctOption;
 
+  // oldKey -> newKey: dipakai buat nge-remap huruf opsi yang disebut di teks
+  // reasoning (mis. "Pilih opsi B") biar sinkron sama posisi baru hasil shuffle
+  const oldToNewKey: Record<OptionKey, OptionKey> = {} as Record<OptionKey, OptionKey>;
+
   keys.forEach((newKey, index) => {
     const originalKey = shuffledKeys[index];
     newOptionsId[newKey] = question.options.id[originalKey];
     newOptionsEn[newKey] = question.options.en[originalKey];
+    oldToNewKey[originalKey] = newKey;
     if (originalKey === question.correctOption) {
       newCorrectOption = newKey;
     }
@@ -97,6 +120,13 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
     ...question,
     options: { id: newOptionsId, en: newOptionsEn },
     correctOption: newCorrectOption,
+    dossier: {
+      ...question.dossier,
+      reasoning: {
+        id: remapOptionLettersInText(question.dossier.reasoning.id, oldToNewKey),
+        en: remapOptionLettersInText(question.dossier.reasoning.en, oldToNewKey),
+      },
+    },
   };
 }
 

@@ -17,7 +17,7 @@ export default function SchoolLevelPage(): JSX.Element {
       <div className="mx-auto max-w-3xl">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push('/topics')}
           className="mb-4 flex items-center gap-1.5 text-sm font-medium text-text-secondary transition hover:text-text-primary active:scale-95"
         >
           <ArrowLeft className="h-4 w-4" />

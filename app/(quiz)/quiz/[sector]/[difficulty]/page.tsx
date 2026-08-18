@@ -85,17 +85,24 @@ function shuffleArray<T>(array: readonly T[]): T[] {
   return result;
 }
 
-// Ganti semua penyebutan "opsi X" / "option X" supaya ikut huruf posisi BARU
-// setelah shuffle, bukan huruf posisi lama yang tersimpan di database.
-// Menerima string ATAU array of steps (dossier.reasoning bisa dua-duanya,
-// tergantung soal — lihat catatan migrasi mechanical_engineering sebelumnya).
+// Ganti semua penyebutan "opsi X" / "option X" / "Jawaban: X" / "Answer: X"
+// supaya ikut huruf posisi BARU setelah shuffle, bukan huruf posisi lama
+// yang tersimpan di database.
+// PENTING: fungsi ini CUMA mengganti teks tampilan (string dossier).
+// Fungsi ini TIDAK PERNAH dipakai untuk menentukan correctOption —
+// penentuan jawaban benar 100% terjadi di shuffleQuestionOptions lewat
+// perbandingan originalKey === question.correctOption, yang tidak
+// tersentuh oleh perubahan ini sama sekali.
 function remapLettersInString(text: string, oldToNewKey: Record<OptionKey, OptionKey>): string {
   if (!text) return text;
-  return text.replace(/\b(opsi|option)\s+([A-D])\b/gi, (_match, label: string, letter: string) => {
-    const oldKey = letter.toUpperCase() as OptionKey;
-    const newKey = oldToNewKey[oldKey] ?? oldKey;
-    return `${label} ${newKey}`;
-  });
+  return text.replace(
+    /\b(opsi|option|jawaban|answer)([^A-Za-z]{0,3})([A-D])\b/gi,
+    (_match, label: string, sep: string, letter: string) => {
+      const oldKey = letter.toUpperCase() as OptionKey;
+      const newKey = oldToNewKey[oldKey] ?? oldKey;
+      return `${label}${sep}${newKey}`;
+    },
+  );
 }
 
 function remapOptionLettersInText(
@@ -578,25 +585,40 @@ export default function QuizPage(): JSX.Element {
               </div>
             ) : null}
 
-            {question.dossier.references.length > 0 ? (
+            {/* FIX: defensif terhadap references berupa string, {title,url} object,
+                atau null/undefined — sebelumnya asumsi selalu string bikin
+                React error #31 saat ketemu object, dan crash saat references null */}
+            {question.dossier.references && question.dossier.references.length > 0 ? (
               <>
                 <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
                   {copy.referencesHeading}
                 </h3>
                 <ul className="mt-2 flex flex-col gap-1">
-                  {question.dossier.references.map((reference) => (
-                    <li key={reference}>
-                      <a
-                        href={reference}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
-                        title={reference}
-                      >
-                        {reference}
-                      </a>
-                    </li>
-                  ))}
+                  {question.dossier.references.map((reference, index) => {
+                    const isObject = typeof reference === 'object' && reference !== null;
+                    const url = isObject
+                      ? (reference as { url?: string }).url
+                      : (reference as string);
+                    const label = isObject
+                      ? (reference as { title?: string }).title ?? url
+                      : (reference as string);
+
+                    if (!url) return null;
+
+                    return (
+                      <li key={isObject ? url ?? index : (reference as string)}>
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
+                          title={label}
+                        >
+                          {label}
+                        </a>
+                      </li>
+                    );
+                  })}
                 </ul>
               </>
             ) : null}
@@ -625,4 +647,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-}
+            }

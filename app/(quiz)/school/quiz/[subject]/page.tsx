@@ -339,7 +339,7 @@ export default function SchoolQuizPage(): JSX.Element {
         <p className="text-sm text-text-muted">{copy.empty}</p>
         <button
           type="button"
-          onClick={() => router.push('/school')}
+          onClick={() => router.replace('/school')}
           className="rounded-floating bg-base-surface px-4 py-2 text-sm font-medium text-text-secondary shadow-floating-sm transition active:scale-95 hover:text-accent"
         >
           {copy.returnToSchool}
@@ -361,7 +361,7 @@ export default function SchoolQuizPage(): JSX.Element {
           <div className="mt-6 flex flex-col gap-3">
             <button
               type="button"
-              onClick={() => router.push('/school')}
+              onClick={() => router.replace('/school')}
               className="w-full rounded-floating bg-base-bg px-4 py-3 text-sm font-medium text-text-secondary transition active:scale-95 hover:bg-base-border"
             >
               {copy.returnToSchool}
@@ -522,9 +522,9 @@ export default function SchoolQuizPage(): JSX.Element {
       <ExitConfirmModal
         isOpen={showExitConfirm}
         onCancel={() => setShowExitConfirm(false)}
-        onConfirm={() => router.push('/school')}
+        onConfirm={() => router.replace('/school')}
         language={language}
       />
     </main>
   );
-    }
+                   }

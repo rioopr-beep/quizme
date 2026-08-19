@@ -26,6 +26,7 @@ const VALID_SECTORS: readonly SectorType[] = [
   'psychology',
   'physics',
   'linguistics',
+  'translation', 
   'book-trivia',
   'curiosities',
   'mathematics',

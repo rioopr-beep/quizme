@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 import { getSupabaseBrowserClient } from '../../../../../lib/supabase/client';
 import { useLanguage } from '../../../../../context/LanguageContext';
 import { useQuizEngine } from '../../../../../hooks/useQuizEngine';
@@ -506,9 +507,9 @@ export default function QuizPage(): JSX.Element {
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               {question.context ? (
-                <p className="mb-4 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary">
-                  {question.context[language]}
-                </p>
+                <div className="mb-4 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary [&_p]:m-0">
+                  <ReactMarkdown>{question.context[language]}</ReactMarkdown>
+                </div>
               ) : null}
 
               <h1 className="text-lg font-semibold leading-relaxed text-text-primary">
@@ -547,13 +548,13 @@ export default function QuizPage(): JSX.Element {
               <ReportQuestionButton questionId={question.id} />
             </div>
 
-            <p
-              className={`mt-3 text-sm leading-relaxed text-text-primary ${
+            <div
+              className={`mt-3 text-sm leading-relaxed text-text-primary [&_p]:m-0 ${
                 isSummaryExpanded ? '' : 'line-clamp-2'
               }`}
             >
-              {question.dossier.summary[language]}
-            </p>
+              <ReactMarkdown>{question.dossier.summary[language]}</ReactMarkdown>
+            </div>
             <button
               type="button"
               onClick={() => setIsSummaryExpanded((prev) => !prev)}
@@ -578,9 +579,9 @@ export default function QuizPage(): JSX.Element {
               <div className="mt-2 flex flex-col gap-4">
                 {splitReasoningSteps(question.dossier.reasoning[language]).map((step, index) => (
                   <div key={index} className="overflow-x-auto">
-                    <p className="text-sm leading-relaxed text-text-secondary">
-                      {step}
-                    </p>
+                    <div className="text-sm leading-relaxed text-text-secondary [&_p]:m-0">
+                      <ReactMarkdown>{step}</ReactMarkdown>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -648,4 +649,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-            }
+    }

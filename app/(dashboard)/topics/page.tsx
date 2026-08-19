@@ -30,6 +30,7 @@ const TOPIC_ENTRIES: readonly TopicEntry[] = [
   { kind: 'standalone', key: 'psychology', icon: 'ti-brain', label: { id: 'Psikologi', en: 'Psychology' } },
   { kind: 'standalone', key: 'physics', icon: 'ti-atom-2', label: { id: 'Fisika', en: 'Physics' } },
   { kind: 'standalone', key: 'linguistics', icon: 'ti-language', label: { id: 'Linguistik', en: 'Linguistics' } },
+  { kind: 'standalone', key: 'translation', icon: 'ti-language-hiragana', label: { id: 'Terjemahan', en: 'Translation' } }, 
   { kind: 'standalone', key: 'book-trivia', icon: 'ti-book', label: { id: 'Trivia Buku', en: 'Book Trivia' } },
   { kind: 'standalone', key: 'curiosities', icon: 'ti-bulb', label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' } },
   { kind: 'standalone', key: 'mathematics', icon: 'ti-math-function', label: { id: 'Matematika', en: 'Mathematics' } },

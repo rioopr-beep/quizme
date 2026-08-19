@@ -13,6 +13,7 @@ export const sectorSchema = z.enum([
   'psychology',
   'physics',
   'linguistics',
+  'translation', 
   'book-trivia',
   'curiosities',
   'mathematics',

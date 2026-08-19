@@ -10,7 +10,7 @@ export type SectorType =
   | 'psychology'
   | 'physics'
   | 'linguistics'
-    'translation'
+  | 'translation'
   | 'book-trivia'
   | 'curiosities'
   | 'mathematics'

@@ -4,12 +4,34 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../../../context/LanguageContext';
 
 const LANGUAGES = [
+  // Bahasa Indonesia & daerah
   { key: 'indonesian', label: { id: 'Indonesia', en: 'Indonesian' } },
-  { key: 'english', label: { id: 'Inggris', en: 'English' } },
   { key: 'javanese', label: { id: 'Jawa', en: 'Javanese' } },
   { key: 'sundanese', label: { id: 'Sunda', en: 'Sundanese' } },
+  { key: 'minangkabau', label: { id: 'Minangkabau', en: 'Minangkabau' } },
+  { key: 'balinese', label: { id: 'Bali', en: 'Balinese' } },
+  { key: 'batak', label: { id: 'Batak', en: 'Batak' } },
+  { key: 'buginese', label: { id: 'Bugis', en: 'Buginese' } },
+  { key: 'malay', label: { id: 'Melayu', en: 'Malay' } },
+
+  // Bahasa internasional utama
+  { key: 'english', label: { id: 'Inggris', en: 'English' } },
   { key: 'spanish', label: { id: 'Spanyol', en: 'Spanish' } },
+  { key: 'french', label: { id: 'Prancis', en: 'French' } },
   { key: 'german', label: { id: 'Jerman', en: 'German' } },
+  { key: 'italian', label: { id: 'Italia', en: 'Italian' } },
+  { key: 'portuguese', label: { id: 'Portugis', en: 'Portuguese' } },
+  { key: 'dutch', label: { id: 'Belanda', en: 'Dutch' } },
+  { key: 'russian', label: { id: 'Rusia', en: 'Russian' } },
+
+  // Bahasa Asia
+  { key: 'mandarin', label: { id: 'Mandarin', en: 'Mandarin' } },
+  { key: 'japanese', label: { id: 'Jepang', en: 'Japanese' } },
+  { key: 'korean', label: { id: 'Korea', en: 'Korean' } },
+  { key: 'thai', label: { id: 'Thailand', en: 'Thai' } },
+  { key: 'vietnamese', label: { id: 'Vietnam', en: 'Vietnamese' } },
+  { key: 'hindi', label: { id: 'Hindi', en: 'Hindi' } },
+  { key: 'arabic', label: { id: 'Arab', en: 'Arabic' } },
 ] as const;
 
 export default function LinguisticsLanguageSelectPage(): JSX.Element {

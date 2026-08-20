@@ -91,18 +91,15 @@ export default function TopicsPage(): JSX.Element {
         return;
       }
 
-      const leafKeys = getAllLeafKeys();
       const counts: Record<string, number> = {};
 
-      await Promise.all(
-        leafKeys.map(async (key) => {
-          const { count } = await supabase
-            .from('questions')
-            .select('id', { count: 'exact', head: true })
-            .eq('sector', key);
-          counts[key] = count ?? 0;
-        }),
-      );
+const { data: countRows } = await supabase.rpc('get_topic_counts');
+
+if (countRows) {
+  for (const row of countRows as { sector: string; question_count: number }[]) {
+    counts[row.sector] = row.question_count;
+  }
+}
 
       if (isMounted) {
         setTopicCounts(counts);

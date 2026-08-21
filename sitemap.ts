@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://quizfrend.my.id';
+  // Wajib pakai www biar konsisten sama domain utama di Vercel
+  const baseUrl = 'https://www.quizfrend.my.id';
 
   return [
     {

@@ -245,7 +245,7 @@ export default function QuizPage(): JSX.Element {
 
     let isMounted = true;
 
-    async function loadQuestions(
+        async function loadQuestions(
       activeSector: SectorType,
       activeDifficulty: DifficultyLevel,
     ): Promise<void> {
@@ -255,11 +255,10 @@ export default function QuizPage(): JSX.Element {
         data: { user },
       } = await supabase.auth.getUser();
 
-      let mapped: QuestionData[];
+      let mapped: QuestionData[] = [];
 
+      // A. Jika User Login: Ambil pakai RPC
       if (user) {
-        // User login: pakai RPC yang prioritaskan soal belum pernah muncul,
-        // baru soal lama kalau stok soal baru sudah habis
         const { data, error } = await supabase.rpc('get_quiz_questions', {
           p_user_id: user.id,
           p_sector: activeSector,
@@ -267,32 +266,24 @@ export default function QuizPage(): JSX.Element {
           p_limit: selectedCount,
         });
 
-        if (!isMounted) return;
-
-        if (error || !data) {
-          setLoadError(
-            language === 'id'
-              ? 'Gagal memuat studi kasus. Silakan coba lagi.'
-              : 'Failed to load case studies. Please try again.',
-          );
-          setIsLoading(false);
-          return;
+        if (data && !error) {
+          mapped = (data as QuestionRow[]).map(mapQuestionRowToQuestionData);
         }
+      }
 
-        // Urutan dari RPC sudah diprioritaskan, JANGAN diacak ulang di sini
-        mapped = (data as QuestionRow[]).map(mapQuestionRowToQuestionData);
-      } else {
-        // Guest/belum login: tidak ada user_id untuk cek riwayat,
-        // fallback ke random polos dari seluruh pool
+      // B. Jika Guest / Belum Login (Atau jika RPC gagal/kosong):
+      // Langsung tarik data dari tabel 'questions' secara publik
+      if (mapped.length === 0) {
         const { data, error } = await supabase
           .from('questions')
           .select('*')
           .eq('sector', activeSector)
-          .eq('difficulty', activeDifficulty);
+          .eq('difficulty', activeDifficulty)
+          .limit(selectedCount * 2);
 
         if (!isMounted) return;
 
-        if (error || !data) {
+        if (error || !data || data.length === 0) {
           setLoadError(
             language === 'id'
               ? 'Gagal memuat studi kasus. Silakan coba lagi.'
@@ -306,6 +297,7 @@ export default function QuizPage(): JSX.Element {
         const shuffledOrder = shuffleArray(rawMapped);
         mapped = shuffledOrder.slice(0, selectedCount);
       }
+
 
       // Acak posisi opsi A/B/C/D untuk tiap soal (independen dari urutan soal)
       const withShuffledOptions = mapped.map(shuffleQuestionOptions);

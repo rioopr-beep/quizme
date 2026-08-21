@@ -37,6 +37,12 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
         />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5880565428793446"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
       </head>
       <body className="bg-slate-50 font-sans antialiased">
         {/* 1. Konfigurasi MathJax dipasang sebelum skrip CDN */}

@@ -19,11 +19,40 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-// META TAG ADSENSE DIPASANG DI SINI
 export const metadata: Metadata = {
-  title: 'QuizMe — Platform Evaluasi Analisis Dwibahasa',
+  metadataBase: new URL('https://quizfrend.my.id'),
+  title: {
+    default: 'QuizFrend — Latihan Analisis Lintas Disiplin',
+    template: '%s | QuizFrend',
+  },
   description:
-    'QuizMe adalah platform ujian dan evaluasi analisis dwibahasa (ID/EN) lintas 6 sektor: keuangan, kriptografi, psikologi, fisika, sains, dan linguistik.',
+    'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu: keuangan, fisika, psikologi, bahasa, dan lainnya. Belajar sambil menganalisis, bukan sekadar menghafal.',
+  keywords: [
+    'kuis studi kasus',
+    'latihan analisis',
+    'belajar lintas disiplin',
+    'quiz edukasi',
+    'QuizFrend',
+  ],
+  openGraph: {
+    title: 'QuizFrend — Latihan Analisis Lintas Disiplin',
+    description:
+      'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu.',
+    url: 'https://quizfrend.my.id',
+    siteName: 'QuizFrend',
+    locale: 'id_ID',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'QuizFrend — Latihan Analisis Lintas Disiplin',
+    description:
+      'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   other: {
     'google-adsense-account': 'ca-pub-5880565428793446',
   },

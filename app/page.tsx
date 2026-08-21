@@ -61,6 +61,7 @@ export default function LandingPage(): JSX.Element {
     step4: language === 'id' ? 'Lihat hasil dan pembahasannya' : 'See your results and review',
     privacy: language === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy',
     terms: language === 'id' ? 'Syarat & Ketentuan' : 'Terms & Conditions',
+    popularTopics: language === 'id' ? 'Topik Populer' : 'Popular Topics',
   };
 
   if (isChecking) {
@@ -105,15 +106,16 @@ export default function LandingPage(): JSX.Element {
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-500">
             {copy.subtitle}
           </p>
+          {/* DIUBAH: Mengarah ke /topics bukan /signup */}
           <Link
-            href="/signup"
+            href="/topics"
             className="mt-6 inline-block rounded-xl bg-indigo-900 px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-800"
           >
             {copy.cta}
           </Link>
         </section>
 
-        <section className="flex-1 px-6 py-10">
+        <section className="px-6 py-8">
           <p className="mb-4 text-xs font-medium uppercase tracking-wide text-slate-400">
             {copy.howItWorks}
           </p>
@@ -126,6 +128,33 @@ export default function LandingPage(): JSX.Element {
                 <p className="mt-0.5 text-sm text-slate-600">{step}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* DITAMBAHKAN: Link kuis langsung buat Google Crawler/AdSense */}
+        <section className="px-6 pb-10">
+          <p className="mb-4 text-xs font-medium uppercase tracking-wide text-slate-400">
+            {copy.popularTopics}
+          </p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <Link
+              href="/quiz/psychology/advanced?count=10"
+              className="rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
+            >
+              Psychology
+            </Link>
+            <Link
+              href="/quiz/financial/foundational?count=10"
+              className="rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
+            >
+              Financial
+            </Link>
+            <Link
+              href="/topics"
+              className="rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
+            >
+              {language === 'id' ? 'Lainnya →' : 'More →'}
+            </Link>
           </div>
         </section>
 

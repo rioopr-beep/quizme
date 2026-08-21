@@ -54,7 +54,13 @@ export default function LandingPage(): JSX.Element {
       language === 'id'
         ? 'Kerjakan studi kasus berbentuk cerita'
         : 'Work through story-based case studies',
-    step3: language === 'id' ? 'Lihat hasil dan pembahasannya' : 'See your results and review',
+    step3:
+      language === 'id'
+        ? 'Materi disusun dari sumber terpercaya dan diperiksa berkala'
+        : 'Content is curated from trusted sources and reviewed regularly',
+    step4: language === 'id' ? 'Lihat hasil dan pembahasannya' : 'See your results and review',
+    privacy: language === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy',
+    terms: language === 'id' ? 'Syarat & Ketentuan' : 'Terms & Conditions',
   };
 
   if (isChecking) {
@@ -66,10 +72,10 @@ export default function LandingPage(): JSX.Element {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 font-sans text-slate-800">
-      <div className="mx-auto flex max-w-2xl flex-col">
+    <main className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-800">
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
         <header className="flex items-center justify-between px-6 py-5">
-          <span className="font-mono text-lg font-semibold text-slate-900">QuizMe</span>
+          <span className="font-mono text-lg font-semibold text-slate-900">QuizFrend</span>
 
           <div className="flex items-center gap-2">
             <button
@@ -107,12 +113,12 @@ export default function LandingPage(): JSX.Element {
           </Link>
         </section>
 
-        <section className="px-6 py-10">
+        <section className="flex-1 px-6 py-10">
           <p className="mb-4 text-xs font-medium uppercase tracking-wide text-slate-400">
             {copy.howItWorks}
           </p>
           <div className="flex flex-col gap-4">
-            {[copy.step1, copy.step2, copy.step3].map((step, index) => (
+            {[copy.step1, copy.step2, copy.step3, copy.step4].map((step, index) => (
               <div key={step} className="flex items-start gap-3">
                 <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-50 font-mono text-xs font-medium text-indigo-900">
                   {index + 1}
@@ -122,6 +128,21 @@ export default function LandingPage(): JSX.Element {
             ))}
           </div>
         </section>
+
+        <footer className="border-t border-slate-200 px-6 py-6">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-400">
+            <Link href="/privacy" className="hover:text-indigo-900">
+              {copy.privacy}
+            </Link>
+            <span className="text-slate-300">•</span>
+            <Link href="/terms" className="hover:text-indigo-900">
+              {copy.terms}
+            </Link>
+          </div>
+          <p className="mt-2 text-center text-xs text-slate-300">
+            © {new Date().getFullYear()} QuizFrend
+          </p>
+        </footer>
       </div>
     </main>
   );

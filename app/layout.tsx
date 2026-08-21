@@ -19,10 +19,14 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
+// META TAG ADSENSE DIPASANG DI SINI
 export const metadata: Metadata = {
   title: 'QuizMe — Platform Evaluasi Analisis Dwibahasa',
   description:
     'QuizMe adalah platform ujian dan evaluasi analisis dwibahasa (ID/EN) lintas 6 sektor: keuangan, kriptografi, psikologi, fisika, sains, dan linguistik.',
+  other: {
+    'google-adsense-account': 'ca-pub-5880565428793446',
+  },
 };
 
 interface RootLayoutProps {
@@ -39,14 +43,6 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
         />
       </head>
       <body className="bg-slate-50 font-sans antialiased">
-        {/* SKRIP ADSENSE (Dipasang di dalam body biar 100% terbaca) */}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5880565428793446"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-
         {/* 1. Konfigurasi MathJax dipasang sebelum skrip CDN */}
         <Script id="mathjax-config" strategy="afterInteractive">
           {`

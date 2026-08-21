@@ -2,6 +2,12 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // 1. Bypass route kuis & halaman utama biar bisa diakses publik/bot AdSense tanpa hambatan
+  const { pathname } = request.nextUrl;
+  if (pathname.startsWith('/quiz') || pathname === '/') {
+    return NextResponse.next();
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -25,7 +31,7 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  // Ini penting: refresh session-nya
+  // Refresh session auth untuk halaman selain kuis
   await supabase.auth.getUser();
 
   return supabaseResponse;

@@ -1,7 +1,8 @@
-import type { Metadata } from 'next';
+Import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import Script from 'next/script';
+import Link from 'next/link'; // 1. Import Link dari Next.js
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { LanguageProvider } from '@/context/LanguageContext';
 import MathJaxProvider from '@/components/MathJaxProvider';
@@ -71,7 +72,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
         />
       </head>
-      <body className="bg-slate-50 font-sans antialiased">
+      <body className="bg-slate-50 font-sans antialiased min-h-screen flex flex-col">
         {/* 1. Konfigurasi MathJax dipasang sebelum skrip CDN */}
         <Script id="mathjax-config" strategy="afterInteractive">
           {`
@@ -95,7 +96,34 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
 
         <LanguageProvider>
           <MathJaxProvider>
-            {children}
+            {/* 2. Tambahkan Navbar Minimalis di Atas */}
+            <header className="border-b border-slate-200 bg-white">
+              <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+                <Link href="/" className="font-bold text-slate-900">
+                  QuizFrend
+                </Link>
+                <nav className="text-sm font-medium text-slate-600">
+                  <Link href="/about" className="hover:text-slate-900 transition-colors">
+                    About & Contact
+                  </Link>
+                </nav>
+              </div>
+            </header>
+
+            {/* Content Utama */}
+            <div className="flex-1">
+              {children}
+            </div>
+
+            {/* 3. Atau Bisa Juga Tambahkan Footer Minimalis di Bawah */}
+            <footer className="border-t border-slate-200 bg-white py-6 mt-auto">
+              <div className="max-w-4xl mx-auto px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <p>© QuizFrend. All rights reserved.</p>
+                <Link href="/about" className="hover:underline">
+                  About & Contact
+                </Link>
+              </div>
+            </footer>
           </MathJaxProvider>
         </LanguageProvider>
 

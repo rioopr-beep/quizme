@@ -531,101 +531,109 @@ export default function QuizPage(): JSX.Element {
           </div>
         </section>
 
-        {engine.state.isRevealed ? (
-          <section className="overflow-hidden rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
-                {copy.dossierHeading}
-              </h2>
-              <ReportQuestionButton questionId={question.id} />
-            </div>
+        {/* DIUBAH: dossier SELALU di-render di HTML (bukan conditional mount lagi)
+            supaya Googlebot bisa baca kontennya. Disembunyikan secara VISUAL
+            pakai class 'hidden' sampai user beneran jawab (isRevealed true).
+            Pola ini aman untuk SEO — sama seperti konten accordion/tab yang
+            disembunyikan CSS, bukan cloaking. */}
+        <section
+          className={`overflow-hidden rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8 ${
+            engine.state.isRevealed ? '' : 'hidden'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
+              {copy.dossierHeading}
+            </h2>
+            <ReportQuestionButton questionId={question.id} />
+          </div>
 
-            <div
-              className={`mt-3 text-sm leading-relaxed text-text-primary [&_p]:m-0 ${
-                isSummaryExpanded ? '' : 'line-clamp-2'
-              }`}
-            >
-              <ReactMarkdown>{question.dossier.summary[language]}</ReactMarkdown>
-            </div>
+          <div
+            className={`mt-3 text-sm leading-relaxed text-text-primary [&_p]:m-0 ${
+              isSummaryExpanded ? '' : 'line-clamp-2'
+            }`}
+          >
+            <ReactMarkdown>{question.dossier.summary[language]}</ReactMarkdown>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsSummaryExpanded((prev) => !prev)}
+            className="mt-1 text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
+          >
+            {isSummaryExpanded ? copy.hideSummary : copy.showSummary}
+          </button>
+
+          <div className="mt-6 flex items-center justify-between">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+              {copy.reasoningHeading}
+            </h3>
             <button
               type="button"
-              onClick={() => setIsSummaryExpanded((prev) => !prev)}
-              className="mt-1 text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
+              onClick={() => setIsReasoningExpanded((prev) => !prev)}
+              className="text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
             >
-              {isSummaryExpanded ? copy.hideSummary : copy.showSummary}
+              {isReasoningExpanded ? copy.hideReasoning : copy.showReasoning}
             </button>
-
-            <div className="mt-6 flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-                {copy.reasoningHeading}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsReasoningExpanded((prev) => !prev)}
-                className="text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
-              >
-                {isReasoningExpanded ? copy.hideReasoning : copy.showReasoning}
-              </button>
-            </div>
-            {isReasoningExpanded ? (
-              <div className="mt-2 flex flex-col gap-4">
-                {splitReasoningSteps(question.dossier.reasoning[language]).map((step, index) => (
-                  <div key={index} className="overflow-x-auto">
-                    <div className="text-sm leading-relaxed text-text-secondary [&_p]:m-0">
-                      <ReactMarkdown>{step}</ReactMarkdown>
-                    </div>
-                  </div>
-                ))}
+          </div>
+          {/* DIUBAH: sama seperti section dossier, reasoning steps SELALU
+              di-render di DOM, cuma disembunyikan class 'hidden' sampai
+              isReasoningExpanded true. */}
+          <div className={`mt-2 flex flex-col gap-4 ${isReasoningExpanded ? '' : 'hidden'}`}>
+            {splitReasoningSteps(question.dossier.reasoning[language]).map((step, index) => (
+              <div key={index} className="overflow-x-auto">
+                <div className="text-sm leading-relaxed text-text-secondary [&_p]:m-0">
+                  <ReactMarkdown>{step}</ReactMarkdown>
+                </div>
               </div>
-            ) : null}
+            ))}
+          </div>
 
-            {/* FIX: defensif terhadap references berupa string, {title,url} object,
-                atau null/undefined — sebelumnya asumsi selalu string bikin
-                React error #31 saat ketemu object, dan crash saat references null */}
-            {question.dossier.references && question.dossier.references.length > 0 ? (
-              <>
-                <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                  {copy.referencesHeading}
-                </h3>
-                <ul className="mt-2 flex flex-col gap-1">
-                  {question.dossier.references.map((reference, index) => {
-                    const isObject = typeof reference === 'object' && reference !== null;
-                    const url = isObject
-                      ? (reference as { url?: string }).url
-                      : (reference as string);
-                    const label = isObject
-                      ? (reference as { title?: string }).title ?? url
-                      : (reference as string);
+          {/* FIX: defensif terhadap references berupa string, {title,url} object,
+              atau null/undefined — sebelumnya asumsi selalu string bikin
+              React error #31 saat ketemu object, dan crash saat references null */}
+          {question.dossier.references && question.dossier.references.length > 0 ? (
+            <>
+              <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
+                {copy.referencesHeading}
+              </h3>
+              <ul className="mt-2 flex flex-col gap-1">
+                {question.dossier.references.map((reference, index) => {
+                  const isObject = typeof reference === 'object' && reference !== null;
+                  const url = isObject
+                    ? (reference as { url?: string }).url
+                    : (reference as string);
+                  const label = isObject
+                    ? (reference as { title?: string }).title ?? url
+                    : (reference as string);
 
-                    if (!url) return null;
+                  if (!url) return null;
 
-                    return (
-                      <li key={isObject ? url ?? index : (reference as string)}>
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
-                          title={label}
-                        >
-                          {label}
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </>
-            ) : null}
+                  return (
+                    <li key={isObject ? url ?? index : (reference as string)}>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
+                        title={label}
+                      >
+                        {label}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          ) : null}
 
-            <button
-              type="button"
-              onClick={engine.goToNextQuestion}
-              className="mt-8 w-full rounded-floating bg-accent px-4 py-3 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
-            >
-              {engine.progress.current === engine.progress.total ? copy.finish : copy.next}
-            </button>
-          </section>
-        ) : null}
+          <button
+            type="button"
+            onClick={engine.goToNextQuestion}
+            className="mt-8 w-full rounded-floating bg-accent px-4 py-3 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
+          >
+            {engine.progress.current === engine.progress.total ? copy.finish : copy.next}
+          </button>
+        </section>
 
         {/* Diskusi — muncul di bawah dossier, hanya setelah jawaban di-reveal */}
         {engine.state.isRevealed ? (
@@ -641,4 +649,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-    }
+}

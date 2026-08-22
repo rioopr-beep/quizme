@@ -61,6 +61,7 @@ export default function LandingPage(): JSX.Element {
     step4: language === 'id' ? 'Lihat hasil dan pembahasannya' : 'See your results and review',
     privacy: language === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy',
     terms: language === 'id' ? 'Syarat & Ketentuan' : 'Terms & Conditions',
+    aboutContact: language === 'id' ? 'Tentang & Kontak' : 'About & Contact',
     popularTopics: language === 'id' ? 'Topik Populer' : 'Popular Topics',
   };
 
@@ -166,6 +167,10 @@ export default function LandingPage(): JSX.Element {
             <span className="text-slate-300">•</span>
             <Link href="/terms" className="hover:text-indigo-900">
               {copy.terms}
+            </Link>
+            <span className="text-slate-300">•</span>
+            <Link href="/about" className="hover:text-indigo-900">
+              {copy.aboutContact}
             </Link>
           </div>
           <p className="mt-2 text-center text-xs text-slate-300">

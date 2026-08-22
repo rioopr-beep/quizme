@@ -1,113 +1,31 @@
-import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
-import Script from 'next/script';
-import { GoogleAnalytics } from '@next/third-parties/google';
-import { LanguageProvider } from '@/context/LanguageContext';
-import MathJaxProvider from '@/components/MathJaxProvider';
-import './globals.css';
+import Link from 'next/link';
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-jetbrains-mono',
-  display: 'swap',
-});
-
-export const metadata: Metadata = {
-  metadataBase: new URL('https://quizfrend.my.id'),
-  title: {
-    default: 'QuizFrend — Latihan Analisis Lintas Disiplin',
-    template: '%s | QuizFrend',
-  },
-  description:
-    'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu: keuangan, fisika, psikologi, bahasa, dan lainnya. Belajar sambil menganalisis, bukan sekadar menghafal.',
-  keywords: [
-    'kuis studi kasus',
-    'latihan analisis',
-    'belajar lintas disiplin',
-    'quiz edukasi',
-    'QuizFrend',
-  ],
-  openGraph: {
-    title: 'QuizFrend — Latihan Analisis Lintas Disiplin',
-    description:
-      'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu.',
-    url: 'https://quizfrend.my.id',
-    siteName: 'QuizFrend',
-    locale: 'id_ID',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary',
-    title: 'QuizFrend — Latihan Analisis Lintas Disiplin',
-    description:
-      'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu.',
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  other: {
-    'google-adsense-account': 'ca-pub-5880565428793446',
-  },
-};
-
-interface RootLayoutProps {
+interface MarketingLayoutProps {
   readonly children: ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
+export default function MarketingLayout({ children }: MarketingLayoutProps): JSX.Element {
   return (
-    <html lang="id" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
-        />
-      </head>
-      <body className="bg-slate-50 font-sans antialiased min-h-screen flex flex-col">
-        {/* Konfigurasi MathJax dipasang sebelum skrip CDN */}
-        <Script id="mathjax-config" strategy="afterInteractive">
-          {`
-            window.MathJax = {
-              tex: {
-                inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-                displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
-              },
-              svg: {
-                fontCache: 'global'
-              }
-            };
-          `}
-        </Script>
+    <div className="flex-1 flex flex-col">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center">
+          <Link href="/" className="font-bold text-slate-900">
+            QuizFrend
+          </Link>
+        </div>
+      </header>
 
-        {/* Pemanggilan skrip utama MathJax */}
-        <Script
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-          strategy="afterInteractive"
-        />
+      <div className="flex-1">{children}</div>
 
-        <LanguageProvider>
-          <MathJaxProvider>
-            {/* Header & footer global TIDAK ada di sini lagi.
-                Halaman awal (app/page.tsx) punya header/footer sendiri.
-                Halaman about/privacy/terms punya header/footer dari
-                app/(marketing)/layout.tsx.
-                Halaman quiz/dashboard/school punya BottomNav sendiri. */}
-            <div className="flex-1 flex flex-col">
-              {children}
-            </div>
-          </MathJaxProvider>
-        </LanguageProvider>
-
-        <GoogleAnalytics gaId="G-VNHDY1V50Z" />
-      </body>
-    </html>
+      <footer className="border-t border-slate-200 bg-white py-6 mt-auto">
+        <div className="max-w-4xl mx-auto px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <p>© QuizFrend. All rights reserved.</p>
+          <Link href="/about" className="hover:underline">
+            About & Contact
+          </Link>
+        </div>
+      </footer>
+    </div>
   );
 }

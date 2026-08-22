@@ -1,8 +1,10 @@
 import type { MetadataRoute } from 'next';
 
-const baseUrl = 'https://www.quizfrend.my.id';
+const baseUrl = 'https://quizfrend.my.id';
 
 // Topik yang sudah punya soal (exclude yang masih 0 soal: cryptography, translation, book-trivia)
+// PENTING: slug di bawah HARUS sama persis dengan VALID_SECTORS di
+// app/(quiz)/quiz/[sector]/[difficulty]/page.tsx — kalau beda, URL 404.
 const topics = [
   // Topik langsung
   'financial',
@@ -15,33 +17,37 @@ const topics = [
   // Science
   'chemistry',
   'biology',
-  'computer-science',
+  'computer_science',
   'astronomy',
-  'earth-science',
+  'earth_science',
   'economics',
 
   // Engineering
-  'civil-engineering',
-  'mechanical-engineering',
-  'electrical-engineering',
-  'software-engineering',
-  'industrial-engineering',
-  'aerospace-engineering',
-  'automotive-engineering',
-  'environmental-engineering',
+  'civil_engineering',
+  'mechanical_engineering',
+  'electrical_engineering',
+  'software_engineering',
+  'industrial_engineering',
+  'aerospace_engineering',
+  'automotive_engineering',
+  'environmental_engineering',
 
   // Sports
   'football',
   'basketball',
   'badminton',
-  'olympics-sports-history',
+  'olympics_history',
   'tennis',
   'esports',
   'motorsport',
-  'general-sports',
+  'general_sports',
 ];
 
 const levels = ['foundational', 'intermediate', 'advanced'] as const;
+
+// Jumlah soal default dipakai di URL supaya Googlebot langsung lihat
+// soal beneran, bukan layar "Berapa soal?" (halaman tanpa ?count kosong).
+const DEFAULT_COUNT = 10;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
@@ -58,19 +64,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/signup`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/contact`,
+      url: `${baseUrl}/about`,
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.4,
@@ -91,7 +85,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const quizPages: MetadataRoute.Sitemap = topics.flatMap((topic) =>
     levels.map((level) => ({
-      url: `${baseUrl}/quiz/${topic}/${level}`,
+      url: `${baseUrl}/quiz/${topic}/${level}?count=${DEFAULT_COUNT}`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.7,

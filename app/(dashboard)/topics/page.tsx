@@ -80,26 +80,22 @@ export default function TopicsPage(): JSX.Element {
   useEffect(() => {
     let isMounted = true;
 
-    async function checkAuthAndLoad(): Promise<void> {
+    // Diubah: TIDAK ada lagi paksaan redirect ke /login di sini.
+    // Halaman /topics harus tetap bisa diakses guest & Googlebot supaya
+    // bisa diindeks. Login cuma diperlukan pas mau MULAI kuis / simpan
+    // progress, bukan buat sekadar lihat daftar topik.
+    async function loadTopicCounts(): Promise<void> {
       const supabase = getSupabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push('/login');
-        return;
-      }
 
       const counts: Record<string, number> = {};
 
-const { data: countRows } = await supabase.rpc('get_topic_counts');
+      const { data: countRows } = await supabase.rpc('get_topic_counts');
 
-if (countRows) {
-  for (const row of countRows as { sector: string; question_count: number }[]) {
-    counts[row.sector] = row.question_count;
-  }
-}
+      if (countRows) {
+        for (const row of countRows as { sector: string; question_count: number }[]) {
+          counts[row.sector] = row.question_count;
+        }
+      }
 
       if (isMounted) {
         setTopicCounts(counts);
@@ -107,7 +103,7 @@ if (countRows) {
       }
     }
 
-    void checkAuthAndLoad();
+    void loadTopicCounts();
     return () => {
       isMounted = false;
     };
@@ -170,4 +166,4 @@ if (countRows) {
       </div>
     </main>
   );
-      }
+}

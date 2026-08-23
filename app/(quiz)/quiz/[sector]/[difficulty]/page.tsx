@@ -11,6 +11,8 @@ import ExitConfirmModal from '../../../../../components/ExitConfirmModal';
 import DiscussionThread from '../../../../../components/DiscussionThread';
 import ReportQuestionButton from '../../../../../components/ReportQuestionButton';
 import BookmarkButton from '../../../../../components/BookmarkButton';
+import AdBanner from '../../../../../components/ads/AdBanner';
+import AdVignette from '../../../../../components/ads/AdVignette';
 import type {
   OptionKey,
   OptionVisualState,
@@ -458,6 +460,10 @@ export default function QuizPage(): JSX.Element {
               {copy.returnToDashboard}
             </button>
           </div>
+
+          {/* Iklan Vignette Monetag: muncul di halaman ringkasan/hasil,
+              bukan saat sesi lagi berjalan */}
+          <AdVignette />
         </div>
       </main>
     );
@@ -639,6 +645,15 @@ export default function QuizPage(): JSX.Element {
         {engine.state.isRevealed ? (
           <DiscussionThread questionId={question.id} />
         ) : null}
+
+        {/* Iklan In-Page Push Banner Monetag: muncul di bawah Diskusi,
+            hanya setelah jawaban di-reveal — tidak pernah tampil saat
+            user masih mikir/belum jawab soal */}
+        {engine.state.isRevealed ? (
+          <div className="rounded-floating bg-base-surface/50 p-2">
+            <AdBanner />
+          </div>
+        ) : null}
       </div>
 
       <ExitConfirmModal
@@ -649,4 +664,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-}
+    }

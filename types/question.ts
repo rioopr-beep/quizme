@@ -65,6 +65,7 @@ export interface DossierStructure {
 
 export interface QuestionData {
   readonly id: string;
+  readonly displayId: string;
   readonly sector: SectorType;
   readonly difficulty: DifficultyLevel;
   readonly prompt: LocalizedContent;
@@ -116,6 +117,7 @@ export interface SectorMeta {
 // ----------------------------------------------------------------------------
 export interface QuestionRow {
   readonly id: string;
+  readonly display_id: string;
   readonly sector: SectorType;
   readonly difficulty: DifficultyLevel;
   readonly prompt_id: string;
@@ -216,6 +218,7 @@ export interface Database {
 export function mapQuestionRowToQuestionData(row: QuestionRow): QuestionData {
   return {
     id: row.id,
+    displayId: row.display_id,
     sector: row.sector,
     difficulty: row.difficulty,
     prompt: { id: row.prompt_id, en: row.prompt_en },
@@ -232,4 +235,4 @@ export function mapQuestionRowToQuestionData(row: QuestionRow): QuestionData {
     },
     createdAt: row.created_at,
   };
-  }
+}

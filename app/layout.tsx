@@ -5,6 +5,7 @@ import Script from 'next/script';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { LanguageProvider } from '@/context/LanguageContext';
 import MathJaxProvider from '@/components/MathJaxProvider';
+import Footer from '@/components/Footer';
 import './globals.css';
 
 const inter = Inter({
@@ -20,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://quizfrend.my.id'),
+  metadataBase: new URL('https://www.quizfrend.my.id'),
   title: {
     default: 'QuizFrend — Latihan Analisis Lintas Disiplin',
     template: '%s | QuizFrend',
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     title: 'QuizFrend — Latihan Analisis Lintas Disiplin',
     description:
       'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu.',
-    url: 'https://quizfrend.my.id',
+    url: 'https://www.quizfrend.my.id',
     siteName: 'QuizFrend',
     locale: 'id_ID',
     type: 'website',
@@ -98,6 +99,8 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
             </div>
           </MathJaxProvider>
         </LanguageProvider>
+
+        <Footer />
 
         <GoogleAnalytics gaId="G-VNHDY1V50Z" />
       </body>

@@ -12,7 +12,6 @@ import DiscussionThread from '../../../../../components/DiscussionThread';
 import ReportQuestionButton from '../../../../../components/ReportQuestionButton';
 import BookmarkButton from '../../../../../components/BookmarkButton';
 import AdBanner from '../../../../../components/ads/AdBanner';
-import AdVignette from '../../../../../components/ads/AdVignette';
 import type {
   OptionKey,
   OptionVisualState,
@@ -460,10 +459,6 @@ export default function QuizPage(): JSX.Element {
               {copy.returnToDashboard}
             </button>
           </div>
-
-          {/* Iklan Vignette Monetag: muncul di halaman ringkasan/hasil,
-              bukan saat sesi lagi berjalan */}
-          <AdVignette />
         </div>
       </main>
     );
@@ -645,15 +640,15 @@ export default function QuizPage(): JSX.Element {
         {engine.state.isRevealed ? (
           <DiscussionThread questionId={question.id} />
         ) : null}
+      </div>
 
-        {/* Iklan In-Page Push Banner Monetag: muncul di bawah Diskusi,
-            hanya setelah jawaban di-reveal — tidak pernah tampil saat
-            user masih mikir/belum jawab soal */}
-        {engine.state.isRevealed ? (
-          <div className="rounded-floating bg-base-surface/50 p-2">
-            <AdBanner />
-          </div>
-        ) : null}
+      {/* Iklan In-Page Push Banner Monetag: dipasang SEKALI per halaman
+          (bukan di dalam kondisi isRevealed) supaya script tidak
+          mount-unmount tiap ganti soal — itu penyebab iklan numpuk/dobel
+          sebelumnya. Container ini render terus, tapi format In-Page Push
+          sendiri yang menentukan kapan iklan muncul ke user. */}
+      <div className="mx-auto max-w-3xl px-6 sm:px-10">
+        <AdBanner />
       </div>
 
       <ExitConfirmModal
@@ -664,4 +659,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-    }
+      }

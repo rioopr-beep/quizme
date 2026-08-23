@@ -2,52 +2,12 @@ import type { MetadataRoute } from 'next';
 
 const baseUrl = 'https://quizfrend.my.id';
 
-// Topik yang sudah punya soal (exclude yang masih 0 soal: cryptography, translation, book-trivia)
-// PENTING: slug di bawah HARUS sama persis dengan VALID_SECTORS di
-// app/(quiz)/quiz/[sector]/[difficulty]/page.tsx — kalau beda, URL 404.
-const topics = [
-  // Topik langsung
-  'financial',
-  'psychology',
-  'physics',
-  'linguistics',
-  'curiosities',
-  'mathematics',
-
-  // Science
-  'chemistry',
-  'biology',
-  'computer_science',
-  'astronomy',
-  'earth_science',
-  'economics',
-
-  // Engineering
-  'civil_engineering',
-  'mechanical_engineering',
-  'electrical_engineering',
-  'software_engineering',
-  'industrial_engineering',
-  'aerospace_engineering',
-  'automotive_engineering',
-  'environmental_engineering',
-
-  // Sports
-  'football',
-  'basketball',
-  'badminton',
-  'olympics_history',
-  'tennis',
-  'esports',
-  'motorsport',
-  'general_sports',
-];
-
-const levels = ['foundational', 'intermediate', 'advanced'] as const;
-
-// Jumlah soal default dipakai di URL supaya Googlebot langsung lihat
-// soal beneran, bukan layar "Berapa soal?" (halaman tanpa ?count kosong).
-const DEFAULT_COUNT = 10;
+// CATATAN: URL /quiz/[sector]/[difficulty] sengaja TIDAK dimasukkan ke sitemap.
+// Semua soal dikunci di balik login, jadi kalau bot crawl tanpa login,
+// URL-nya redirect ke /login -> dianggap "3XX redirect in sitemap" +
+// "Duplicate pages without canonical" (banyak URL beda mendarat di tujuan
+// yang sama). Kalau nanti ada mode preview/guest, baru pertimbangkan
+// masukin lagi topik yang benar-benar bisa diakses publik.
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
@@ -83,14 +43,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const quizPages: MetadataRoute.Sitemap = topics.flatMap((topic) =>
-    levels.map((level) => ({
-      url: `${baseUrl}/quiz/${topic}/${level}?count=${DEFAULT_COUNT}`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-    }))
-  );
-
-  return [...staticPages, ...quizPages];
+  return staticPages;
 }

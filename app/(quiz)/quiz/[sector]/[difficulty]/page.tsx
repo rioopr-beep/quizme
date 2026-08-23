@@ -314,17 +314,26 @@ export default function QuizPage(): JSX.Element {
 
   const engine = useQuizEngine(sector ?? 'financial', questions);
 
-  useEffect(() => {
-    if (engine.state.status === 'completed' && sector && difficulty) {
-      void persistBestStreak(engine.state.bestStreak);
-      void saveQuizAttempt(sector, difficulty, questions, engine.state.answers);
-    }
-  }, [engine.state.status, engine.state.bestStreak, sector, difficulty, questions, engine.state.answers]);
+useEffect(() => {
+  if (engine.currentQuestion?.displayId && selectedCount) {
+    router.replace(
+      `/quiz/${sector}/${difficulty}?count=${selectedCount}&q=${engine.currentQuestion.displayId}`,
+      { scroll: false },
+    );
+  }
+}, [engine.currentQuestion?.displayId]);
 
-  useEffect(() => {
-    setIsReasoningExpanded(false);
-    setIsSummaryExpanded(false);
-  }, [engine.currentQuestion?.id]);
+useEffect(() => {
+  if (engine.state.status === 'completed' && sector && difficulty) {
+    void persistBestStreak(engine.state.bestStreak);
+    void saveQuizAttempt(sector, difficulty, questions, engine.state.answers);
+  }
+}, [engine.state.status, engine.state.bestStreak, sector, difficulty, questions, engine.state.answers]);
+
+useEffect(() => {
+  setIsReasoningExpanded(false);
+  setIsSummaryExpanded(false);
+}, [engine.currentQuestion?.id]);
 
   const copy = useMemo(
     () => ({

@@ -87,6 +87,14 @@ function shuffleArray<T>(array: readonly T[]): T[] {
   return result;
 }
 
+// Ganti semua penyebutan "opsi X" / "option X" / "Jawaban: X" / "Answer: X"
+// supaya ikut huruf posisi BARU setelah shuffle, bukan huruf posisi lama
+// yang tersimpan di database.
+// PENTING: fungsi ini CUMA mengganti teks tampilan (string dossier).
+// Fungsi ini TIDAK PERNAH dipakai untuk menentukan correctOption —
+// penentuan jawaban benar 100% terjadi di shuffleQuestionOptions lewat
+// perbandingan originalKey === question.correctOption, yang tidak
+// tersentuh oleh perubahan ini sama sekali.
 function remapLettersInString(text: string, oldToNewKey: Record<OptionKey, OptionKey>): string {
   if (!text) return text;
   return text.replace(
@@ -117,6 +125,8 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
   const newOptionsEn: Record<OptionKey, string> = {} as Record<OptionKey, string>;
   let newCorrectOption: OptionKey = question.correctOption;
 
+  // oldKey -> newKey: dipakai buat nge-remap huruf opsi yang disebut di teks
+  // dossier (mis. "Pilih opsi B") biar sinkron sama posisi baru hasil shuffle
   const oldToNewKey: Record<OptionKey, OptionKey> = {} as Record<OptionKey, OptionKey>;
 
   keys.forEach((newKey, index) => {
@@ -158,6 +168,9 @@ function splitReasoningSteps(text: string | string[]): string[] {
 }
 
 async function persistBestStreak(candidate: number): Promise<void> {
+  // Streak sekarang dihitung dari check-in (lihat CheckInCard.tsx),
+  // bukan dari jawaban benar beruntun. Fungsi ini sengaja tidak lagi
+  // menulis ke profiles.best_streak / current_streak.
   void candidate;
 }
 
@@ -245,6 +258,7 @@ export default function QuizPage(): JSX.Element {
 
       let mapped: QuestionData[] = [];
 
+      // A. Jika User Login: Ambil pakai RPC
       if (user) {
         const { data, error } = await supabase.rpc('get_quiz_questions', {
           p_user_id: user.id,
@@ -258,6 +272,8 @@ export default function QuizPage(): JSX.Element {
         }
       }
 
+      // B. Jika Guest / Belum Login (Atau jika RPC gagal/kosong):
+      // Langsung tarik data dari tabel 'questions' secara publik
       if (mapped.length === 0) {
         const { data, error } = await supabase
           .from('questions')
@@ -283,6 +299,7 @@ export default function QuizPage(): JSX.Element {
         mapped = shuffledOrder.slice(0, selectedCount);
       }
 
+      // Acak posisi opsi A/B/C/D untuk tiap soal (independen dari urutan soal)
       const withShuffledOptions = mapped.map(shuffleQuestionOptions);
       setQuestions(withShuffledOptions);
       setIsLoading(false);
@@ -503,11 +520,21 @@ export default function QuizPage(): JSX.Element {
           <h1 className="mr-10 text-lg font-semibold leading-relaxed text-text-primary">
             {question.prompt[language]}
           </h1>
-
+          {/* DIUBAH: setiap tombol opsi sekarang dapat pulseClass tambahan.
+              Kalau jawaban sudah di-reveal DAN opsi ini statusnya correct/incorrect,
+              tambahin class animasi ring pulse sekali jalan (0.6s, lihat globals.css
+              untuk @keyframes pulse-correct / pulse-incorrect). Tidak menyentuh
+              logic penentuan jawaban benar sama sekali — cuma nambah class visual. */}
           <div className="mt-6 flex flex-col gap-3">
             {OPTION_ORDER.map((optionKey) => {
               const visualState = engine.getOptionVisualState(optionKey);
               const isLocked = engine.isOptionLocked(optionKey);
+              const pulseClass =
+                engine.state.isRevealed && visualState === 'correct'
+                  ? 'animate-pulse-correct'
+                  : engine.state.isRevealed && visualState === 'incorrect'
+                    ? 'animate-pulse-incorrect'
+                    : '';
 
               return (
                 <button
@@ -515,7 +542,7 @@ export default function QuizPage(): JSX.Element {
                   type="button"
                   disabled={isLocked || engine.state.isRevealed}
                   onClick={() => engine.selectOption(optionKey)}
-                  className={`flex items-start gap-3 rounded-floating border px-4 py-3.5 text-left text-sm transition active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed ${OPTION_VISUAL_CLASS_MAP[visualState]}`}
+                  className={`flex items-start gap-3 rounded-floating border px-4 py-3.5 text-left text-sm transition active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed ${OPTION_VISUAL_CLASS_MAP[visualState]} ${pulseClass}`}
                 >
                   <span className="text-xs font-semibold">{optionKey}</span>
                   <span className="font-medium leading-relaxed">{question.options[language][optionKey]}</span>
@@ -525,102 +552,110 @@ export default function QuizPage(): JSX.Element {
           </div>
         </section>
 
-        {engine.state.isRevealed ? (
-          <section className="rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
-                {copy.dossierHeading}
-              </h2>
-              <ReportQuestionButton questionId={question.id} />
-            </div>
+        {/* DIUBAH: dossier SELALU di-render di HTML (bukan conditional mount lagi)
+            supaya Googlebot bisa baca kontennya. Disembunyikan secara VISUAL
+            pakai class 'hidden' sampai user beneran jawab (isRevealed true).
+            Pola ini aman untuk SEO — sama seperti konten accordion/tab yang
+            disembunyikan CSS, bukan cloaking. */}
+        <section
+          className={`overflow-hidden rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8 ${
+            engine.state.isRevealed ? '' : 'hidden'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
+              {copy.dossierHeading}
+            </h2>
+          </div>
 
-            <div
-              className={`mt-3 text-sm leading-relaxed text-text-primary [&_p]:m-0 ${
-                isSummaryExpanded ? '' : 'line-clamp-2'
-              }`}
-            >
-              <ReactMarkdown>{question.dossier.summary[language]}</ReactMarkdown>
-            </div>
+          <div
+            className={`mt-3 text-sm leading-relaxed text-text-primary [&_p]:m-0 ${
+              isSummaryExpanded ? '' : 'line-clamp-2'
+            }`}
+          >
+            <ReactMarkdown>{question.dossier.summary[language]}</ReactMarkdown>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsSummaryExpanded((prev) => !prev)}
+            className="mt-1 text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
+          >
+            {isSummaryExpanded ? copy.hideSummary : copy.showSummary}
+          </button>
+
+          <div className="mt-6 flex items-center justify-between">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+              {copy.reasoningHeading}
+            </h3>
             <button
               type="button"
-              onClick={() => setIsSummaryExpanded((prev) => !prev)}
-              className="mt-1 text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
+              onClick={() => setIsReasoningExpanded((prev) => !prev)}
+              className="text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
             >
-              {isSummaryExpanded ? copy.hideSummary : copy.showSummary}
+              {isReasoningExpanded ? copy.hideReasoning : copy.showReasoning}
             </button>
-
-            <div className="mt-6 flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-                {copy.reasoningHeading}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsReasoningExpanded((prev) => !prev)}
-                className="text-xs font-medium text-accent underline decoration-accent-soft underline-offset-2"
-              >
-                {isReasoningExpanded ? copy.hideReasoning : copy.showReasoning}
-              </button>
-            </div>
-            {isReasoningExpanded ? (
-              <div className="mt-2 flex flex-col gap-4">
-                {splitReasoningSteps(question.dossier.reasoning[language]).map((step, index) => (
-                  <div key={index} className="overflow-x-auto">
-                    <div className="text-sm leading-relaxed text-text-secondary [&_p]:m-0">
-                      <ReactMarkdown>{step}</ReactMarkdown>
-                    </div>
-                  </div>
-                ))}
+          </div>
+          {/* DIUBAH: sama seperti section dossier, reasoning steps SELALU
+              di-render di DOM, cuma disembunyikan class 'hidden' sampai
+              isReasoningExpanded true. */}
+          <div className={`mt-2 flex flex-col gap-4 ${isReasoningExpanded ? '' : 'hidden'}`}>
+            {splitReasoningSteps(question.dossier.reasoning[language]).map((step, index) => (
+              <div key={index} className="overflow-x-auto">
+                <div className="text-sm leading-relaxed text-text-secondary [&_p]:m-0">
+                  <ReactMarkdown>{step}</ReactMarkdown>
+                </div>
               </div>
-            ) : null}
+            ))}
+          </div>
 
-            {question.dossier.references && question.dossier.references.length > 0 ? (
-              <>
-                <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                  {copy.referencesHeading}
-                </h3>
-                <ul className="mt-2 flex flex-col gap-1">
-                  {question.dossier.references.map((reference, index) => {
-                    const isObject = typeof reference === 'object' && reference !== null;
-                    const url = isObject
-                      ? (reference as { url?: string }).url
-                      : (reference as string);
-                    const label = isObject
-                      ? (reference as { title?: string }).title ?? url
-                      : (reference as string);
+          {/* FIX: defensif terhadap references berupa string, {title,url} object,
+              atau null/undefined — sebelumnya asumsi selalu string bikin
+              React error #31 saat ketemu object, dan crash saat references null */}
+          {question.dossier.references && question.dossier.references.length > 0 ? (
+            <>
+              <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
+                {copy.referencesHeading}
+              </h3>
+              <ul className="mt-2 flex flex-col gap-1">
+                {question.dossier.references.map((reference, index) => {
+                  const isObject = typeof reference === 'object' && reference !== null;
+                  const url = isObject
+                    ? (reference as { url?: string }).url
+                    : (reference as string);
+                  const label = isObject
+                    ? (reference as { title?: string }).title ?? url
+                    : (reference as string);
 
-                    if (!url) return null;
+                  if (!url) return null;
 
-                    return (
-                      <li key={isObject ? url ?? index : (reference as string)}>
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
-                          title={label}
-                        >
-                          {label}
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </>
-            ) : null}
+                  return (
+                    <li key={isObject ? url ?? index : (reference as string)}>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
+                        title={label}
+                      >
+                        {label}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          ) : null}
 
-            <button
-              type="button"
-              onClick={engine.goToNextQuestion}
-              className="mt-8 w-full rounded-floating bg-accent px-4 py-3 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
-            >
-              {engine.progress.current === engine.progress.total ? copy.finish : copy.next}
-            </button>
-          </section>
-        ) : null}
+          <button
+            type="button"
+            onClick={engine.goToNextQuestion}
+            className="mt-8 w-full rounded-floating bg-accent px-4 py-3 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
+          >
+            {engine.progress.current === engine.progress.total ? copy.finish : copy.next}
+          </button>
 
-        {/* Tambahan Fitur Diskusi di bawah dossier saat revealed */}
-        {engine.state.isRevealed ? (
-          <div className="mt-6 flex flex-col justify-between border-t border-base-border pt-4">
+          {/* Section UI Diskusi Terintegrasi - muncul di bagian bawah Dossier */}
+          <div className="mt-6 flex items-center justify-between border-t border-base-border pt-4">
             <button
               type="button"
               onClick={() => setIsDiscussionOpen((prev) => !prev)}
@@ -631,14 +666,16 @@ export default function QuizPage(): JSX.Element {
               </svg>
               {copy.discussionLabel}
             </button>
-
-            {isDiscussionOpen ? (
-              <div className="mt-4">
-                <DiscussionThread questionId={question.id} />
-              </div>
-            ) : null}
+            <ReportQuestionButton questionId={question.id} />
           </div>
-        ) : null}
+
+          {isDiscussionOpen ? (
+            <div className="mt-4">
+              <DiscussionThread questionId={question.id} />
+            </div>
+          ) : null}
+        </section>
+
       </div>
 
       <ExitConfirmModal

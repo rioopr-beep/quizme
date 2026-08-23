@@ -21,3 +21,35 @@ body {
 .animate-nav-in {
   animation: floatNavIn 0.5s ease-out;
 }
+
+@keyframes pulse-correct {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes pulse-incorrect {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.animate-pulse-correct {
+  animation: pulse-correct 0.6s ease-out 1;
+}
+
+.animate-pulse-incorrect {
+  animation: pulse-incorrect 0.6s ease-out 1;
+}

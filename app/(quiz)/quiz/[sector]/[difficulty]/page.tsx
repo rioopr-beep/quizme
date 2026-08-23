@@ -544,7 +544,7 @@ export default function QuizPage(): JSX.Element {
                   className={`flex items-start gap-3 rounded-floating border px-4 py-3.5 text-left text-sm transition active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed ${OPTION_VISUAL_CLASS_MAP[visualState]} ${pulseClass}`}
                 >
                   <span className="text-xs font-semibold">{optionKey}</span>
-                  <span className="leading-relaxed">{question.options[language][optionKey]}</span>
+                  <span className="font-medium leading-relaxed">{question.options[language][optionKey]}</span>
                 </button>
               );
             })}

@@ -79,7 +79,7 @@ export default function BookmarkButton({ questionId }: BookmarkButtonProps): JSX
       onClick={() => void toggleBookmark()}
       aria-label={label}
       title={label}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition active:scale-90 hover:bg-base-bg"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-base-border bg-base-surface shadow-floating-sm transition active:scale-90 hover:bg-base-bg"
     >
       <Bookmark
         className={`h-4 w-4 transition ${

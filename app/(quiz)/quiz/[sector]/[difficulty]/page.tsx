@@ -236,6 +236,7 @@ export default function QuizPage(): JSX.Element {
   const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
   const [isReasoningExpanded, setIsReasoningExpanded] = useState<boolean>(false);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState<boolean>(false);
+  const [isDiscussionOpen, setIsDiscussionOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!sector || !difficulty || !selectedCount) {
@@ -245,7 +246,7 @@ export default function QuizPage(): JSX.Element {
 
     let isMounted = true;
 
-        async function loadQuestions(
+    async function loadQuestions(
       activeSector: SectorType,
       activeDifficulty: DifficultyLevel,
     ): Promise<void> {
@@ -298,7 +299,6 @@ export default function QuizPage(): JSX.Element {
         mapped = shuffledOrder.slice(0, selectedCount);
       }
 
-
       // Acak posisi opsi A/B/C/D untuk tiap soal (independen dari urutan soal)
       const withShuffledOptions = mapped.map(shuffleQuestionOptions);
       setQuestions(withShuffledOptions);
@@ -333,6 +333,7 @@ export default function QuizPage(): JSX.Element {
   useEffect(() => {
     setIsReasoningExpanded(false);
     setIsSummaryExpanded(false);
+    setIsDiscussionOpen(false);
   }, [engine.currentQuestion?.id]);
 
   const copy = useMemo(
@@ -362,6 +363,7 @@ export default function QuizPage(): JSX.Element {
       returnToDashboard: language === 'id' ? 'Kembali ke Dashboard' : 'Return to Dashboard',
       howMany: language === 'id' ? 'Berapa soal?' : 'How many questions?',
       questionsUnit: language === 'id' ? 'soal' : 'questions',
+      discussionLabel: language === 'id' ? 'Diskusi' : 'Discussion',
     }),
     [language],
   );
@@ -505,19 +507,20 @@ export default function QuizPage(): JSX.Element {
         </header>
 
         <section className="relative rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
-  <div className="absolute right-5 top-5">
-    <BookmarkButton questionId={question.id} />
-  </div>
+          <div className="absolute right-5 top-5">
+            <BookmarkButton questionId={question.id} />
+          </div>
 
-  {question.context ? (
-    <div className="mb-4 mr-10 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary [&_p]:m-0">
-      <ReactMarkdown>{question.context[language]}</ReactMarkdown>
-    </div>
-  ) : null}
+          {question.context ? (
+            <div className="mb-4 mr-10 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary [&_p]:m-0">
+              <ReactMarkdown>{question.context[language]}</ReactMarkdown>
+            </div>
+          ) : null}
 
-  <h1 className="mr-10 text-lg font-semibold leading-relaxed text-text-primary">
-    {question.prompt[language]}
-  </h1>
+          <h1 className="mr-10 text-lg font-semibold leading-relaxed text-text-primary">
+            {question.prompt[language]}
+          </h1>
+
           {/* DIUBAH: setiap tombol opsi sekarang dapat pulseClass tambahan.
               Kalau jawaban sudah di-reveal DAN opsi ini statusnya correct/incorrect,
               tambahin class animasi ring pulse sekali jalan (0.6s, lihat globals.css
@@ -656,7 +659,24 @@ export default function QuizPage(): JSX.Element {
 
         {/* Diskusi — muncul di bawah dossier, hanya setelah jawaban di-reveal */}
         {engine.state.isRevealed ? (
-          <DiscussionThread questionId={question.id} />
+          <div className="mt-6 flex flex-col justify-between border-t border-base-border pt-4">
+            <button
+              type="button"
+              onClick={() => setIsDiscussionOpen((prev) => !prev)}
+              className="flex items-center gap-1.5 text-xs font-medium text-text-secondary transition hover:text-accent"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+              {copy.discussionLabel}
+            </button>
+
+            {isDiscussionOpen ? (
+              <div className="mt-4">
+                <DiscussionThread questionId={question.id} />
+              </div>
+            ) : null}
+          </div>
         ) : null}
       </div>
 

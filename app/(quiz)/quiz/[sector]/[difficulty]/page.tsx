@@ -504,21 +504,20 @@ export default function QuizPage(): JSX.Element {
           </div>
         </header>
 
-        <section className="rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              {question.context ? (
-                <div className="mb-4 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary [&_p]:m-0">
-                  <ReactMarkdown>{question.context[language]}</ReactMarkdown>
-                </div>
-              ) : null}
+        <section className="relative rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8">
+  <div className="absolute right-5 top-5">
+    <BookmarkButton questionId={question.id} />
+  </div>
 
-              <h1 className="text-lg font-semibold leading-relaxed text-text-primary">
-                {question.prompt[language]}
-              </h1>
-            </div>
-            <BookmarkButton questionId={question.id} />
-          </div>
+  {question.context ? (
+    <div className="mb-4 mr-10 rounded-floating bg-base-bg p-4 text-sm leading-relaxed text-text-secondary [&_p]:m-0">
+      <ReactMarkdown>{question.context[language]}</ReactMarkdown>
+    </div>
+  ) : null}
+
+  <h1 className="mr-10 text-lg font-semibold leading-relaxed text-text-primary">
+    {question.prompt[language]}
+  </h1>
           {/* DIUBAH: setiap tombol opsi sekarang dapat pulseClass tambahan.
               Kalau jawaban sudah di-reveal DAN opsi ini statusnya correct/incorrect,
               tambahin class animasi ring pulse sekali jalan (0.6s, lihat globals.css

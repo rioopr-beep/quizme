@@ -314,26 +314,26 @@ export default function QuizPage(): JSX.Element {
 
   const engine = useQuizEngine(sector ?? 'financial', questions);
 
-useEffect(() => {
-  if (engine.currentQuestion?.displayId && selectedCount) {
-    router.replace(
-      `/quiz/${sector}/${difficulty}?count=${selectedCount}&q=${engine.currentQuestion.displayId}`,
-      { scroll: false },
-    );
-  }
-}, [engine.currentQuestion?.displayId]);
+  useEffect(() => {
+    if (engine.currentQuestion?.displayId && selectedCount) {
+      router.replace(
+        `/quiz/${sector}/${difficulty}?count=${selectedCount}&q=${engine.currentQuestion.displayId}`,
+        { scroll: false },
+      );
+    }
+  }, [engine.currentQuestion?.displayId]);
 
-useEffect(() => {
-  if (engine.state.status === 'completed' && sector && difficulty) {
-    void persistBestStreak(engine.state.bestStreak);
-    void saveQuizAttempt(sector, difficulty, questions, engine.state.answers);
-  }
-}, [engine.state.status, engine.state.bestStreak, sector, difficulty, questions, engine.state.answers]);
+  useEffect(() => {
+    if (engine.state.status === 'completed' && sector && difficulty) {
+      void persistBestStreak(engine.state.bestStreak);
+      void saveQuizAttempt(sector, difficulty, questions, engine.state.answers);
+    }
+  }, [engine.state.status, engine.state.bestStreak, sector, difficulty, questions, engine.state.answers]);
 
-useEffect(() => {
-  setIsReasoningExpanded(false);
-  setIsSummaryExpanded(false);
-}, [engine.currentQuestion?.id]);
+  useEffect(() => {
+    setIsReasoningExpanded(false);
+    setIsSummaryExpanded(false);
+  }, [engine.currentQuestion?.id]);
 
   const copy = useMemo(
     () => ({
@@ -519,10 +519,21 @@ useEffect(() => {
             </div>
             <BookmarkButton questionId={question.id} />
           </div>
+          {/* DIUBAH: setiap tombol opsi sekarang dapat pulseClass tambahan.
+              Kalau jawaban sudah di-reveal DAN opsi ini statusnya correct/incorrect,
+              tambahin class animasi ring pulse sekali jalan (0.6s, lihat globals.css
+              untuk @keyframes pulse-correct / pulse-incorrect). Tidak menyentuh
+              logic penentuan jawaban benar sama sekali — cuma nambah class visual. */}
           <div className="mt-6 flex flex-col gap-3">
             {OPTION_ORDER.map((optionKey) => {
               const visualState = engine.getOptionVisualState(optionKey);
               const isLocked = engine.isOptionLocked(optionKey);
+              const pulseClass =
+                engine.state.isRevealed && visualState === 'correct'
+                  ? 'animate-pulse-correct'
+                  : engine.state.isRevealed && visualState === 'incorrect'
+                    ? 'animate-pulse-incorrect'
+                    : '';
 
               return (
                 <button
@@ -530,7 +541,7 @@ useEffect(() => {
                   type="button"
                   disabled={isLocked || engine.state.isRevealed}
                   onClick={() => engine.selectOption(optionKey)}
-                  className={`flex items-start gap-3 rounded-floating border px-4 py-3.5 text-left text-sm transition active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed ${OPTION_VISUAL_CLASS_MAP[visualState]}`}
+                  className={`flex items-start gap-3 rounded-floating border px-4 py-3.5 text-left text-sm transition active:scale-[0.98] disabled:active:scale-100 disabled:cursor-not-allowed ${OPTION_VISUAL_CLASS_MAP[visualState]} ${pulseClass}`}
                 >
                   <span className="text-xs font-semibold">{optionKey}</span>
                   <span className="leading-relaxed">{question.options[language][optionKey]}</span>
@@ -658,4 +669,4 @@ useEffect(() => {
       />
     </main>
   );
-          }
+}

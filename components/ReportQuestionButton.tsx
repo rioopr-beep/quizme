@@ -89,26 +89,26 @@ export default function ReportQuestionButton({ questionId }: Props) {
   return (
     <>
       <button
-        type="button"
-        onClick={openModal}
-        className="flex items-center gap-1.5 text-xs text-text-muted hover:text-status-incorrect transition"
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-          <line x1="4" y1="22" x2="4" y2="15" />
-        </svg>
-        {t.reportLabel}
-      </button>
-
+  type="button"
+  onClick={openModal}
+  className="flex items-center gap-1.5 text-xs font-medium text-text-secondary transition hover:text-status-incorrect"
+>
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+    <line x1="4" y1="22" x2="4" y2="15" />
+  </svg>
+  {t.reportLabel}
+</button>
+      
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/30 px-4 pb-4 sm:pb-0">
           <div className="w-full max-w-sm rounded-floating bg-base-surface shadow-floating p-5">

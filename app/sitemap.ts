@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const baseUrl = 'https://quizfrend.my.id';
+const baseUrl = 'https://www.quizfrend.my.id';
 
 // CATATAN: URL /quiz/[sector]/[difficulty] sengaja TIDAK dimasukkan ke sitemap.
 // Semua soal dikunci di balik login, jadi kalau bot crawl tanpa login,

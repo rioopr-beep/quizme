@@ -47,6 +47,8 @@ export async function POST(req: NextRequest) {
   // 3. Pre-screen keamanan pakai Gemini
   const screenResult = await screenQuestionSafety(prompt_en, context_en)
 
+  console.log('SCREEN RESULT:', JSON.stringify(screenResult))
+
   if (!screenResult.safe) {
     return NextResponse.json(
       { error: 'Soal ditolak sistem otomatis', reason: screenResult.reason },

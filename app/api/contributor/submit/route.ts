@@ -24,4 +24,66 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Harus login dulu' }, { status: 401 })
   }
 
-  // ...sisanya SAMA PERSIS kayak yang tadi (body, validasi, screening, insert)
+  // 2. Ambil & validasi body
+  const body = await req.json()
+  const {
+    sector,
+    difficulty,
+    prompt_id,
+    prompt_en,
+    context_id,
+    context_en,
+    options_id,
+    options_en,
+    correct_option,
+    dossier,
+    contributor_display_name,
+  } = body
+
+  if (!sector || !difficulty || !prompt_id || !prompt_en || !options_id || !options_en || !correct_option || !dossier) {
+    return NextResponse.json({ error: 'Data soal belum lengkap' }, { status: 400 })
+  }
+
+  // 3. Pre-screen keamanan pakai Gemini
+  const screenResult = await screenQuestionSafety({
+    prompt_en,
+    context_en,
+    options_en,
+    dossier,
+  })
+
+  if (!screenResult.safe) {
+    return NextResponse.json(
+      { error: 'Soal ditolak sistem otomatis', reason: screenResult.reason },
+      { status: 422 }
+    )
+  }
+
+  // 4. Insert ke tabel contributor_questions (project Supabase Contributor)
+  const { data, error } = await supabaseContributor
+    .from('contributor_questions')
+    .insert({
+      sector,
+      difficulty,
+      prompt_id,
+      prompt_en,
+      context_id,
+      context_en,
+      options_id,
+      options_en,
+      correct_option,
+      dossier,
+      contributor_user_id: user.id,
+      contributor_display_name: contributor_display_name ?? user.email,
+      status: 'pending',
+      ai_screen_result: screenResult,
+    })
+    .select()
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true, submission: data })
+    }

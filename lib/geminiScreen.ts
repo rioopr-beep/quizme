@@ -46,7 +46,8 @@ export async function screenQuestionSafety(
   )
 
   if (!res.ok) {
-    // Kalau Gemini gagal/error, jangan auto-approve — anggap perlu review manual
+    const errBody = await res.text()
+    console.log('GEMINI ERROR:', res.status, errBody)
     return { safe: false, reason: 'AI screening gagal, perlu review manual' }
   }
 

@@ -72,6 +72,8 @@ export default function ProfilePage(): JSX.Element {
   const [isSavingName, setIsSavingName] = useState<boolean>(false);
   const [nameError, setNameError] = useState<string | null>(null);
 
+  const [showAllStats, setShowAllStats] = useState<boolean>(false);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -216,6 +218,8 @@ export default function ProfilePage(): JSX.Element {
     language === 'id'
       ? 'Belum ada data. Kerjakan beberapa kuis dulu.'
       : 'No data yet. Complete a few quizzes first.';
+  const seeAllLabel = language === 'id' ? 'Lihat semua' : 'See all';
+  const seeLessLabel = language === 'id' ? 'Sembunyikan' : 'Show less';
   const languageRowLabel = language === 'id' ? 'Bahasa tampilan' : 'Display language';
   const contributeLabel = language === 'id' ? 'Kontribusi Soal' : 'Contribute a Question';
   const logoutLabel = language === 'id' ? 'Keluar' : 'Logout';
@@ -232,111 +236,147 @@ export default function ProfilePage(): JSX.Element {
   }
 
   const initial = summary.name ? summary.name.charAt(0).toUpperCase() : '?';
+  const visibleStats = showAllStats ? stats : stats.slice(0, 4);
 
   return (
-    <main className="min-h-screen bg-base-bg px-6 py-10 sm:px-10">
-      <div className="mx-auto flex max-w-2xl flex-col gap-4">
+    <main className="min-h-screen bg-base-bg px-6 py-10 sm:px-10 lg:px-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4">
         {/* Identitas + quick stats */}
-        <div className="rounded-floating bg-base-surface shadow-floating-sm p-6">
-          <div className="flex items-center gap-4">
-            <AvatarUpload
-              userId={userId}
-              currentAvatarUrl={summary.avatarUrl}
-              fallbackInitial={initial}
-              onUploadSuccess={(newUrl) =>
-                setSummary((previous) =>
-                  previous ? { ...previous, avatarUrl: newUrl } : previous,
-                )
-              }
-            />
-            <div className="min-w-0 flex-1">
-              {isEditingName ? (
-                <div className="flex flex-col gap-2">
-                  <input
-                    type="text"
-                    value={nameDraft}
-                    onChange={(event) => setNameDraft(event.target.value)}
-                    placeholder={namePlaceholder}
-                    autoFocus
-                    disabled={isSavingName}
-                    className="w-full rounded-floating border border-base-border bg-base-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
-                  />
-                  {nameError ? (
-                    <p className="text-xs text-status-incorrect">{nameError}</p>
-                  ) : null}
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void handleSaveName()}
+        <div className="relative overflow-hidden rounded-floating bg-base-surface shadow-floating-sm">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-28 opacity-60"
+            style={{
+              background:
+                'radial-gradient(120% 100% at 20% 0%, var(--color-accent-soft, rgba(59,130,246,0.18)), transparent 70%)',
+            }}
+          />
+          <div className="relative p-6 sm:p-8">
+            <div className="flex items-center gap-4">
+              <AvatarUpload
+                userId={userId}
+                currentAvatarUrl={summary.avatarUrl}
+                fallbackInitial={initial}
+                onUploadSuccess={(newUrl) =>
+                  setSummary((previous) =>
+                    previous ? { ...previous, avatarUrl: newUrl } : previous,
+                  )
+                }
+              />
+              <div className="min-w-0 flex-1">
+                {isEditingName ? (
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      value={nameDraft}
+                      onChange={(event) => setNameDraft(event.target.value)}
+                      placeholder={namePlaceholder}
+                      autoFocus
                       disabled={isSavingName}
-                      className="rounded-full bg-accent px-4 py-1.5 text-xs font-medium text-base-surface transition active:scale-95 hover:opacity-90 disabled:opacity-60"
-                    >
-                      {isSavingName ? '...' : saveLabel}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={cancelEditingName}
-                      disabled={isSavingName}
-                      className="rounded-full bg-base-bg px-4 py-1.5 text-xs font-medium text-text-secondary transition active:scale-95 hover:bg-base-border disabled:opacity-60"
-                    >
-                      {cancelLabel}
-                    </button>
+                      className="w-full rounded-floating border border-base-border bg-base-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
+                    />
+                    {nameError ? (
+                      <p className="text-xs text-status-incorrect">{nameError}</p>
+                    ) : null}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void handleSaveName()}
+                        disabled={isSavingName}
+                        className="rounded-full bg-accent px-4 py-1.5 text-xs font-medium text-base-surface transition active:scale-95 hover:opacity-90 disabled:opacity-60"
+                      >
+                        {isSavingName ? '...' : saveLabel}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelEditingName}
+                        disabled={isSavingName}
+                        className="rounded-full bg-base-bg px-4 py-1.5 text-xs font-medium text-text-secondary transition active:scale-95 hover:bg-base-border disabled:opacity-60"
+                      >
+                        {cancelLabel}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={startEditingName}
-                  className="group flex items-center gap-1.5 text-left"
-                >
-                  <p className="truncate text-base font-semibold text-text-primary">
-                    {summary.name || (language === 'id' ? 'Pengguna' : 'User')}
-                  </p>
-                  <i className="ti ti-pencil text-xs text-text-muted transition group-hover:text-accent" aria-hidden="true" />
-                </button>
-              )}
-              <p className="truncate text-xs text-text-muted">{summary.email}</p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={startEditingName}
+                    className="group flex items-center gap-1.5 text-left"
+                  >
+                    <p className="truncate text-lg font-semibold text-text-primary">
+                      {summary.name || (language === 'id' ? 'Pengguna' : 'User')}
+                    </p>
+                    <i className="ti ti-pencil text-xs text-text-muted transition group-hover:text-accent" aria-hidden="true" />
+                  </button>
+                )}
+                <p className="truncate text-xs text-text-muted">{summary.email}</p>
+              </div>
             </div>
-          </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-2.5">
-            <div className="rounded-floating bg-base-bg p-3 text-center">
-              <p className="text-lg font-semibold text-accent">{summary.bestStreak}</p>
-              <p className="mt-0.5 text-[10px] text-text-muted">{streakLabel}</p>
-            </div>
-            <div className="rounded-floating bg-base-bg p-3 text-center">
-              <p className="text-lg font-semibold text-accent">{summary.totalQuestions}</p>
-              <p className="mt-0.5 text-[10px] text-text-muted">{questionsLabel}</p>
-            </div>
-            <div className="rounded-floating bg-base-bg p-3 text-center">
-              <p className="text-lg font-semibold text-accent">{summary.topicsAttempted}</p>
-              <p className="mt-0.5 text-[10px] text-text-muted">{topicsLabel}</p>
+            <div className="mt-6 grid grid-cols-3 gap-3">
+              <div className="rounded-floating bg-base-bg p-4 text-center">
+                <i className="ti ti-flame mb-1 text-lg text-accent" aria-hidden="true" />
+                <p className="text-xl font-bold text-text-primary">{summary.bestStreak}</p>
+                <p className="mt-0.5 text-[10px] uppercase tracking-wide text-text-muted">{streakLabel}</p>
+              </div>
+              <div className="rounded-floating bg-base-bg p-4 text-center">
+                <i className="ti ti-checklist mb-1 text-lg text-accent" aria-hidden="true" />
+                <p className="text-xl font-bold text-text-primary">{summary.totalQuestions}</p>
+                <p className="mt-0.5 text-[10px] uppercase tracking-wide text-text-muted">{questionsLabel}</p>
+              </div>
+              <div className="rounded-floating bg-base-bg p-4 text-center">
+                <i className="ti ti-category mb-1 text-lg text-accent" aria-hidden="true" />
+                <p className="text-xl font-bold text-text-primary">{summary.topicsAttempted}</p>
+                <p className="mt-0.5 text-[10px] uppercase tracking-wide text-text-muted">{topicsLabel}</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Statistik per topik */}
-        <div className="rounded-floating bg-base-surface shadow-floating-sm p-6">
-          <p className="mb-4 text-sm font-semibold text-text-primary">{statsHeading}</p>
+        {/* Statistik per topik — grid minimalist */}
+        <div className="rounded-floating bg-base-surface shadow-floating-sm p-6 sm:p-8">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm font-semibold text-text-primary">{statsHeading}</p>
+            {stats.length > 4 ? (
+              <button
+                type="button"
+                onClick={() => setShowAllStats((prev) => !prev)}
+                className="text-xs font-medium text-accent transition hover:opacity-80"
+              >
+                {showAllStats ? seeLessLabel : seeAllLabel}
+              </button>
+            ) : null}
+          </div>
 
           {stats.length === 0 ? (
             <p className="text-sm text-text-muted">{statsEmpty}</p>
           ) : (
-            <div className="flex flex-col gap-3.5">
-              {stats.map((stat) => {
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {visibleStats.map((stat) => {
                 const label = SECTOR_LABEL[stat.sector]?.[language] ?? stat.sector;
                 return (
-                  <div key={stat.sector}>
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="text-sm text-text-secondary">{label}</span>
-                      <span className="text-xs text-text-muted">{stat.accuracy}%</span>
+                  <div
+                    key={stat.sector}
+                    className="flex flex-col items-center gap-2 rounded-floating bg-base-bg p-4 text-center"
+                  >
+                    <div className="relative flex h-14 w-14 items-center justify-center">
+                      <svg viewBox="0 0 40 40" className="h-14 w-14 -rotate-90">
+                        <circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" strokeWidth="3" className="text-base-border" />
+                        <circle
+                          cx="20"
+                          cy="20"
+                          r="17"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeDasharray={2 * Math.PI * 17}
+                          strokeDashoffset={2 * Math.PI * 17 * (1 - stat.accuracy / 100)}
+                          className="text-accent transition-all duration-500"
+                        />
+                      </svg>
+                      <span className="absolute text-xs font-bold text-text-primary">{stat.accuracy}%</span>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-base-bg">
-                      <div
-                        className="h-full rounded-full bg-accent transition-all duration-500"
-                        style={{ width: `${stat.accuracy}%` }}
-                      />
-                    </div>
+                    <span className="line-clamp-2 text-xs text-text-secondary">{label}</span>
                   </div>
                 );
               })}
@@ -344,7 +384,7 @@ export default function ProfilePage(): JSX.Element {
           )}
         </div>
 
-         {/* Bookmarks */}
+        {/* Bookmarks */}
         <BookmarksSection />
 
         {/* Pengaturan */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 import { useLanguage } from '../../../context/LanguageContext';
 import BookmarksSection from '../../../components/BookmarksSection';
@@ -216,6 +217,7 @@ export default function ProfilePage(): JSX.Element {
       ? 'Belum ada data. Kerjakan beberapa kuis dulu.'
       : 'No data yet. Complete a few quizzes first.';
   const languageRowLabel = language === 'id' ? 'Bahasa tampilan' : 'Display language';
+  const contributeLabel = language === 'id' ? 'Kontribusi Soal' : 'Contribute a Question';
   const logoutLabel = language === 'id' ? 'Keluar' : 'Logout';
   const saveLabel = language === 'id' ? 'Simpan' : 'Save';
   const cancelLabel = language === 'id' ? 'Batal' : 'Cancel';
@@ -347,10 +349,18 @@ export default function ProfilePage(): JSX.Element {
 
         {/* Pengaturan */}
         <div className="rounded-floating bg-base-surface shadow-floating-sm overflow-hidden">
+          <Link
+            href="/contribute"
+            className="flex w-full items-center gap-2 px-6 py-3.5 text-left transition active:scale-[0.99] hover:bg-base-bg"
+          >
+            <i className="ti ti-feather text-base text-accent" aria-hidden="true" />
+            <span className="text-sm font-medium text-text-primary">{contributeLabel}</span>
+          </Link>
+
           <button
             type="button"
             onClick={toggleLanguage}
-            className="flex w-full items-center justify-between px-6 py-3.5 text-left transition active:scale-[0.99] hover:bg-base-bg"
+            className="flex w-full items-center justify-between border-t border-base-border px-6 py-3.5 text-left transition active:scale-[0.99] hover:bg-base-bg"
           >
             <span className="text-sm text-text-secondary">{languageRowLabel}</span>
             <span className="text-sm text-text-muted">

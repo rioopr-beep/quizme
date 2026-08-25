@@ -87,14 +87,6 @@ function shuffleArray<T>(array: readonly T[]): T[] {
   return result;
 }
 
-// Ganti semua penyebutan "opsi X" / "option X" / "Jawaban: X" / "Answer: X"
-// supaya ikut huruf posisi BARU setelah shuffle, bukan huruf posisi lama
-// yang tersimpan di database.
-// PENTING: fungsi ini CUMA mengganti teks tampilan (string dossier).
-// Fungsi ini TIDAK PERNAH dipakai untuk menentukan correctOption —
-// penentuan jawaban benar 100% terjadi di shuffleQuestionOptions lewat
-// perbandingan originalKey === question.correctOption, yang tidak
-// tersentuh oleh perubahan ini sama sekali.
 function remapLettersInString(text: string, oldToNewKey: Record<OptionKey, OptionKey>): string {
   if (!text) return text;
   return text.replace(
@@ -125,8 +117,6 @@ function shuffleQuestionOptions(question: QuestionData): QuestionData {
   const newOptionsEn: Record<OptionKey, string> = {} as Record<OptionKey, string>;
   let newCorrectOption: OptionKey = question.correctOption;
 
-  // oldKey -> newKey: dipakai buat nge-remap huruf opsi yang disebut di teks
-  // dossier (mis. "Pilih opsi B") biar sinkron sama posisi baru hasil shuffle
   const oldToNewKey: Record<OptionKey, OptionKey> = {} as Record<OptionKey, OptionKey>;
 
   keys.forEach((newKey, index) => {
@@ -168,9 +158,6 @@ function splitReasoningSteps(text: string | string[]): string[] {
 }
 
 async function persistBestStreak(candidate: number): Promise<void> {
-  // Streak sekarang dihitung dari check-in (lihat CheckInCard.tsx),
-  // bukan dari jawaban benar beruntun. Fungsi ini sengaja tidak lagi
-  // menulis ke profiles.best_streak / current_streak.
   void candidate;
 }
 
@@ -258,7 +245,6 @@ export default function QuizPage(): JSX.Element {
 
       let mapped: QuestionData[] = [];
 
-      // A. Jika User Login: Ambil pakai RPC
       if (user) {
         const { data, error } = await supabase.rpc('get_quiz_questions', {
           p_user_id: user.id,
@@ -272,8 +258,6 @@ export default function QuizPage(): JSX.Element {
         }
       }
 
-      // B. Jika Guest / Belum Login (Atau jika RPC gagal/kosong):
-      // Langsung tarik data dari tabel 'questions' secara publik
       if (mapped.length === 0) {
         const { data, error } = await supabase
           .from('questions')
@@ -299,7 +283,6 @@ export default function QuizPage(): JSX.Element {
         mapped = shuffledOrder.slice(0, selectedCount);
       }
 
-      // Acak posisi opsi A/B/C/D untuk tiap soal (independen dari urutan soal)
       const withShuffledOptions = mapped.map(shuffleQuestionOptions);
       setQuestions(withShuffledOptions);
       setIsLoading(false);
@@ -349,6 +332,7 @@ export default function QuizPage(): JSX.Element {
       hideReasoning: language === 'id' ? 'Sembunyikan detail' : 'Hide details',
       showSummary: language === 'id' ? 'Baca selengkapnya' : 'Read more',
       hideSummary: language === 'id' ? 'Ringkas' : 'Show less',
+      discussionLabel: language === 'id' ? 'Diskusi' : 'Discussion',
       next: language === 'id' ? 'Soal Berikutnya' : 'Next Question',
       finish: language === 'id' ? 'Lihat Ringkasan' : 'View Summary',
       loading: language === 'id' ? 'Memuat studi kasus…' : 'Loading case studies…',
@@ -363,7 +347,6 @@ export default function QuizPage(): JSX.Element {
       returnToDashboard: language === 'id' ? 'Kembali ke Dashboard' : 'Return to Dashboard',
       howMany: language === 'id' ? 'Berapa soal?' : 'How many questions?',
       questionsUnit: language === 'id' ? 'soal' : 'questions',
-      discussionLabel: language === 'id' ? 'Diskusi' : 'Discussion',
     }),
     [language],
   );
@@ -520,11 +503,7 @@ export default function QuizPage(): JSX.Element {
           <h1 className="mr-10 text-lg font-semibold leading-relaxed text-text-primary">
             {question.prompt[language]}
           </h1>
-          {/* DIUBAH: setiap tombol opsi sekarang dapat pulseClass tambahan.
-              Kalau jawaban sudah di-reveal DAN opsi ini statusnya correct/incorrect,
-              tambahin class animasi ring pulse sekali jalan (0.6s, lihat globals.css
-              untuk @keyframes pulse-correct / pulse-incorrect). Tidak menyentuh
-              logic penentuan jawaban benar sama sekali — cuma nambah class visual. */}
+
           <div className="mt-6 flex flex-col gap-3">
             {OPTION_ORDER.map((optionKey) => {
               const visualState = engine.getOptionVisualState(optionKey);
@@ -552,21 +531,14 @@ export default function QuizPage(): JSX.Element {
           </div>
         </section>
 
-        {/* DIUBAH: dossier SELALU di-render di HTML (bukan conditional mount lagi)
-            supaya Googlebot bisa baca kontennya. Disembunyikan secara VISUAL
-            pakai class 'hidden' sampai user beneran jawab (isRevealed true).
-            Pola ini aman untuk SEO — sama seperti konten accordion/tab yang
-            disembunyikan CSS, bukan cloaking. */}
         <section
           className={`overflow-hidden rounded-floating bg-base-surface/80 backdrop-blur-sm shadow-floating p-8 ${
             engine.state.isRevealed ? '' : 'hidden'
           }`}
         >
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
-              {copy.dossierHeading}
-            </h2>
-          </div>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
+            {copy.dossierHeading}
+          </h2>
 
           <div
             className={`mt-3 text-sm leading-relaxed text-text-primary [&_p]:m-0 ${
@@ -595,9 +567,6 @@ export default function QuizPage(): JSX.Element {
               {isReasoningExpanded ? copy.hideReasoning : copy.showReasoning}
             </button>
           </div>
-          {/* DIUBAH: sama seperti section dossier, reasoning steps SELALU
-              di-render di DOM, cuma disembunyikan class 'hidden' sampai
-              isReasoningExpanded true. */}
           <div className={`mt-2 flex flex-col gap-4 ${isReasoningExpanded ? '' : 'hidden'}`}>
             {splitReasoningSteps(question.dossier.reasoning[language]).map((step, index) => (
               <div key={index} className="overflow-x-auto">
@@ -608,9 +577,6 @@ export default function QuizPage(): JSX.Element {
             ))}
           </div>
 
-          {/* FIX: defensif terhadap references berupa string, {title,url} object,
-              atau null/undefined — sebelumnya asumsi selalu string bikin
-              React error #31 saat ketemu object, dan crash saat references null */}
           {question.dossier.references && question.dossier.references.length > 0 ? (
             <>
               <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
@@ -646,22 +612,22 @@ export default function QuizPage(): JSX.Element {
             </>
           ) : null}
 
-          <button
-            type="button"
-            onClick={engine.goToNextQuestion}
-            className="mt-8 w-full rounded-floating bg-accent px-4 py-3 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
-          >
-            {engine.progress.current === engine.progress.total ? copy.finish : copy.next}
-          </button>
-
-          {/* Section UI Diskusi Terintegrasi - muncul di bagian bawah Dossier */}
           <div className="mt-6 flex items-center justify-between border-t border-base-border pt-4">
             <button
               type="button"
               onClick={() => setIsDiscussionOpen((prev) => !prev)}
               className="flex items-center gap-1.5 text-xs font-medium text-text-secondary transition hover:text-accent"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
               </svg>
               {copy.discussionLabel}
@@ -674,8 +640,15 @@ export default function QuizPage(): JSX.Element {
               <DiscussionThread questionId={question.id} />
             </div>
           ) : null}
-        </section>
 
+          <button
+            type="button"
+            onClick={engine.goToNextQuestion}
+            className="mt-8 w-full rounded-floating bg-accent px-4 py-3 text-sm font-medium text-base-surface shadow-floating-sm transition active:scale-95 hover:opacity-90"
+          >
+            {engine.progress.current === engine.progress.total ? copy.finish : copy.next}
+          </button>
+        </section>
       </div>
 
       <ExitConfirmModal
@@ -686,4 +659,4 @@ export default function QuizPage(): JSX.Element {
       />
     </main>
   );
-}
+    }

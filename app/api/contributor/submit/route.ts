@@ -45,12 +45,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 3. Pre-screen keamanan pakai Gemini
-  const screenResult = await screenQuestionSafety({
-    prompt_en,
-    context_en,
-    options_en,
-    dossier,
-  })
+  const screenResult = await screenQuestionSafety(prompt_en, context_en)
 
   if (!screenResult.safe) {
     return NextResponse.json(
@@ -86,4 +81,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ success: true, submission: data })
-    }
+}

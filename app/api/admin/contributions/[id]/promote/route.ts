@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { supabaseContributor } from '@/lib/supabaseContributor'
-import { getSupabaseAdminClient } from '@/lib/supabaseAdmin'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 async function requireAdmin() {
   const cookieStore = cookies()
@@ -37,8 +37,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   // 2. Insert ke tabel questions project utama, pake service role
-  const adminClient = getSupabaseAdminClient()
-  const { data: newQuestion, error: insertError } = await adminClient
+  const { data: newQuestion, error: insertError } = await supabaseAdmin
     .from('questions')
     .insert({
       sector: contribQuestion.sector,

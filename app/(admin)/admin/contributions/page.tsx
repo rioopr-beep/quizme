@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 
 type SubmissionStatus = 'pending' | 'approved' | 'rejected' | 'promoted';
@@ -57,6 +57,8 @@ export default function AdminContributionsPage() {
   useEffect(() => {
     const checkAccess = async () => {
       try {
+        const supabase = getSupabaseBrowserClient();
+
         const { data: userData, error: userErr } = await supabase.auth.getUser();
         if (userErr) throw userErr;
 
@@ -232,4 +234,4 @@ export default function AdminContributionsPage() {
       </div>
     </main>
   );
-                }
+          }

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
-import { useLanguage } from '../../../context/LanguageContext';
+import { supabase } from '@/lib/supabase/client';
+import { useLanguage } from '@/context/LanguageContext';
 
 type SubmissionStatus = 'pending' | 'approved' | 'rejected' | 'promoted';
 

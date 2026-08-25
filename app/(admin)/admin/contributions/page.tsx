@@ -32,6 +32,7 @@ export default function AdminContributionsPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<SubmissionStatus>('pending');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [debugError, setDebugError] = useState<string | null>(null);
 
   const t = {
     title: language === 'id' ? 'Kontribusi Soal' : 'Question Contributions',
@@ -55,21 +56,27 @@ export default function AdminContributionsPage() {
 
   useEffect(() => {
     const checkAccess = async () => {
-      const supabase = getSupabaseBrowserClient();
-      const { data: userData } = await supabase.auth.getUser();
+      try {
+        const { data: userData, error: userErr } = await supabase.auth.getUser();
+        if (userErr) throw userErr;
 
-      if (!userData.user) {
-        router.push('/login');
-        return;
+        if (!userData.user) {
+          router.push('/login');
+          return;
+        }
+
+        const { data: profile, error: profileErr } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', userData.user.id)
+          .single();
+        if (profileErr) throw profileErr;
+
+        setAccessState(profile?.role === 'admin' ? 'granted' : 'denied');
+      } catch (err: any) {
+        setDebugError(err?.message ?? String(err));
+        setAccessState('denied');
       }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userData.user.id)
-        .single();
-
-      setAccessState(profile?.role === 'admin' ? 'granted' : 'denied');
     };
 
     checkAccess();
@@ -123,6 +130,7 @@ export default function AdminContributionsPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base-bg px-6 text-center">
         <p className="text-sm text-status-incorrect">{t.denied}</p>
+        {debugError && <p className="mt-2 text-xs text-text-muted">Debug: {debugError}</p>}
       </main>
     );
   }
@@ -224,4 +232,4 @@ export default function AdminContributionsPage() {
       </div>
     </main>
   );
-}
+                }

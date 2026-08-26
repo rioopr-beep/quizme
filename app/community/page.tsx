@@ -385,26 +385,20 @@ export default function CommunityQuizPage(): JSX.Element {
               </div>
             ) : null}
 
-            {question.dossier.references.length > 0 ? (
-              <>
-                <h3 className="mt-6 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                  {copy.referencesHeading}
-                </h3>
-                <ul className="mt-2 flex flex-col gap-2">
-                  {question.dossier.references.map((reference, idx) =>
-                    isUrlReference(String(reference)) ? (
-                      <li key={idx}>
-                        
-                          href={String(reference)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
-                          title={String(reference)}
-                        >
-                          {String(reference)}
-                        </a>
-                      </li>
-                    ) : (
+            {question.dossier.references.map((reference, idx) =>
+  isUrlReference(String(reference)) ? (
+    <li key={idx}>
+      
+        href={String(reference)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block truncate text-xs text-accent underline decoration-accent-soft underline-offset-2"
+        title={String(reference)}
+      >
+        {String(reference)}
+      </a>
+    </li>
+  ) : (
                       <li key={idx}>
                         <p className="text-xs leading-relaxed text-text-muted">{String(reference)}</p>
                       </li>

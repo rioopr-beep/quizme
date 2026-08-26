@@ -146,36 +146,41 @@ export default function CommunityQuizPage(): JSX.Element {
     let isMounted = true;
 
     async function loadQuestions(): Promise<void> {
-      const supabase = getSupabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      if (!user) {
-        router.push('/login?redirect=/community');
-        return;
-      }
+        if (!user) {
+          router.push('/login?redirect=/community');
+          return;
+        }
 
-      const res = await fetch('/api/community-questions');
-      const json = await res.json();
+        const res = await fetch('/api/community-questions');
+        const json = await res.json();
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      if (!res.ok) {
-        setLoadError(
-          language === 'id'
-            ? 'Gagal memuat soal. Silakan coba lagi.'
-            : 'Failed to load questions. Please try again.',
-        );
+        if (!res.ok) {
+          setLoadError(
+            `Gagal memuat soal (${res.status}): ${json.error ?? 'unknown error'}`,
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        const mapped = (json.data as CommunityQuestionRow[]).map(mapRowToQuestionData);
+        const shuffledOrder = shuffleArray(mapped);
+        const withShuffledOptions = shuffledOrder.map(shuffleQuestionOptions);
+        setQuestions(withShuffledOptions);
         setIsLoading(false);
-        return;
+      } catch (err: any) {
+        if (isMounted) {
+          setLoadError(`Error: ${err?.message ?? String(err)}`);
+          setIsLoading(false);
+        }
       }
-
-      const mapped = (json.data as CommunityQuestionRow[]).map(mapRowToQuestionData);
-      const shuffledOrder = shuffleArray(mapped);
-      const withShuffledOptions = shuffledOrder.map(shuffleQuestionOptions);
-      setQuestions(withShuffledOptions);
-      setIsLoading(false);
     }
 
     void loadQuestions();
@@ -432,4 +437,4 @@ export default function CommunityQuizPage(): JSX.Element {
       />
     </main>
   );
-}
+    }

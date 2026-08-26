@@ -80,10 +80,6 @@ export default function TopicsPage(): JSX.Element {
   useEffect(() => {
     let isMounted = true;
 
-    // Diubah: TIDAK ada lagi paksaan redirect ke /login di sini.
-    // Halaman /topics harus tetap bisa diakses guest & Googlebot supaya
-    // bisa diindeks. Login cuma diperlukan pas mau MULAI kuis / simpan
-    // progress, bukan buat sekadar lihat daftar topik.
     async function loadTopicCounts(): Promise<void> {
       const supabase = getSupabaseBrowserClient();
 
@@ -113,6 +109,9 @@ export default function TopicsPage(): JSX.Element {
   const subTopicsLabel = language === 'id' ? 'sub-topik' : 'sub-topics';
   const schoolLabel = language === 'id' ? 'Sekolah' : 'School';
   const schoolSubtitle = language === 'id' ? 'SD • SMP • SMA/SMK' : 'Elementary • Junior • Senior High';
+  const communityLabel = language === 'id' ? 'Soal Komunitas' : 'Community Questions';
+  const communitySubtitle =
+    language === 'id' ? 'Dibuat oleh sesama pengguna' : 'Made by fellow users';
 
   return (
     <main className="min-h-screen bg-base-bg px-6 py-10 sm:px-10">
@@ -122,7 +121,7 @@ export default function TopicsPage(): JSX.Element {
         {/* Card khusus Sekolah — dipisah visual dari grid topik biasa, warna netral bukan accent */}
         <Link
           href="/school"
-          className="mb-6 flex items-center gap-4 rounded-floating bg-slate-800 p-5 text-white shadow-floating-sm transition active:scale-[0.98] hover:shadow-floating"
+          className="mb-3 flex items-center gap-4 rounded-floating bg-slate-800 p-5 text-white shadow-floating-sm transition active:scale-[0.98] hover:shadow-floating"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
             <i className="ti ti-school text-2xl" />
@@ -130,6 +129,20 @@ export default function TopicsPage(): JSX.Element {
           <div>
             <p className="text-sm font-semibold">{schoolLabel}</p>
             <p className="mt-0.5 text-[11px] text-white/70">{schoolSubtitle}</p>
+          </div>
+        </Link>
+
+        {/* Card Soal Komunitas — pola sama kayak Sekolah, warna beda biar kebedain */}
+        <Link
+          href="/community"
+          className="mb-6 flex items-center gap-4 rounded-floating bg-accent p-5 text-base-surface shadow-floating-sm transition active:scale-[0.98] hover:shadow-floating"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
+            <i className="ti ti-users-group text-2xl" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold">{communityLabel}</p>
+            <p className="mt-0.5 text-[11px] opacity-80">{communitySubtitle}</p>
           </div>
         </Link>
 
@@ -166,4 +179,4 @@ export default function TopicsPage(): JSX.Element {
       </div>
     </main>
   );
-}
+    }

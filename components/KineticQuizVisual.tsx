@@ -55,6 +55,10 @@ const MAX_PARALLAX = 22;
 const MAX_TOUCH_PARALLAX = 16;
 const MOBILE_BREAKPOINT = 640; // matches Tailwind's `sm`
 
+// --- Drag interaction tuning ---
+const MAX_DRAG = 64; // px — invisible boundary radius a letter can be pulled from its float position
+const RETURN_DECAY = 0.9; // per-frame decay while easing back to origin after release (~0.9 ≈ smooth glide home)
+
 export default function KineticQuizVisual(): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>(LETTERS.map(() => null));
@@ -65,6 +69,13 @@ export default function KineticQuizVisual(): JSX.Element {
   const reducedMotion = useRef(false);
   const startTime = useRef<number | null>(null);
   const rafId = useRef<number | null>(null);
+
+  // Per-letter drag state (independent — each letter can be dragged on its own).
+  const isDragging = useRef<boolean[]>(LETTERS.map(() => false));
+  const activePointerId = useRef<(number | null)[]>(LETTERS.map(() => null));
+  const dragStart = useRef<{ x: number; y: number }[]>(LETTERS.map(() => ({ x: 0, y: 0 })));
+  const dragOffsetStart = useRef<{ x: number; y: number }[]>(LETTERS.map(() => ({ x: 0, y: 0 })));
+  const dragOffset = useRef<{ x: number; y: number }[]>(LETTERS.map(() => ({ x: 0, y: 0 })));
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -141,20 +152,37 @@ export default function KineticQuizVisual(): JSX.Element {
         const el = letterRefs.current[i];
         if (!el) return;
 
+        const dragging = isDragging.current[i];
+        const offset = dragOffset.current[i];
+
+        // Ease the drag offset back to the origin once released — "perlahan
+        // kembali ke posisi asal". While actively dragging, offset is driven
+        // directly by the pointer handlers instead.
+        if (!dragging) {
+          offset.x *= RETURN_DECAY;
+          offset.y *= RETURN_DECAY;
+          if (Math.abs(offset.x) < 0.05) offset.x = 0;
+          if (Math.abs(offset.y) < 0.05) offset.y = 0;
+        }
+
         const entT = Math.max(0, Math.min(1, (elapsed - cfg.entranceDelay) / 500));
         const entEase = ease(entT);
         const entranceY = (1 - entEase) * 36;
         const entranceOpacity = reducedMotion.current ? 1 : entEase;
 
-        const floatScale = reducedMotion.current ? 0 : entEase;
+        // Idle floating pauses the instant a letter is grabbed, and resumes
+        // immediately once released (it keeps running underneath the
+        // ease-back so the motion never looks like it "restarts").
+        const floatScale = reducedMotion.current || dragging ? 0 : entEase;
         const angle = (elapsed / cfg.floatPeriod) * Math.PI * 2 + cfg.floatPhase;
         const floatY = Math.sin(angle) * cfg.floatAmp * floatScale;
         const floatRot = Math.sin(angle * 0.8) * cfg.rotAmp * floatScale;
 
         // Cursor parallax only makes sense with a fine pointer (desktop);
         // touch parallax is handled separately and works on every size.
+        // Both pause while the letter itself is being dragged.
         const cursorActive = fine && !isMobile;
-        const parallaxStrength = reducedMotion.current
+        const parallaxStrength = reducedMotion.current || dragging
           ? 0
           : (pointer.current.active ? MAX_TOUCH_PARALLAX : cursorActive ? MAX_PARALLAX : 0) * cfg.depth;
         const parX = pointer.current.x * parallaxStrength;
@@ -166,20 +194,21 @@ export default function KineticQuizVisual(): JSX.Element {
         const scrollOpacity = 1 - sp * 0.85;
 
         const isHovered = hovered.current === i;
-        const hoverScale = isHovered ? 1.08 : 1;
-        const hoverY = isHovered ? -8 : 0;
+        const hoverScale = isHovered && !dragging ? 1.08 : dragging ? 1.12 : 1;
+        const hoverY = isHovered && !dragging ? -8 : 0;
 
-        const totalY = entranceY + floatY + parY + scrollY + hoverY;
-        const totalX = parX;
+        const totalY = entranceY + floatY + parY + scrollY + hoverY + offset.y;
+        const totalX = parX + offset.x;
         const totalRot = floatRot;
         const totalScale = scrollScale * hoverScale;
         const totalOpacity = Math.max(0, entranceOpacity * scrollOpacity);
 
         el.style.transform = `translate3d(${totalX}px, ${totalY}px, 0) rotate(${totalRot}deg) scale(${totalScale})`;
         el.style.opacity = String(totalOpacity);
-        el.style.textShadow = isHovered
+        el.style.textShadow = isHovered || dragging
           ? '0 18px 30px rgba(41,85,242,0.28)'
           : '0 10px 24px rgba(41,85,242,0.14)';
+        el.style.cursor = dragging ? 'grabbing' : 'grab';
       });
 
       rafId.current = requestAnimationFrame(tick);
@@ -200,6 +229,40 @@ export default function KineticQuizVisual(): JSX.Element {
     };
   }, []);
 
+  // --- Drag handlers (per letter, independent — each is its own draggable object) ---
+  const handlePointerDown = (i: number) => (e: React.PointerEvent<HTMLSpanElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    isDragging.current[i] = true;
+    activePointerId.current[i] = e.pointerId;
+    dragStart.current[i] = { x: e.clientX, y: e.clientY };
+    dragOffsetStart.current[i] = { ...dragOffset.current[i] };
+    hovered.current = i;
+  };
+
+  const handlePointerMove = (i: number) => (e: React.PointerEvent<HTMLSpanElement>) => {
+    if (!isDragging.current[i] || activePointerId.current[i] !== e.pointerId) return;
+    const dx = e.clientX - dragStart.current[i].x;
+    const dy = e.clientY - dragStart.current[i].y;
+    let nx = dragOffsetStart.current[i].x + dx;
+    let ny = dragOffsetStart.current[i].y + dy;
+
+    // Constrain to an invisible bounding circle around the letter's float position.
+    const dist = Math.hypot(nx, ny);
+    if (dist > MAX_DRAG) {
+      const scale = MAX_DRAG / dist;
+      nx *= scale;
+      ny *= scale;
+    }
+    dragOffset.current[i] = { x: nx, y: ny };
+  };
+
+  const handlePointerRelease = (i: number) => (e: React.PointerEvent<HTMLSpanElement>) => {
+    if (activePointerId.current[i] !== e.pointerId) return;
+    isDragging.current[i] = false;
+    activePointerId.current[i] = null;
+    hovered.current = -1;
+  };
+
   return (
     <div
       ref={containerRef}
@@ -212,17 +275,20 @@ export default function KineticQuizVisual(): JSX.Element {
           ref={(node) => {
             letterRefs.current[i] = node;
           }}
-          onMouseEnter={() => (hovered.current = i)}
-          onMouseLeave={() => (hovered.current = -1)}
-          onTouchStart={() => (hovered.current = i)}
-          onTouchEnd={() => (hovered.current = -1)}
-          className="absolute font-black leading-none will-change-transform cursor-default"
+          onMouseEnter={() => !isDragging.current[i] && (hovered.current = i)}
+          onMouseLeave={() => !isDragging.current[i] && (hovered.current = -1)}
+          onPointerDown={handlePointerDown(i)}
+          onPointerMove={handlePointerMove(i)}
+          onPointerUp={handlePointerRelease(i)}
+          onPointerCancel={handlePointerRelease(i)}
+          className="absolute font-black leading-none will-change-transform"
           style={{
             top: cfg.top,
             left: cfg.left,
             color: cfg.color,
             fontSize: 'clamp(48px, 9vw, 140px)',
             opacity: 0,
+            touchAction: 'none',
             transition: 'text-shadow 300ms ease',
           }}
         >
@@ -231,4 +297,4 @@ export default function KineticQuizVisual(): JSX.Element {
       ))}
     </div>
   );
-        }
+            }

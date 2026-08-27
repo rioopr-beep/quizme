@@ -11,6 +11,7 @@ type LetterConfig = {
   color: string;
   depth: number;
   floatAmp: number;
+  floatAmpX: number;
   floatPeriod: number;
   floatPhase: number;
   rotAmp: number;
@@ -26,28 +27,28 @@ const LETTERS: LetterConfig[] = [
     top: '2%', left: '54%',
     mobileTop: '2%', mobileLeft: '46%',
     color: '#2955F2', depth: 1.0,
-    floatAmp: 16, floatPeriod: 4200, floatPhase: 0, rotAmp: 3, entranceDelay: 0,
+    floatAmp: 24, floatAmpX: 10, floatPeriod: 3600, floatPhase: 0, rotAmp: 4, entranceDelay: 0,
   },
   {
     char: 'U',
     top: '34%', left: '4%',
     mobileTop: '30%', mobileLeft: '4%',
     color: '#0A0A0A', depth: 0.7,
-    floatAmp: 11, floatPeriod: 5100, floatPhase: Math.PI, rotAmp: 2, entranceDelay: 100,
+    floatAmp: 18, floatAmpX: 8, floatPeriod: 4400, floatPhase: Math.PI, rotAmp: 3, entranceDelay: 100,
   },
   {
     char: 'I',
     top: '48%', left: '62%',
     mobileTop: '46%', mobileLeft: '64%',
     color: '#0A0A0A', depth: 0.4,
-    floatAmp: 8, floatPeriod: 3600, floatPhase: Math.PI * 0.5, rotAmp: 5, entranceDelay: 200,
+    floatAmp: 13, floatAmpX: 6, floatPeriod: 3100, floatPhase: Math.PI * 0.5, rotAmp: 6, entranceDelay: 200,
   },
   {
     char: 'Z',
     top: '68%', left: '30%',
     mobileTop: '72%', mobileLeft: '28%',
     color: '#2955F2', depth: 0.8,
-    floatAmp: 13, floatPeriod: 4800, floatPhase: Math.PI * 1.4, rotAmp: 3, entranceDelay: 300,
+    floatAmp: 20, floatAmpX: 9, floatPeriod: 4100, floatPhase: Math.PI * 1.4, rotAmp: 4, entranceDelay: 300,
   },
 ];
 
@@ -176,6 +177,7 @@ export default function KineticQuizVisual(): JSX.Element {
         const floatScale = reducedMotion.current || dragging ? 0 : entEase;
         const angle = (elapsed / cfg.floatPeriod) * Math.PI * 2 + cfg.floatPhase;
         const floatY = Math.sin(angle) * cfg.floatAmp * floatScale;
+        const floatX = Math.sin(angle * 0.6 + cfg.floatPhase * 0.5) * cfg.floatAmpX * floatScale;
         const floatRot = Math.sin(angle * 0.8) * cfg.rotAmp * floatScale;
 
         // Cursor parallax only makes sense with a fine pointer (desktop);
@@ -198,7 +200,7 @@ export default function KineticQuizVisual(): JSX.Element {
         const hoverY = isHovered && !dragging ? -8 : 0;
 
         const totalY = entranceY + floatY + parY + scrollY + hoverY + offset.y;
-        const totalX = parX + offset.x;
+        const totalX = floatX + parX + offset.x;
         const totalRot = floatRot;
         const totalScale = scrollScale * hoverScale;
         const totalOpacity = Math.max(0, entranceOpacity * scrollOpacity);
@@ -297,4 +299,4 @@ export default function KineticQuizVisual(): JSX.Element {
       ))}
     </div>
   );
-            }
+        }

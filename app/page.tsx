@@ -3,8 +3,23 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import {
+  Hexagon,
+  ChevronDown,
+  Globe,
+  BookOpen,
+  Layers,
+  TrendingUp,
+  Target,
+  ShieldCheck,
+  Lock,
+  Zap,
+  Users,
+  ArrowRight,
+} from 'lucide-react';
 import { getSupabaseBrowserClient } from '../lib/supabase/client';
 import { useLanguage } from '../context/LanguageContext';
+import KineticQuizVisual from '../components/KineticQuizVisual';
 
 export default function LandingPage(): JSX.Element {
   const router = useRouter();
@@ -37,147 +52,232 @@ export default function LandingPage(): JSX.Element {
   }, [router]);
 
   const copy = {
-    title:
-      language === 'id'
-        ? 'Latihan analisis lintas disiplin'
-        : 'Cross-disciplinary analysis practice',
-    subtitle:
-      language === 'id'
-        ? 'Uji cara berpikirmu lewat studi kasus nyata dari berbagai bidang ilmu'
-        : 'Test how you think through real case studies across different fields',
-    cta: language === 'id' ? 'Mulai belajar' : 'Start learning',
     login: language === 'id' ? 'Masuk' : 'Login',
     signup: language === 'id' ? 'Daftar' : 'Sign up',
-    howItWorks: language === 'id' ? 'Cara kerjanya' : 'How it works',
-    step1: language === 'id' ? 'Pilih topik yang ingin dipelajari' : 'Choose a topic to study',
-    step2:
+    navAbout: language === 'id' ? 'Tentang Kami' : 'About Us',
+    navFeatures: language === 'id' ? 'Fitur' : 'Features',
+    navCategories: language === 'id' ? 'Kategori' : 'Categories',
+    navBlog: 'Blog',
+    navHelp: language === 'id' ? 'Bantuan' : 'Help',
+    eyebrow: language === 'id' ? 'PLATFORM KUIS INTERAKTIF' : 'INTERACTIVE QUIZ PLATFORM',
+    headlineLine1: language === 'id' ? 'Belajar.' : 'Learn.',
+    headlineLine2: language === 'id' ? 'Uji Pengetahuan.' : 'Test Your Knowledge.',
+    headlineLine3: language === 'id' ? 'Jadi Lebih Baik.' : 'Get Better.',
+    description:
       language === 'id'
-        ? 'Kerjakan studi kasus berbentuk cerita'
-        : 'Work through story-based case studies',
-    step3:
+        ? 'Ribuan kuis lintas disiplin, dibuat dari studi kasus nyata untuk membantumu belajar lebih aktif, paham lebih dalam, dan berkembang setiap hari.'
+        : 'Thousands of cross-disciplinary quizzes built from real case studies, helping you learn more actively, understand more deeply, and grow every day.',
+    ctaPrimary: language === 'id' ? 'Mulai Belajar' : 'Start Learning',
+    ctaSecondary: language === 'id' ? 'Daftar Gratis' : 'Sign Up Free',
+    trustLine:
       language === 'id'
-        ? 'Materi disusun dari sumber terpercaya dan diperiksa berkala'
-        : 'Content is curated from trusted sources and reviewed regularly',
-    step4: language === 'id' ? 'Lihat hasil dan pembahasannya' : 'See your results and review',
+        ? 'Aman, cepat, dan gratis untuk memulai.'
+        : 'Safe, fast, and free to get started.',
+    features: [
+      {
+        icon: BookOpen,
+        title: language === 'id' ? 'Berbasis Studi Kasus' : 'Case-Study Based',
+        desc:
+          language === 'id'
+            ? 'Soal dikembangkan dari studi kasus nyata yang relevan dan aplikatif.'
+            : 'Questions built from real, relevant, applicable case studies.',
+      },
+      {
+        icon: Layers,
+        title: language === 'id' ? '30+ Disiplin' : '30+ Disciplines',
+        desc:
+          language === 'id'
+            ? 'Beragam kategori mulai dari sains, teknologi, ekonomi, hingga olahraga.'
+            : 'Wide range of categories, from science and tech to economics and sports.',
+      },
+      {
+        icon: TrendingUp,
+        title: language === 'id' ? 'Belajar Terukur' : 'Measurable Progress',
+        desc:
+          language === 'id'
+            ? 'Pantau perkembangan dengan statistik dan laporan yang mudah dipahami.'
+            : 'Track your growth with clear, easy-to-read stats and reports.',
+      },
+      {
+        icon: Target,
+        title: language === 'id' ? 'Tantangan Seru' : 'Fun Challenges',
+        desc:
+          language === 'id'
+            ? 'Kuis harian, leaderboard, dan pencapaian untuk memotivasi belajar.'
+            : 'Daily quizzes, leaderboards, and achievements to keep you motivated.',
+      },
+    ],
+    trustBar: [
+      {
+        icon: ShieldCheck,
+        title: language === 'id' ? 'Gratis untuk Memulai' : 'Free to Start',
+        desc: language === 'id' ? 'Akses ribuan kuis tanpa biaya.' : 'Access thousands of quizzes at no cost.',
+      },
+      {
+        icon: Lock,
+        title: language === 'id' ? 'Data Aman & Privat' : 'Safe & Private Data',
+        desc: language === 'id' ? 'Kami menjaga datamu dengan serius.' : 'We take protecting your data seriously.',
+      },
+      {
+        icon: Zap,
+        title: language === 'id' ? 'Cepat & Ringan' : 'Fast & Lightweight',
+        desc: language === 'id' ? 'Dioptimalkan untuk semua perangkat.' : 'Optimized for every device.',
+      },
+      {
+        icon: Users,
+        title: language === 'id' ? 'Untuk Semua Orang' : 'For Everyone',
+        desc: language === 'id' ? 'Belajar kapan saja, di mana saja.' : 'Learn anytime, anywhere.',
+      },
+    ],
     privacy: language === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy',
     terms: language === 'id' ? 'Syarat & Ketentuan' : 'Terms & Conditions',
     aboutContact: language === 'id' ? 'Tentang & Kontak' : 'About & Contact',
-    popularTopics: language === 'id' ? 'Topik Populer' : 'Popular Topics',
   };
 
   if (isChecking) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
+      <main className="flex min-h-screen items-center justify-center bg-white">
         <p className="font-mono text-sm text-slate-400">…</p>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-800">
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
-        <header className="flex items-center justify-between px-6 py-5">
-          <span className="font-mono text-lg font-semibold text-slate-900">QuizFrend</span>
+    <main className="bg-white text-slate-900 font-sans min-h-screen">
+      {/* Header */}
+      <header className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 py-6">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="relative w-9 h-9 flex items-center justify-center">
+            <Hexagon className="w-9 h-9 text-[#2955F2]" strokeWidth={2.2} />
+            <span className="absolute font-black text-sm text-[#2955F2]">Q</span>
+          </div>
+          <span className="font-black text-xl tracking-tight">
+            Quiz<span className="text-[#2955F2]">Frend</span>
+          </span>
+        </Link>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-mono text-xs font-medium text-slate-500 shadow-sm"
-            >
-              {language === 'id' ? 'EN' : 'ID'}
-            </button>
+        <nav className="hidden lg:flex items-center gap-8">
+          <Link href="/about" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
+            {copy.navAbout}
+          </Link>
+          <a href="#fitur" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
+            {copy.navFeatures}
+          </a>
+          <Link href="/topics" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
+            {copy.navCategories}
+          </Link>
+          <Link href="/blog" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
+            {copy.navBlog}
+          </Link>
+          <Link href="/help" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
+            {copy.navHelp}
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-4 md:gap-6">
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="hidden sm:flex items-center gap-1 text-sm text-slate-700"
+          >
+            <Globe className="w-4 h-4" />
+            {language === 'id' ? 'ID' : 'EN'}
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
+          <Link href="/login" className="text-sm font-medium text-[#2955F2]">
+            {copy.login}
+          </Link>
+          <Link
+            href="/signup"
+            className="bg-[#2955F2] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#2244d4] transition-colors"
+          >
+            {copy.signup}
+          </Link>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center px-6 md:px-10 pt-8 pb-20 md:pb-28">
+        <div>
+          <p className="text-[#2955F2] text-xs font-bold tracking-widest mb-4">{copy.eyebrow}</p>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.08] mb-6 tracking-tight">
+            {copy.headlineLine1}
+            <br />
+            {copy.headlineLine2}
+            <br />
+            <span className="text-[#2955F2]">{copy.headlineLine3}</span>
+          </h1>
+          <p className="text-slate-500 text-[15px] leading-relaxed mb-8 max-w-md">{copy.description}</p>
+          <div className="flex flex-wrap gap-3 mb-6">
             <Link
-              href="/login"
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm"
+              href="/topics"
+              className="bg-[#2955F2] text-white font-medium px-6 py-3.5 rounded-xl flex items-center gap-2 hover:bg-[#2244d4] transition-colors"
             >
-              {copy.login}
+              {copy.ctaPrimary} <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/signup"
-              className="rounded-lg bg-indigo-900 px-3 py-1.5 text-sm font-medium text-white shadow-sm"
+              className="border border-[#2955F2] text-[#2955F2] font-medium px-6 py-3.5 rounded-xl hover:bg-blue-50 transition-colors"
             >
-              {copy.signup}
+              {copy.ctaSecondary}
             </Link>
           </div>
-        </header>
+          <div className="flex items-center gap-2 text-sm text-slate-500">
+            <ShieldCheck className="w-4 h-4 text-[#2955F2]" />
+            {copy.trustLine}
+          </div>
+        </div>
 
-        <section className="mx-6 mt-4 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white px-6 py-10 text-center">
-          <h1 className="text-2xl font-semibold leading-snug text-slate-900">{copy.title}</h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-500">
-            {copy.subtitle}
-          </p>
-          {/* DIUBAH: Mengarah ke /topics bukan /signup */}
-          <Link
-            href="/topics"
-            className="mt-6 inline-block rounded-xl bg-indigo-900 px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-800"
-          >
-            {copy.cta}
-          </Link>
-        </section>
+        <KineticQuizVisual />
+      </section>
 
-        <section className="px-6 py-8">
-          <p className="mb-4 text-xs font-medium uppercase tracking-wide text-slate-400">
-            {copy.howItWorks}
-          </p>
-          <div className="flex flex-col gap-4">
-            {[copy.step1, copy.step2, copy.step3, copy.step4].map((step, index) => (
-              <div key={step} className="flex items-start gap-3">
-                <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-50 font-mono text-xs font-medium text-indigo-900">
-                  {index + 1}
-                </span>
-                <p className="mt-0.5 text-sm text-slate-600">{step}</p>
+      {/* Features */}
+      <section id="fitur" className="border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 grid sm:grid-cols-2 md:grid-cols-4 gap-10">
+          {copy.features.map(({ icon: Icon, title, desc }) => (
+            <div key={title}>
+              <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
+                <Icon className="w-5 h-5 text-[#2955F2]" strokeWidth={2} />
               </div>
-            ))}
-          </div>
-        </section>
+              <h3 className="font-semibold text-[15px] mb-1.5">{title}</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        {/* DITAMBAHKAN: Link kuis langsung buat Google Crawler/AdSense */}
-        <section className="px-6 pb-10">
-          <p className="mb-4 text-xs font-medium uppercase tracking-wide text-slate-400">
-            {copy.popularTopics}
-          </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <Link
-              href="/quiz/psychology/advanced?count=10"
-              className="rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
-            >
-              Psychology
-            </Link>
-            <Link
-              href="/quiz/financial/foundational?count=10"
-              className="rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
-            >
-              Financial
-            </Link>
-            <Link
-              href="/topics"
-              className="rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-900"
-            >
-              {language === 'id' ? 'Lainnya →' : 'More →'}
-            </Link>
-          </div>
-        </section>
+      {/* Trust bar */}
+      <section className="max-w-7xl mx-auto px-6 md:px-10 pb-16">
+        <div className="border border-slate-100 rounded-2xl px-8 py-8 grid sm:grid-cols-2 md:grid-cols-4 gap-8">
+          {copy.trustBar.map(({ icon: Icon, title, desc }) => (
+            <div key={title} className="flex items-start gap-3">
+              <Icon className="w-5 h-5 text-[#2955F2] shrink-0 mt-0.5" strokeWidth={2} />
+              <div>
+                <h4 className="font-semibold text-sm">{title}</h4>
+                <p className="text-sm text-slate-500">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        <footer className="border-t border-slate-200 px-6 py-6">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-400">
-            <Link href="/privacy" className="hover:text-indigo-900">
-              {copy.privacy}
-            </Link>
-            <span className="text-slate-300">•</span>
-            <Link href="/terms" className="hover:text-indigo-900">
-              {copy.terms}
-            </Link>
-            <span className="text-slate-300">•</span>
-            <Link href="/about" className="hover:text-indigo-900">
-              {copy.aboutContact}
-            </Link>
-          </div>
-          <p className="mt-2 text-center text-xs text-slate-300">
-            © {new Date().getFullYear()} QuizFrend
-          </p>
-        </footer>
-      </div>
+      {/* Footer */}
+      <footer className="border-t border-slate-100 px-6 py-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-400">
+          <Link href="/privacy" className="hover:text-[#2955F2]">
+            {copy.privacy}
+          </Link>
+          <span className="text-slate-300">•</span>
+          <Link href="/terms" className="hover:text-[#2955F2]">
+            {copy.terms}
+          </Link>
+          <span className="text-slate-300">•</span>
+          <Link href="/about" className="hover:text-[#2955F2]">
+            {copy.aboutContact}
+          </Link>
+        </div>
+        <p className="mt-2 text-center text-xs text-slate-300">© {new Date().getFullYear()} QuizFrend</p>
+      </footer>
     </main>
   );
-}
+            }

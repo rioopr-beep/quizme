@@ -16,6 +16,8 @@ import {
   Zap,
   Users,
   ArrowRight,
+  Menu,
+  X,
 } from 'lucide-react';
 import { getSupabaseBrowserClient } from '../lib/supabase/client';
 import { useLanguage } from '../context/LanguageContext';
@@ -25,6 +27,7 @@ export default function LandingPage(): JSX.Element {
   const router = useRouter();
   const { language, toggleLanguage } = useLanguage();
   const [isChecking, setIsChecking] = useState<boolean>(true);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -50,6 +53,16 @@ export default function LandingPage(): JSX.Element {
       isMounted = false;
     };
   }, [router]);
+
+  // Close the mobile menu automatically if the viewport grows past the
+  // breakpoint (e.g. rotating a tablet), so it can't get stuck open.
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setMenuOpen(false);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const copy = {
     login: language === 'id' ? 'Masuk' : 'Login',
@@ -134,6 +147,14 @@ export default function LandingPage(): JSX.Element {
     aboutContact: language === 'id' ? 'Tentang & Kontak' : 'About & Contact',
   };
 
+  const navItems = [
+    { href: '/about', label: copy.navAbout, isAnchor: false },
+    { href: '#fitur', label: copy.navFeatures, isAnchor: true },
+    { href: '/topics', label: copy.navCategories, isAnchor: false },
+    { href: '/blog', label: copy.navBlog, isAnchor: false },
+    { href: '/help', label: copy.navHelp, isAnchor: false },
+  ];
+
   if (isChecking) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-white">
@@ -145,55 +166,130 @@ export default function LandingPage(): JSX.Element {
   return (
     <main className="bg-white text-slate-900 font-sans min-h-screen">
       {/* Header */}
-      <header className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 py-6">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="relative w-9 h-9 flex items-center justify-center">
-            <Hexagon className="w-9 h-9 text-[#2955F2]" strokeWidth={2.2} />
-            <span className="absolute font-black text-sm text-[#2955F2]">Q</span>
+      <header className="max-w-7xl mx-auto px-6 md:px-10 py-6 relative z-30">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="relative w-9 h-9 flex items-center justify-center">
+              <Hexagon className="w-9 h-9 text-[#2955F2]" strokeWidth={2.2} />
+              <span className="absolute font-black text-sm text-[#2955F2]">Q</span>
+            </div>
+            <span className="font-black text-xl tracking-tight">
+              Quiz<span className="text-[#2955F2]">Frend</span>
+            </span>
+          </Link>
+
+          <nav className="hidden lg:flex items-center gap-8">
+            {navItems.map((item) =>
+              item.isAnchor ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="text-sm text-slate-700 hover:text-slate-950 transition-colors"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="text-sm text-slate-700 hover:text-slate-950 transition-colors"
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
+          </nav>
+
+          <div className="flex items-center gap-3 md:gap-6">
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="hidden sm:flex items-center gap-1 text-sm text-slate-700"
+            >
+              <Globe className="w-4 h-4" />
+              {language === 'id' ? 'ID' : 'EN'}
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+            <Link href="/login" className="hidden sm:block text-sm font-medium text-[#2955F2]">
+              {copy.login}
+            </Link>
+            <Link
+              href="/signup"
+              className="hidden sm:block bg-[#2955F2] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#2244d4] transition-colors"
+            >
+              {copy.signup}
+            </Link>
+
+            {/* Mobile: hamburger toggle */}
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-label={menuOpen ? (language === 'id' ? 'Tutup menu' : 'Close menu') : (language === 'id' ? 'Buka menu' : 'Open menu')}
+              aria-expanded={menuOpen}
+              className="lg:hidden flex items-center justify-center w-9 h-9 text-slate-700"
+            >
+              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
-          <span className="font-black text-xl tracking-tight">
-            Quiz<span className="text-[#2955F2]">Frend</span>
-          </span>
-        </Link>
-
-        <nav className="hidden lg:flex items-center gap-8">
-          <Link href="/about" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
-            {copy.navAbout}
-          </Link>
-          <a href="#fitur" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
-            {copy.navFeatures}
-          </a>
-          <Link href="/topics" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
-            {copy.navCategories}
-          </Link>
-          <Link href="/blog" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
-            {copy.navBlog}
-          </Link>
-          <Link href="/help" className="text-sm text-slate-700 hover:text-slate-950 transition-colors">
-            {copy.navHelp}
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-4 md:gap-6">
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="hidden sm:flex items-center gap-1 text-sm text-slate-700"
-          >
-            <Globe className="w-4 h-4" />
-            {language === 'id' ? 'ID' : 'EN'}
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
-          <Link href="/login" className="text-sm font-medium text-[#2955F2]">
-            {copy.login}
-          </Link>
-          <Link
-            href="/signup"
-            className="bg-[#2955F2] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#2244d4] transition-colors"
-          >
-            {copy.signup}
-          </Link>
         </div>
+
+        {/* Mobile menu panel */}
+        {menuOpen && (
+          <div className="lg:hidden absolute left-0 right-0 top-full mt-2 mx-4 rounded-2xl border border-slate-100 bg-white shadow-lg px-6 py-6">
+            <nav className="flex flex-col gap-4 mb-6">
+              {navItems.map((item) =>
+                item.isAnchor ? (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="text-[15px] font-medium text-slate-700"
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="text-[15px] font-medium text-slate-700"
+                  >
+                    {item.label}
+                  </Link>
+                )
+              )}
+            </nav>
+
+            <div className="flex items-center justify-between border-t border-slate-100 pt-5 mb-5">
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="flex items-center gap-1 text-sm text-slate-700"
+              >
+                <Globe className="w-4 h-4" />
+                {language === 'id' ? 'ID' : 'EN'}
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="text-center text-sm font-medium text-[#2955F2] border border-[#2955F2] rounded-lg px-5 py-2.5"
+              >
+                {copy.login}
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setMenuOpen(false)}
+                className="text-center bg-[#2955F2] text-white text-sm font-medium px-5 py-2.5 rounded-lg"
+              >
+                {copy.signup}
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero */}
@@ -280,4 +376,4 @@ export default function LandingPage(): JSX.Element {
       </footer>
     </main>
   );
-            }
+              }

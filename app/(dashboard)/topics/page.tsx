@@ -30,7 +30,7 @@ const TOPIC_ENTRIES: readonly TopicEntry[] = [
   { kind: 'standalone', key: 'psychology', icon: 'ti-brain', label: { id: 'Psikologi', en: 'Psychology' } },
   { kind: 'standalone', key: 'physics', icon: 'ti-atom-2', label: { id: 'Fisika', en: 'Physics' } },
   { kind: 'standalone', key: 'linguistics', icon: 'ti-language', label: { id: 'Linguistik', en: 'Linguistics' } },
-  { kind: 'standalone', key: 'translation', icon: 'ti-language-hiragana', label: { id: 'Terjemahan', en: 'Translation' } }, 
+  { kind: 'standalone', key: 'translation', icon: 'ti-language-hiragana', label: { id: 'Terjemahan', en: 'Translation' } },
   { kind: 'standalone', key: 'book-trivia', icon: 'ti-book', label: { id: 'Trivia Buku', en: 'Book Trivia' } },
   { kind: 'standalone', key: 'curiosities', icon: 'ti-bulb', label: { id: 'Rasa Ingin Tahu', en: 'Curiosities' } },
   { kind: 'standalone', key: 'mathematics', icon: 'ti-math-function', label: { id: 'Matematika', en: 'Mathematics' } },
@@ -56,6 +56,15 @@ const TOPIC_ENTRIES: readonly TopicEntry[] = [
     childCount: TOPIC_CATEGORY_CHILDREN.sports.length,
   },
 ];
+
+// Sector yang punya minimal 1 soal is_preview (per cek terakhir).
+// Kalau nanti nambah preview ke sector lain, tambahin key-nya di sini juga.
+const PREVIEW_SECTORS = new Set([
+  'astronomy', 'biology', 'chemistry', 'civil_engineering', 'computer_science',
+  'cryptography', 'curiosities', 'economics', 'electrical_engineering',
+  'environmental_engineering', 'financial', 'general_sports', 'linguistics',
+  'mathematics', 'mechanical_engineering', 'motorsport', 'physics', 'psychology',
+]);
 
 type TopicCountMap = Readonly<Record<string, number>>;
 
@@ -112,6 +121,7 @@ export default function TopicsPage(): JSX.Element {
   const communityLabel = language === 'id' ? 'Soal Komunitas' : 'Community Questions';
   const communitySubtitle =
     language === 'id' ? 'Dibuat oleh sesama pengguna' : 'Made by fellow users';
+  const previewBadgeLabel = language === 'id' ? 'Coba Gratis' : 'Try Free';
 
   return (
     <main className="min-h-screen bg-base-bg px-6 py-10 sm:px-10">
@@ -156,27 +166,41 @@ export default function TopicsPage(): JSX.Element {
                   ? '...'
                   : topicCounts[topic.key] ?? 0
                 : `${topic.childCount} ${subTopicsLabel}`;
+            const hasPreview = topic.kind === 'standalone' && PREVIEW_SECTORS.has(topic.key);
 
             return (
-              <Link
+              <div
                 key={topic.key}
-                href={href}
-                className="flex flex-col items-start gap-3 rounded-floating bg-base-surface shadow-floating-sm p-5 transition active:scale-95 hover:shadow-floating"
+                className="flex flex-col rounded-floating bg-base-surface shadow-floating-sm p-5 transition hover:shadow-floating"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft text-accent">
-                  <i className={`ti ${topic.icon} text-lg`} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-text-primary">
-                    {topic.label[language]}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-text-muted">{countLabel}</p>
-                </div>
-              </Link>
+                <Link
+                  href={href}
+                  className="flex flex-1 flex-col items-start gap-3 transition active:scale-95"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft text-accent">
+                    <i className={`ti ${topic.icon} text-lg`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-text-primary">
+                      {topic.label[language]}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-text-muted">{countLabel}</p>
+                  </div>
+                </Link>
+
+                {hasPreview ? (
+                  <Link
+                    href={`/quiz/${topic.key}/preview`}
+                    className="mt-3 inline-block w-fit rounded-full bg-accent-soft px-2.5 py-1 text-[10px] font-medium text-accent transition active:scale-95 hover:bg-accent hover:text-base-surface"
+                  >
+                    {previewBadgeLabel}
+                  </Link>
+                ) : null}
+              </div>
             );
           })}
         </div>
       </div>
     </main>
   );
-    }
+}

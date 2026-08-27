@@ -6,6 +6,8 @@ type LetterConfig = {
   char: string;
   top: string;
   left: string;
+  mobileTop: string;
+  mobileLeft: string;
   color: string;
   depth: number;
   floatAmp: number;
@@ -15,15 +17,43 @@ type LetterConfig = {
   entranceDelay: number;
 };
 
+// Desktop composition: scattered diagonally, per the original spec sketch.
+// Mobile composition: re-centered and pulled in from the edges so nothing
+// clips the narrower container — a separate layout, not just a shrink.
 const LETTERS: LetterConfig[] = [
-  { char: 'Q', top: '2%', left: '54%', color: '#2955F2', depth: 1.0, floatAmp: 16, floatPeriod: 4200, floatPhase: 0, rotAmp: 3, entranceDelay: 0 },
-  { char: 'U', top: '34%', left: '4%', color: '#0A0A0A', depth: 0.7, floatAmp: 11, floatPeriod: 5100, floatPhase: Math.PI, rotAmp: 2, entranceDelay: 100 },
-  { char: 'I', top: '48%', left: '62%', color: '#0A0A0A', depth: 0.4, floatAmp: 8, floatPeriod: 3600, floatPhase: Math.PI * 0.5, rotAmp: 5, entranceDelay: 200 },
-  { char: 'Z', top: '68%', left: '30%', color: '#2955F2', depth: 0.8, floatAmp: 13, floatPeriod: 4800, floatPhase: Math.PI * 1.4, rotAmp: 3, entranceDelay: 300 },
+  {
+    char: 'Q',
+    top: '2%', left: '54%',
+    mobileTop: '2%', mobileLeft: '46%',
+    color: '#2955F2', depth: 1.0,
+    floatAmp: 16, floatPeriod: 4200, floatPhase: 0, rotAmp: 3, entranceDelay: 0,
+  },
+  {
+    char: 'U',
+    top: '34%', left: '4%',
+    mobileTop: '30%', mobileLeft: '4%',
+    color: '#0A0A0A', depth: 0.7,
+    floatAmp: 11, floatPeriod: 5100, floatPhase: Math.PI, rotAmp: 2, entranceDelay: 100,
+  },
+  {
+    char: 'I',
+    top: '48%', left: '62%',
+    mobileTop: '46%', mobileLeft: '64%',
+    color: '#0A0A0A', depth: 0.4,
+    floatAmp: 8, floatPeriod: 3600, floatPhase: Math.PI * 0.5, rotAmp: 5, entranceDelay: 200,
+  },
+  {
+    char: 'Z',
+    top: '68%', left: '30%',
+    mobileTop: '72%', mobileLeft: '28%',
+    color: '#2955F2', depth: 0.8,
+    floatAmp: 13, floatPeriod: 4800, floatPhase: Math.PI * 1.4, rotAmp: 3, entranceDelay: 300,
+  },
 ];
 
 const MAX_PARALLAX = 22;
 const MAX_TOUCH_PARALLAX = 16;
+const MOBILE_BREAKPOINT = 640; // matches Tailwind's `sm`
 
 export default function KineticQuizVisual(): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -42,7 +72,23 @@ export default function KineticQuizVisual(): JSX.Element {
     const onMQ = (e: MediaQueryListEvent) => (reducedMotion.current = e.matches);
     mq.addEventListener?.('change', onMQ);
 
-    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const fineMq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    let fine = fineMq.matches;
+    const onFineChange = (e: MediaQueryListEvent) => (fine = e.matches);
+    fineMq.addEventListener?.('change', onFineChange);
+
+    // --- Mobile vs desktop composition (position only, not the motion params) ---
+    const applyPositions = () => {
+      const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+      LETTERS.forEach((cfg, i) => {
+        const el = letterRefs.current[i];
+        if (!el) return;
+        el.style.top = isMobile ? cfg.mobileTop : cfg.top;
+        el.style.left = isMobile ? cfg.mobileLeft : cfg.left;
+      });
+    };
+    applyPositions();
+    window.addEventListener('resize', applyPositions);
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = containerRef.current?.getBoundingClientRect();
@@ -77,7 +123,7 @@ export default function KineticQuizVisual(): JSX.Element {
       scrollProgress.current = Math.max(0, Math.min(1, raw));
     };
 
-    if (fine) window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     containerRef.current?.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
@@ -89,6 +135,7 @@ export default function KineticQuizVisual(): JSX.Element {
     const tick = (ts: number) => {
       if (startTime.current === null) startTime.current = ts;
       const elapsed = ts - startTime.current;
+      const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
 
       LETTERS.forEach((cfg, i) => {
         const el = letterRefs.current[i];
@@ -104,9 +151,12 @@ export default function KineticQuizVisual(): JSX.Element {
         const floatY = Math.sin(angle) * cfg.floatAmp * floatScale;
         const floatRot = Math.sin(angle * 0.8) * cfg.rotAmp * floatScale;
 
+        // Cursor parallax only makes sense with a fine pointer (desktop);
+        // touch parallax is handled separately and works on every size.
+        const cursorActive = fine && !isMobile;
         const parallaxStrength = reducedMotion.current
           ? 0
-          : (pointer.current.active ? MAX_TOUCH_PARALLAX : MAX_PARALLAX) * cfg.depth;
+          : (pointer.current.active ? MAX_TOUCH_PARALLAX : cursorActive ? MAX_PARALLAX : 0) * cfg.depth;
         const parX = pointer.current.x * parallaxStrength;
         const parY = pointer.current.y * parallaxStrength * 0.7;
 
@@ -138,12 +188,14 @@ export default function KineticQuizVisual(): JSX.Element {
     rafId.current = requestAnimationFrame(tick);
 
     return () => {
-      if (fine) window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', applyPositions);
+      window.removeEventListener('mousemove', handleMouseMove);
       containerRef.current?.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('scroll', handleScroll);
       mq.removeEventListener?.('change', onMQ);
+      fineMq.removeEventListener?.('change', onFineChange);
       if (rafId.current) cancelAnimationFrame(rafId.current);
     };
   }, []);
@@ -179,4 +231,4 @@ export default function KineticQuizVisual(): JSX.Element {
       ))}
     </div>
   );
-}
+        }

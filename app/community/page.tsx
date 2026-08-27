@@ -36,8 +36,8 @@ interface CommunityQuestionRow {
   options_en: Record<OptionKey, string>;
   correct_option: OptionKey;
   dossier: {
-    summary?: { id: string; en: string };
-    reasoning?: { id: string; en: string };
+    summary?: unknown;
+    reasoning?: unknown;
     references?: unknown[];
   } | null;
   contributor_display_name: string;
@@ -47,7 +47,74 @@ interface CommunityQuestionData extends QuestionData {
   contributorName: string;
 }
 
+// Beberapa soal kontributor nyimpen reasoning sebagai array (1 baris = 1 langkah),
+// beberapa lainnya sebagai 1 string panjang. Fungsi ini nerima dua-duanya dan
+// selalu balikin string yang formatnya konsisten ("Langkah 1: ... Langkah 2: ...").
+function normalizeReasoningText(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value
+      .filter((step): step is string => typeof step === 'string' && step.trim().length > 0)
+      .map((step, idx) => `Langkah ${idx + 1}: ${step.trim()}`)
+      .join(' ');
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  return '';
+}
+
+// Summary biasanya 1 string, tapi dijaga juga kalau ternyata bukan string
+// (misal null/undefined/array tak terduga) supaya tidak crash saat dirender.
+function normalizeSummaryText(value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.filter((v): v is string => typeof v === 'string').join(' ');
+  }
+  return '';
+}
+
+function normalizeReferences(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((ref) => {
+    if (typeof ref === 'string') return ref;
+    if (ref && typeof ref === 'object' && 'url' in (ref as Record<string, unknown>)) {
+      const url = (ref as Record<string, unknown>).url;
+      const title = (ref as Record<string, unknown>).title;
+      return typeof title === 'string' && title.length > 0
+        ? `${title} — ${String(url)}`
+        : String(url);
+    }
+    return String(ref);
+  });
+}
+
 function mapRowToQuestionData(row: CommunityQuestionRow): CommunityQuestionData {
+  const dossierRaw = row.dossier ?? {};
+  const summaryRaw = (dossierRaw as Record<string, unknown>).summary;
+  const reasoningRaw = (dossierRaw as Record<string, unknown>).reasoning;
+  const referencesRaw = (dossierRaw as Record<string, unknown>).references;
+
+  // summary/reasoning bisa berbentuk { id, en } ATAU langsung field terpisah
+  // summary_id/summary_en, reasoning_id/reasoning_en di root dossier — dicoba dua-duanya.
+  const summaryObj = summaryRaw as { id?: unknown; en?: unknown } | undefined;
+  const reasoningObj = reasoningRaw as { id?: unknown; en?: unknown } | undefined;
+
+  const summaryId =
+    normalizeSummaryText(summaryObj?.id) ||
+    normalizeSummaryText((dossierRaw as Record<string, unknown>).summary_id);
+  const summaryEn =
+    normalizeSummaryText(summaryObj?.en) ||
+    normalizeSummaryText((dossierRaw as Record<string, unknown>).summary_en);
+
+  const reasoningId =
+    normalizeReasoningText(reasoningObj?.id) ||
+    normalizeReasoningText((dossierRaw as Record<string, unknown>).reasoning_id);
+  const reasoningEn =
+    normalizeReasoningText(reasoningObj?.en) ||
+    normalizeReasoningText((dossierRaw as Record<string, unknown>).reasoning_en);
+
   return {
     id: row.id,
     prompt: { id: row.prompt_id, en: row.prompt_en },
@@ -58,9 +125,9 @@ function mapRowToQuestionData(row: CommunityQuestionRow): CommunityQuestionData 
     options: { id: row.options_id, en: row.options_en },
     correctOption: row.correct_option,
     dossier: {
-      summary: row.dossier?.summary ?? { id: '', en: '' },
-      reasoning: row.dossier?.reasoning ?? { id: '', en: '' },
-      references: (row.dossier?.references as string[]) ?? [],
+      summary: { id: summaryId, en: summaryEn },
+      reasoning: { id: reasoningId, en: reasoningEn },
+      references: normalizeReferences(referencesRaw),
     },
     contributorName: row.contributor_display_name,
   } as CommunityQuestionData;
@@ -121,6 +188,7 @@ function shuffleQuestionOptions<T extends QuestionData>(question: T): T {
 }
 
 function splitReasoningSteps(text: string): string[] {
+  if (typeof text !== 'string' || text.length === 0) return [];
   return text
     .split(/(?=(?:Step|Langkah)\s*\d+\s*:)/gi)
     .map((part) => part.replace(/^\.\s*/, '').replace(/\.\s*$/, '').trim())

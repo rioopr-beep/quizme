@@ -1,6 +1,7 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Home,
   LayoutGrid,
@@ -26,14 +27,14 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const router = useRouter();
 
   return (
     <nav
       aria-label="Navigasi utama"
-      className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-4 pointer-events-none"
+      className="fixed inset-x-0 bottom-0 z-50 flex justify-center pointer-events-none"
+      style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
     >
-      <div className="flex items-end gap-3 pointer-events-auto">
+      <div className="flex items-end gap-2.5 rounded-floating bg-base-surface/90 p-1.5 shadow-floating ring-1 ring-base-border/60 backdrop-blur-md pointer-events-auto">
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === '/'
@@ -42,32 +43,32 @@ export default function BottomNav() {
           const Icon = item.icon;
 
           return (
-            <button
+            <Link
               key={item.href}
-              type="button"
-              onClick={() => router.push(item.href)}
+              href={item.href}
+              prefetch
               aria-current={isActive ? 'page' : undefined}
               aria-label={item.label}
               className={[
                 'group flex flex-col items-center justify-center',
-                'rounded-floating transition-all duration-300 ease-out',
-                'active:scale-95',
+                'rounded-floating transition-all duration-200 ease-out',
+                'active:scale-95 will-change-transform',
                 isActive
-                  ? 'w-16 h-16 -translate-y-2 bg-accent shadow-floating'
-                  : 'w-12 h-12 bg-base-surface shadow-floating-sm hover:-translate-y-1',
+                  ? 'w-16 h-16 -translate-y-1.5 bg-accent shadow-floating-sm'
+                  : 'w-12 h-12 hover:-translate-y-0.5 hover:bg-base-bg/70',
               ].join(' ')}
             >
               <Icon
                 size={isActive ? 22 : 20}
                 strokeWidth={isActive ? 2.25 : 2}
                 className={[
-                  'transition-colors duration-300',
+                  'transition-colors duration-200',
                   isActive ? 'text-base-surface' : 'text-text-secondary',
                 ].join(' ')}
               />
               <span
                 className={[
-                  'mt-0.5 text-[10px] font-medium transition-all duration-300',
+                  'mt-0.5 text-[10px] font-medium transition-all duration-200',
                   isActive
                     ? 'text-base-surface opacity-100'
                     : 'text-text-muted opacity-0 h-0 group-hover:opacity-100 group-hover:h-auto',
@@ -75,7 +76,7 @@ export default function BottomNav() {
               >
                 {item.label}
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>

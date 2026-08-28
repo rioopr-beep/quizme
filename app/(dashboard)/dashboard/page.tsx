@@ -3,13 +3,15 @@
 // ============================================================================
 // QuizMe — Dashboard Interface
 // Ringkasan personal: sapaan minimal di atas, badge streak floating,
-// check-in mingguan, dan ruang untuk quick stats + progress topik.
+// Quiz Universe, check-in mingguan, dan quick stats + progress topik.
 // ============================================================================
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 import { useLanguage } from '../../../context/LanguageContext';
+import { QuizUniverse, type TopicActivity } from '../../../components/QuizUniverse';
+import { useQuizUniverseData } from '../../../hooks/useQuizUniverseData';
 import CheckInCard from '../../../components/CheckInCard';
 import QuickStats from '../../../components/QuickStats';
 import ContinueLearningCard from '../../../components/ContinueLearningCard';
@@ -21,6 +23,8 @@ export default function DashboardPage(): JSX.Element {
   const [userName, setUserName] = useState<string>('');
   const [bestStreak, setBestStreak] = useState<number>(0);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
+
+  const { topics, activeQuiz, loading: universeLoading } = useQuizUniverseData();
 
   useEffect(() => {
     let isMounted = true;
@@ -63,6 +67,10 @@ export default function DashboardPage(): JSX.Element {
       : "Let's keep learning today";
   const exploreLabel = language === 'id' ? 'Jelajahi Topik' : 'Explore Topics';
 
+  function handleSelectTopic(topic: TopicActivity): void {
+    router.push(`/quiz/${topic.id}`);
+  }
+
   if (isCheckingAuth) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base-bg">
@@ -102,6 +110,16 @@ export default function DashboardPage(): JSX.Element {
         >
           {exploreLabel}
         </button>
+
+        {/* Quiz Universe — tidak render sampai loading auth/data selesai,
+            biar tidak ada "flash" empty state sebelum data user masuk */}
+        {!universeLoading && (
+          <QuizUniverse
+            activeQuiz={activeQuiz}
+            topics={topics}
+            onSelectTopic={handleSelectTopic}
+          />
+        )}
 
         {/* Check-in mingguan */}
         <CheckInCard onStreakUpdate={setBestStreak} />

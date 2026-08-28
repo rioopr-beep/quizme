@@ -2,8 +2,9 @@
 
 // ============================================================================
 // QuizMe — Dashboard Interface
-// Ringkasan personal: sapaan minimal di atas, badge streak floating,
-// Quiz Universe, check-in mingguan, dan quick stats + progress topik.
+// Urutan section: Header/Greeting/Streak → Quiz Universe → Check-in Mingguan
+// → Quick Stats → Continue Learning → Rekomendasi Untukmu → BottomNav
+// (BottomNav dirender di layout, bukan di sini).
 // ============================================================================
 
 import { useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ import { useQuizUniverseData } from '../../../hooks/useQuizUniverseData';
 import CheckInCard from '../../../components/CheckInCard';
 import QuickStats from '../../../components/QuickStats';
 import ContinueLearningCard from '../../../components/ContinueLearningCard';
+import RecommendationsSection from '../../../components/RecommendationsSection';
 
 export default function DashboardPage(): JSX.Element {
   const router = useRouter();
@@ -82,7 +84,7 @@ export default function DashboardPage(): JSX.Element {
   return (
     <main className="min-h-screen bg-base-bg px-6 py-8 font-sans text-text-primary sm:px-10">
       <div className="mx-auto flex max-w-2xl flex-col gap-5">
-        {/* Sapaan minimal, bukan di dalam card */}
+        {/* Header — sapaan minimal, bukan hero landing page */}
         <header className="flex items-start justify-between pt-2">
           <div>
             <p className="text-2xl font-semibold tracking-tight text-text-primary">
@@ -111,8 +113,9 @@ export default function DashboardPage(): JSX.Element {
           {exploreLabel}
         </button>
 
-        {/* Quiz Universe — tidak render sampai loading auth/data selesai,
-            biar tidak ada "flash" empty state sebelum data user masuk */}
+        {/* Quiz Universe — visual utama dashboard.
+            Ditahan sampai data user selesai dimuat, biar tidak ada
+            "flash" empty state sebelum activeQuiz/topics masuk. */}
         {!universeLoading && (
           <QuizUniverse
             activeQuiz={activeQuiz}
@@ -129,6 +132,9 @@ export default function DashboardPage(): JSX.Element {
 
         {/* Lanjutkan belajar — muncul otomatis kalau ada riwayat */}
         <ContinueLearningCard />
+
+        {/* Rekomendasi Untukmu — sector resmi yang belum pernah dicoba user */}
+        <RecommendationsSection excludeSectorIds={topics.map((topic) => topic.id)} />
       </div>
     </main>
   );

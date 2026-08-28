@@ -174,7 +174,10 @@ export default function KineticQuizVisual(): JSX.Element {
         // Idle floating pauses the instant a letter is grabbed, and resumes
         // immediately once released (it keeps running underneath the
         // ease-back so the motion never looks like it "restarts").
-        const floatScale = reducedMotion.current || dragging ? 0 : entEase;
+        // Reduced-motion still gets gentle floating instead of being frozen
+        // solid — a phone's battery-saver toggle often flips this flag even
+        // when the person never asked for zero motion.
+        const floatScale = dragging ? 0 : reducedMotion.current ? entEase * 0.35 : entEase;
         const angle = (elapsed / cfg.floatPeriod) * Math.PI * 2 + cfg.floatPhase;
         const floatY = Math.sin(angle) * cfg.floatAmp * floatScale;
         const floatX = Math.sin(angle * 0.6 + cfg.floatPhase * 0.5) * cfg.floatAmpX * floatScale;
@@ -299,4 +302,4 @@ export default function KineticQuizVisual(): JSX.Element {
       ))}
     </div>
   );
-        }
+      }

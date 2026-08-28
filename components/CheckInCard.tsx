@@ -32,10 +32,10 @@ export default function CheckInCard({ onStreakUpdate }: CheckInCardProps) {
   const [submitting, setSubmitting] = useState(false);
 
   const dayLabels = language === 'id' ? DAY_LABELS_ID : DAY_LABELS_EN;
-  const title = language === 'id' ? 'Check-in Minggu Ini' : 'This Week\'s Check-in';
+  const title = language === 'id' ? 'Check-in Minggu Ini' : "This Week's Check-in";
   const daysLabel = language === 'id' ? 'hari' : 'days';
-  const checkedInLabel = language === 'id' ? 'Sudah check-in hari ini' : 'Checked in today';
-  const checkInLabel = language === 'id' ? 'Check-in Sekarang' : 'Check In Now';
+  const checkedInLabel = language === 'id' ? 'Sudah check-in' : 'Checked in';
+  const checkInLabel = language === 'id' ? 'Check-in' : 'Check In';
 
   const weekDates = getWeekDates();
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -92,7 +92,6 @@ export default function CheckInCard({ onStreakUpdate }: CheckInCardProps) {
   const updateStreakFromCheckIns = async (userId: string) => {
     const supabase = getSupabaseBrowserClient();
 
-    // Ambil semua tanggal check-in user, terbaru dulu
     const { data, error } = await supabase
       .from('check_ins')
       .select('checked_in_date')
@@ -101,7 +100,6 @@ export default function CheckInCard({ onStreakUpdate }: CheckInCardProps) {
 
     if (error || !data || data.length === 0) return;
 
-    // Hitung streak berjalan (hari berurutan mundur dari hari ini)
     let streak = 0;
     let cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
@@ -139,25 +137,43 @@ export default function CheckInCard({ onStreakUpdate }: CheckInCardProps) {
   };
 
   return (
-    <div className="rounded-floating bg-base-surface shadow-floating-sm p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
-        <span className="text-xs text-text-muted">
-          {checkedDates.size}/7 {daysLabel}
-        </span>
+    <div className="rounded-floating bg-base-surface shadow-floating-sm p-4">
+      {/* Title + status/CTA jadi satu baris — hemat satu "baris" tinggi
+          dibanding sebelumnya (button full-width terpisah di bawah) */}
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
+          <span className="text-[11px] text-text-muted">
+            {checkedDates.size}/7 {daysLabel}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleCheckIn}
+          disabled={alreadyCheckedToday || submitting || loading}
+          className={[
+            'shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 active:scale-95',
+            alreadyCheckedToday
+              ? 'bg-status-correctSoft text-status-correct cursor-default'
+              : 'bg-accent text-base-surface hover:opacity-90',
+          ].join(' ')}
+        >
+          {loading ? '...' : alreadyCheckedToday ? checkedInLabel : checkInLabel}
+        </button>
       </div>
 
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between">
         {weekDates.map((date, i) => {
           const isChecked = checkedDates.has(date);
           const isToday = date === todayStr;
 
           return (
-            <div key={date} className="flex flex-col items-center gap-1.5">
-              <span className="text-[10px] text-text-muted">{dayLabels[i]}</span>
+            <div key={date} className="flex flex-col items-center gap-1">
+              <span className="text-[9px] text-text-muted">{dayLabels[i]}</span>
               <div
                 className={[
-                  'w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300',
+                  'w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200',
                   isChecked
                     ? 'bg-accent shadow-floating-sm'
                     : 'bg-base-bg border border-base-border',
@@ -166,8 +182,8 @@ export default function CheckInCard({ onStreakUpdate }: CheckInCardProps) {
               >
                 {isChecked && (
                   <svg
-                    width="14"
-                    height="14"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="white"
@@ -183,24 +199,6 @@ export default function CheckInCard({ onStreakUpdate }: CheckInCardProps) {
           );
         })}
       </div>
-
-      <button
-        type="button"
-        onClick={handleCheckIn}
-        disabled={alreadyCheckedToday || submitting || loading}
-        className={[
-          'w-full py-2.5 rounded-floating text-sm font-medium transition-all duration-300 active:scale-95',
-          alreadyCheckedToday
-            ? 'bg-status-correctSoft text-status-correct cursor-default'
-            : 'bg-accent text-base-surface hover:opacity-90',
-        ].join(' ')}
-      >
-        {loading
-          ? '...'
-          : alreadyCheckedToday
-          ? checkedInLabel
-          : checkInLabel}
-      </button>
     </div>
   );
 }

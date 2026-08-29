@@ -1,23 +1,51 @@
-import Link from 'next/link';
-import { getAllPosts } from '@/lib/blog';
+'use client';
 
-export const metadata = {
-  title: 'Blog — QuizFrend',
-  description: 'Artikel edukatif seputar analisis lintas disiplin di QuizFrend.',
-};
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
+
+interface BlogPost {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  sector: string;
+  author: string;
+}
 
 export default function BlogIndexPage() {
-  const posts = getAllPosts('id');
+  const { language } = useLanguage();
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/blog?lang=${language}`)
+      .then((res) => res.json())
+      .then((data) => setPosts(data.posts || []))
+      .finally(() => setLoading(false));
+  }, [language]);
+
+  const t = {
+    id: {
+      title: 'Blog QuizFrend',
+      subtitle: 'Artikel edukatif seputar berbagai disiplin ilmu untuk menemani latihan analisismu.',
+      empty: 'Belum ada artikel.',
+    },
+    en: {
+      title: 'QuizFrend Blog',
+      subtitle: 'Educational articles across disciplines to accompany your analysis practice.',
+      empty: 'No articles yet.',
+    },
+  }[language];
 
   return (
     <main className="min-h-screen bg-base-bg px-4 py-10 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-text-primary mb-2">Blog QuizFrend</h1>
-      <p className="text-text-secondary mb-8">
-        Artikel edukatif seputar berbagai disiplin ilmu untuk menemani latihan analisismu.
-      </p>
+      <h1 className="text-2xl font-bold text-text-primary mb-2">{t.title}</h1>
+      <p className="text-text-secondary mb-8">{t.subtitle}</p>
 
-      {posts.length === 0 && (
-        <p className="text-text-muted">Belum ada artikel.</p>
+      {!loading && posts.length === 0 && (
+        <p className="text-text-muted">{t.empty}</p>
       )}
 
       <div className="flex flex-col gap-4">

@@ -76,7 +76,7 @@ function CalloutBlockquote({ children }: { children?: ReactNode }) {
         className={`my-4 rounded-floating border-l-4 px-4 py-3 text-sm ${
           isTip
             ? 'bg-accent-soft border-accent text-text-primary'
-            : 'bg-amber-50 border-amber-400 text-text-primary'
+            : 'bg-status-warningSoft border-status-warning text-text-primary'
         }`}
       >
         <span className="block text-xs font-semibold uppercase tracking-wide mb-1 opacity-70">
@@ -189,4 +189,4 @@ export default function BlogPostPage() {
       </article>
     </main>
   );
-      }
+            }

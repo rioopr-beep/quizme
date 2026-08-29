@@ -41,6 +41,10 @@ export default function BlogIndexPage() {
 
   return (
     <main className="min-h-screen bg-base-bg px-4 py-10 max-w-2xl mx-auto">
+      <Link href="/" className="text-sm text-accent mb-6 inline-block">
+        {language === 'en' ? '← Back to Home' : '← Kembali ke Beranda'}
+      </Link>
+
       <h1 className="text-2xl font-bold text-text-primary mb-2">{t.title}</h1>
       <p className="text-text-secondary mb-8">{t.subtitle}</p>
 

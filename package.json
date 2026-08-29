@@ -20,8 +20,10 @@
     "react-dom": "^18.3.1",
     "lucide-react": "^0.383.0",
     "zod": "^3.23.8",
-    "cloudinary": "^2.5.1", 
+    "cloudinary": "^2.5.1",
     "react-markdown": "^9.0.0",
+    "remark-gfm": "^4.0.0",
+    "gray-matter": "^4.0.3",
     "node-sql-parser": "^4.18.0"
   },
   "devDependencies": {

@@ -53,3 +53,10 @@ body {
 .animate-pulse-incorrect {
   animation: pulse-incorrect 0.6s ease-out 1;
 }
+
+/* Reserve jarak buat BottomNav floating, hanya di halaman yang benar-benar
+   merendernya (ditandai lewat class body.has-bottom-nav dari BottomNav.tsx) —
+   tidak menyentuh halaman lain (landing, about, privacy, dst) */
+body.has-bottom-nav #site-footer {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+}

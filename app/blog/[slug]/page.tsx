@@ -27,20 +27,29 @@ export default function BlogPostPage() {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
+    let ignore = false;
     setLoading(true);
     setNotFound(false);
+
     fetch(`/api/blog/${slug}?lang=${language}`)
       .then((res) => {
         if (!res.ok) {
-          setNotFound(true);
+          if (!ignore) setNotFound(true);
           return null;
         }
         return res.json();
       })
       .then((data) => {
+        if (ignore) return;
         if (data?.post) setPost(data.post);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, [slug, language]);
 
   const backLabel = language === 'en' ? '← Back to Blog' : '← Kembali ke Blog';
@@ -73,10 +82,21 @@ export default function BlogPostPage() {
         {backLabel}
       </Link>
 
-      <span className="text-xs uppercase text-accent font-medium">
+      <span className="text-xs uppercase text-accent font-medium block mt-2">
         {post.sector}
       </span>
       <h1 className="text-2xl font-bold text-text-primary mt-1 mb-2">
         {post.title}
       </h1>
-      <p className="text-sm
+      <p className="text-sm text-text-muted mb-8">
+        {post.author} · {post.date}
+      </p>
+
+      <article className="prose prose-sm max-w-none text-text-primary">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {post.content}
+        </ReactMarkdown>
+      </article>
+    </main>
+  );
+}

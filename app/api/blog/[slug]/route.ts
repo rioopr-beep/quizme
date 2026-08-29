@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   const lang = request.nextUrl.searchParams.get('lang') === 'en' ? 'en' : 'id';
-  const post = getPostBySlug(params.slug, lang);
+  const post = await getPostBySlug(params.slug, lang);
 
   if (!post) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });

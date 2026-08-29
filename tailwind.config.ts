@@ -34,6 +34,8 @@ const config: Config = {
           incorrect: '#d1665a',
           correctSoft: '#e3f2e9',
           incorrectSoft: '#fbe8e6',
+          warning: '#c17f1f',      // amber diredupkan, buat box "PENTING" di blog
+          warningSoft: '#faf1de',  // versi pucat, background box "PENTING"
         },
       },
       boxShadow: {

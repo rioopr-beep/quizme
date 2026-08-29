@@ -94,6 +94,53 @@ function CalloutBlockquote({ children }: { children?: ReactNode }) {
   );
 }
 
+// Heading "Poin Penting" / "Key Takeaways" + list (ul) yang PERSIS mengikutinya
+// dirender jadi satu box. Deteksinya lewat flag sederhana: ReactMarkdown me-render
+// elemen blok secara berurutan sesuai urutan di markdown, jadi h2 di bawah ini
+// "menandai" flag, dan ul berikutnya yang membacanya lalu me-reset-nya lagi.
+// Function ini dipanggil ulang tiap render BlogPostPage supaya flag-nya selalu bersih.
+function createMarkdownComponents() {
+  let nextListIsTakeaways = false;
+
+  return {
+    h2: ({ children }: { children?: ReactNode }) => {
+      const text = getPlainText(children).trim();
+      const isTakeaways = text === 'Poin Penting' || text === 'Key Takeaways';
+      nextListIsTakeaways = isTakeaways;
+
+      if (isTakeaways) {
+        return (
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-accent mt-6 mb-2">
+            {children}
+          </h2>
+        );
+      }
+
+      return (
+        <h2 className="text-lg font-semibold text-text-primary mt-8 mb-3">
+          {children}
+        </h2>
+      );
+    },
+    ul: ({ children }: { children?: ReactNode }) => {
+      if (nextListIsTakeaways) {
+        nextListIsTakeaways = false; // cuma list yang langsung nempel di bawah heading yang kena
+        return (
+          <ul className="mb-6 rounded-floating border border-base-border bg-base-surface px-5 py-4 space-y-2 list-disc list-inside text-sm text-text-secondary">
+            {children}
+          </ul>
+        );
+      }
+      return (
+        <ul className="list-disc list-inside space-y-1 text-sm text-text-secondary mb-4">
+          {children}
+        </ul>
+      );
+    },
+    blockquote: CalloutBlockquote,
+  };
+}
+
 export default function BlogPostPage() {
   const { language } = useLanguage();
   const params = useParams();
@@ -182,11 +229,11 @@ export default function BlogPostPage() {
       <article className="prose prose-sm max-w-none text-text-primary">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
-          components={{ blockquote: CalloutBlockquote }}
+          components={createMarkdownComponents()}
         >
           {preprocessCallouts(post.content)}
         </ReactMarkdown>
       </article>
     </main>
   );
-            }
+}

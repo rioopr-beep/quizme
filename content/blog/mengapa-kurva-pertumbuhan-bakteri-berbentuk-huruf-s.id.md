@@ -11,7 +11,7 @@ Dalam biologi populasi dan mikrobiologi, pertumbuhan mikroorganisme dalam sistem
 
 Kurva tersebut bukan sekadar bentuk matematis. Bentuknya mencerminkan perubahan kondisi yang dialami populasi: dari tahap ketika sel beradaptasi dengan lingkungan, menuju pertumbuhan yang sangat cepat, kemudian melambat ketika faktor pembatas semakin kuat, dan pada kondisi tertentu berlanjut ke penurunan jumlah sel hidup.
 
-Fase Adaptasi: Penyesuaian Diri di Lingkungan Baru
+### Fase Adaptasi: Penyesuaian Diri di Lingkungan Baru
 
 Perjalanan populasi bakteri dapat dimulai dengan fase yang disebut fase lag atau fase penyesuaian. Ketika sel-sel bakteri pertama kali dimasukkan ke dalam medium yang sesuai dan kaya nutrisi, populasi tersebut tidak selalu langsung membelah dengan kecepatan maksimum. Dari luar, jumlah sel hidup dapat tampak relatif tidak banyak berubah.
 
@@ -19,7 +19,7 @@ Namun, sel-sel tersebut tetap melakukan berbagai aktivitas metabolisme. Mereka m
 
 Fase adaptasi dapat dibayangkan seperti masa persiapan sebelum sebuah mesin produksi mencapai kapasitas kerjanya. Pertambahan jumlah produk mungkin belum terlihat besar, tetapi proses internal yang memungkinkan produksi berlangsung sedang dipersiapkan.
 
-Fase Eksponensial: Pertumbuhan Populasi yang Sangat Cepat
+### Fase Eksponensial: Pertumbuhan Populasi yang Sangat Cepat
 
 Setelah beradaptasi dengan lingkungan, bakteri dapat memasuki fase logaritmik atau fase eksponensial. Pada tahap ini, sel membelah secara relatif teratur sehingga jumlah populasi meningkat semakin cepat. Pada bakteri yang berkembang biak melalui pembelahan biner, satu sel dapat menghasilkan dua sel, kemudian empat, delapan, enam belas, dan seterusnya.
 
@@ -27,7 +27,7 @@ Ciri utama fase ini adalah bahwa laju pertambahan populasi bergantung pada jumla
 
 Pertumbuhan eksponensial dapat dipertahankan selama kondisi lingkungan mendukung, misalnya ketika nutrisi yang diperlukan masih tersedia dan faktor-faktor lain seperti suhu, pH, oksigen, atau ruang belum menjadi pembatas utama. Kecepatan pertumbuhan juga dipengaruhi oleh karakteristik organisme serta kondisi lingkungannya.
 
-Fase Perlambatan dan Stasioner: Ketika Lingkungan Mulai Membatasi
+### Fase Perlambatan dan Stasioner: Ketika Lingkungan Mulai Membatasi
 
 Pertumbuhan populasi tidak dapat terus berlangsung secara eksponensial dalam sistem tertutup. Semakin banyak sel yang terbentuk, semakin besar pula kebutuhan terhadap nutrisi dan sumber daya lainnya. Pada saat yang sama, kondisi lingkungan dapat berubah akibat aktivitas populasi itu sendiri, misalnya melalui penumpukan produk metabolisme, perubahan pH, atau berkurangnya oksigen.
 
@@ -37,7 +37,7 @@ Jika kondisi tersebut berlanjut, populasi dapat memasuki fase stasioner. Pada fa
 
 Tahap inilah yang membantu menjelaskan mengapa bagian atas kurva menjadi semakin datar. Potensi reproduksi organisme masih ada, tetapi pengaruh faktor pembatas lingkungan semakin besar.
 
-Fase Kematian: Ketika Kematian Melampaui Pertumbuhan
+### Fase Kematian: Ketika Kematian Melampaui Pertumbuhan
 
 Jika kondisi lingkungan terus memburuk tanpa adanya penambahan nutrisi atau pemulihan kondisi medium, populasi dapat memasuki fase kematian. Pada tahap ini, laju kematian sel hidup melampaui laju pembentukan sel hidup baru sehingga jumlah sel yang masih hidup menurun.
 
@@ -45,7 +45,7 @@ Penurunan tersebut merupakan konsekuensi dari perubahan lingkungan yang semakin 
 
 Penting untuk membedakan antara jumlah total sel dan jumlah sel hidup. Dalam beberapa kondisi, jumlah total sel dapat berubah lebih lambat daripada jumlah sel yang masih mampu hidup dan berkembang biak. Karena itu, interpretasi kurva pertumbuhan harus memperhatikan apa yang sebenarnya diukur.
 
-Dari Kurva ke Cara Berpikir
+### Dari Kurva ke Cara Berpikir
 
 Kurva pertumbuhan bakteri memberikan contoh sederhana tentang bagaimana pertumbuhan suatu populasi dipengaruhi oleh kondisi lingkungannya. Pada awalnya, kemampuan reproduksi dapat menjadi faktor yang dominan. Namun, ketika populasi semakin besar, keterbatasan sumber daya dan perubahan lingkungan semakin menentukan arah pertumbuhan.
 

@@ -1,8 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-
-const BLOG_DIR = path.join(process.cwd(), 'content/blog');
+import { supabaseContributor } from './supabaseContributor';
 
 export interface BlogPost {
   slug: string;
@@ -15,74 +11,46 @@ export interface BlogPost {
   content: string;
 }
 
-function getAllFilenames(): string[] {
-  if (!fs.existsSync(BLOG_DIR)) return [];
-  return fs.readdirSync(BLOG_DIR).filter((f) => f.endsWith('.md'));
-}
+export async function getAllPosts(lang: 'id' | 'en'): Promise<BlogPost[]> {
+  const { data, error } = await supabaseContributor
+    .from('blog_posts')
+    .select('slug, lang, title, excerpt, date, sector, author, content')
+    .eq('lang', lang)
+    .order('date', { ascending: false });
 
-// filename format: [slug].[lang].md → e.g. kenapa-langit-biru.id.md
-function parseFilename(filename: string): { slug: string; lang: string } | null {
-  const match = filename.match(/^(.+)\.(id|en)\.md$/);
-  if (!match) return null;
-  return { slug: match[1], lang: match[2] };
-}
-
-export function getAllPosts(lang: 'id' | 'en'): BlogPost[] {
-  const filenames = getAllFilenames();
-  const posts: BlogPost[] = [];
-
-  for (const filename of filenames) {
-    const parsed = parseFilename(filename);
-    if (!parsed || parsed.lang !== lang) continue;
-
-    const fullPath = path.join(BLOG_DIR, filename);
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
-
-    posts.push({
-      slug: parsed.slug,
-      lang: lang,
-      title: data.title || '',
-      excerpt: data.excerpt || '',
-      date: data.date || '',
-      sector: data.sector || '',
-      author: data.author || '',
-      content,
-    });
+  if (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
   }
 
-  // urutkan dari terbaru
-  posts.sort((a, b) => (a.date < b.date ? 1 : -1));
-  return posts;
+  return data as BlogPost[];
 }
 
-export function getPostBySlug(slug: string, lang: 'id' | 'en'): BlogPost | null {
-  const filename = `${slug}.${lang}.md`;
-  const fullPath = path.join(BLOG_DIR, filename);
+export async function getPostBySlug(
+  slug: string,
+  lang: 'id' | 'en'
+): Promise<BlogPost | null> {
+  const { data, error } = await supabaseContributor
+    .from('blog_posts')
+    .select('slug, lang, title, excerpt, date, sector, author, content')
+    .eq('slug', slug)
+    .eq('lang', lang)
+    .maybeSingle();
 
-  if (!fs.existsSync(fullPath)) return null;
-
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
-  const { data, content } = matter(fileContents);
-
-  return {
-    slug,
-    lang,
-    title: data.title || '',
-    excerpt: data.excerpt || '',
-    date: data.date || '',
-    sector: data.sector || '',
-    author: data.author || '',
-    content,
-  };
-}
-
-export function getAllSlugs(): string[] {
-  const filenames = getAllFilenames();
-  const slugs = new Set<string>();
-  for (const filename of filenames) {
-    const parsed = parseFilename(filename);
-    if (parsed) slugs.add(parsed.slug);
+  if (error || !data) {
+    return null;
   }
+
+  return data as BlogPost;
+}
+
+export async function getAllSlugs(): Promise<string[]> {
+  const { data, error } = await supabaseContributor
+    .from('blog_posts')
+    .select('slug');
+
+  if (error || !data) return [];
+
+  const slugs = new Set(data.map((row) => row.slug));
   return Array.from(slugs);
-  }
+}

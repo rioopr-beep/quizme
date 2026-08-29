@@ -1,9 +1,11 @@
+---
 title: "Mengapa Kurva Pertumbuhan Bakteri Berbentuk Huruf S?"
 excerpt: "Penjelasan dinamika populasi mikroba dan faktor pembatas alami yang membentuk kurva sigmoid."
 date: "2026-08-29"
 sector: "biologi"
 author: "Tim QuizFrend"
 lang: "id"
+---
 
 Jika Anda membiarkan segelas susu berada di luar lemari es selama seharian, mikroorganisme di dalamnya dapat berkembang biak dari jumlah yang hampir tidak terdeteksi menjadi populasi yang sangat besar dalam waktu relatif singkat. Dalam kondisi yang ideal, bakteri memang dapat membelah dengan sangat cepat sehingga jumlahnya meningkat secara eksponensial. Namun, pertumbuhan seperti itu tidak dapat berlangsung tanpa batas karena lingkungan selalu menyediakan sumber daya dalam jumlah terbatas.
 

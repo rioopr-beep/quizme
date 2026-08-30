@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, isValidElement, cloneElement, type ReactNode } from 'react';
+import { useEffect, useState, isValidElement, type ReactNode } from 'react';
 import { useParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -18,21 +18,23 @@ interface BlogPost {
 }
 
 // --- Callout markers (dari prompt generator v5) ---
-// Sebelum di-render, "> [TIP] ..." / "> [PENTING] ..." / "> [IMPORTANT] ..."
-// diubah jadi marker internal biar bisa dideteksi dari hasil parse markdown
-// (ReactMarkdown kasih kita React nodes, bukan raw text, jadi deteksi dilakukan
-// di raw string dulu sebelum di-parse).
-const TIP_MARKER = '§CALLOUT_TIP§';
-const IMPORTANT_MARKER = '§CALLOUT_IMPORTANT§';
+// "> [TIP] ..." / "> [PENTING] ..." / "> [IMPORTANT] ..." di raw markdown diubah jadi:
+//   §§TIP§§
+//   > ...(isi tanpa tag lagi)
+// Baris "§§TIP§§" itu paragraf TERPISAH tepat sebelum blockquote-nya (bukan
+// disisipkan ke dalam teks blockquote) — jadi gak perlu "bedah ulang" isi
+// blockquote buat buang tag-nya, cukup sembunyiin paragraf penanda ini.
+const TIP_TAG = '§§TIP§§';
+const IMPORTANT_TAG = '§§IMPORTANT§§';
 
 function preprocessCallouts(markdown: string): string {
   return markdown
-    .replace(/^>\s*\[TIP\]\s*/gim, `> ${TIP_MARKER} `)
-    .replace(/^>\s*\[PENTING\]\s*/gim, `> ${IMPORTANT_MARKER} `)
-    .replace(/^>\s*\[IMPORTANT\]\s*/gim, `> ${IMPORTANT_MARKER} `);
+    .replace(/^>\s*\[TIP\]\s*/gim, `${TIP_TAG}\n> `)
+    .replace(/^>\s*\[PENTING\]\s*/gim, `${IMPORTANT_TAG}\n> `)
+    .replace(/^>\s*\[IMPORTANT\]\s*/gim, `${IMPORTANT_TAG}\n> `);
 }
 
-// Ambil teks polos dari sebuah React node tree (buat cek marker di awal blockquote)
+// Ambil teks polos dari sebuah React node tree (dipakai buat cek heading & paragraf penanda)
 function getPlainText(node: ReactNode): string {
   if (typeof node === 'string') return node;
   if (typeof node === 'number') return String(node);
@@ -41,58 +43,7 @@ function getPlainText(node: ReactNode): string {
   return '';
 }
 
-// Buang N karakter pertama dari leaf teks paling awal di sebuah node tree,
-// tanpa merusak formatting (bold/link/dst) di bagian selanjutnya.
-function stripLeadingChars(node: ReactNode, count: number): ReactNode {
-  if (count <= 0) return node;
-  if (typeof node === 'string') {
-    return node.slice(count);
-  }
-  if (Array.isArray(node)) {
-    const [first, ...rest] = node;
-    return [stripLeadingChars(first, count), ...rest];
-  }
-  if (isValidElement(node)) {
-    return cloneElement(node, undefined, stripLeadingChars(node.props.children, count));
-  }
-  return node;
-}
 
-function CalloutBlockquote({ children }: { children?: ReactNode }) {
-  const text = getPlainText(children);
-
-  const isTip = text.trimStart().startsWith(TIP_MARKER);
-  const isImportant = text.trimStart().startsWith(IMPORTANT_MARKER);
-
-  if (isTip || isImportant) {
-    const marker = isTip ? TIP_MARKER : IMPORTANT_MARKER;
-    const markerIndex = text.indexOf(marker);
-    // +1 buat buang spasi setelah marker juga
-    const stripped = stripLeadingChars(children, markerIndex + marker.length + 1);
-    const label = isTip ? 'TIP' : 'PENTING';
-
-    return (
-      <div
-        className={`my-4 rounded-floating border-l-4 px-4 py-3 text-sm ${
-          isTip
-            ? 'bg-accent-soft border-accent text-text-primary'
-            : 'bg-status-warningSoft border-status-warning text-text-primary'
-        }`}
-      >
-        <span className="block text-xs font-semibold uppercase tracking-wide mb-1 opacity-70">
-          {label}
-        </span>
-        <div className="[&>p]:m-0">{stripped}</div>
-      </div>
-    );
-  }
-
-  return (
-    <blockquote className="border-l-4 border-base-border pl-4 italic text-text-secondary my-4">
-      {children}
-    </blockquote>
-  );
-}
 
 // Heading "Poin Penting" / "Key Takeaways" + list (ul) yang PERSIS mengikutinya
 // dirender jadi satu box. Deteksinya lewat flag sederhana: ReactMarkdown me-render
@@ -101,8 +52,25 @@ function CalloutBlockquote({ children }: { children?: ReactNode }) {
 // Function ini dipanggil ulang tiap render BlogPostPage supaya flag-nya selalu bersih.
 function createMarkdownComponents() {
   let nextListIsTakeaways = false;
+  let nextBlockquoteType: 'tip' | 'important' | null = null;
 
   return {
+    p: ({ children }: { children?: ReactNode }) => {
+      const text = getPlainText(children).trim();
+
+      // Paragraf penanda callout — sembunyikan, jangan dirender sama sekali,
+      // cukup "nyalain" flag buat blockquote yang langsung nempel di bawahnya.
+      if (text === TIP_TAG) {
+        nextBlockquoteType = 'tip';
+        return null;
+      }
+      if (text === IMPORTANT_TAG) {
+        nextBlockquoteType = 'important';
+        return null;
+      }
+
+      return <p className="mb-4 leading-relaxed">{children}</p>;
+    },
     h2: ({ children }: { children?: ReactNode }) => {
       const text = getPlainText(children).trim();
       const isTakeaways = text === 'Poin Penting' || text === 'Key Takeaways';
@@ -137,7 +105,34 @@ function createMarkdownComponents() {
         </ul>
       );
     },
-    blockquote: CalloutBlockquote,
+    blockquote: ({ children }: { children?: ReactNode }) => {
+      const type = nextBlockquoteType;
+      nextBlockquoteType = null; // cuma blockquote yang langsung nempel di bawah flag yang kena
+
+      if (type === 'tip' || type === 'important') {
+        const isTip = type === 'tip';
+        return (
+          <div
+            className={`my-4 rounded-floating border-l-4 px-4 py-3 text-sm ${
+              isTip
+                ? 'bg-accent-soft border-accent text-text-primary'
+                : 'bg-status-warningSoft border-status-warning text-text-primary'
+            }`}
+          >
+            <span className="block text-xs font-semibold uppercase tracking-wide mb-1 opacity-70">
+              {isTip ? 'TIP' : 'PENTING'}
+            </span>
+            <div className="[&>p]:m-0">{children}</div>
+          </div>
+        );
+      }
+
+      return (
+        <blockquote className="border-l-4 border-base-border pl-4 italic text-text-secondary my-4">
+          {children}
+        </blockquote>
+      );
+    },
   };
 }
 
@@ -236,4 +231,4 @@ export default function BlogPostPage() {
       </article>
     </main>
   );
-        }
+    }

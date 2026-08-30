@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'QuizFrend Blog',
   description:
     'Educational articles across disciplines to accompany your analysis practice on QuizFrend.',
-  alternates: { canonical: 'https://quizfrend.my.id/blog' },
+  alternates: { canonical: 'https://www.quizfrend.my.id/blog' },
 };
 
 export default async function BlogIndexPage() {

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return {};
 
   const description = post.excerpt?.slice(0, 160) ?? '';
-  const url = `https://quizfrend.my.id/blog/${post.slug}`;
+  const url = `https://www.quizfrend.my.id/blog/${post.slug}`;
 
   return {
     title: `${post.title} | QuizFrend Blog`,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '../../../../lib/supabase/admin';
 import { supabaseContributor } from '../../../../lib/supabaseContributor';
+import { submitToIndexNow } from '../../../../lib/indexnow';
 
 export const runtime = 'nodejs';
 
@@ -89,5 +90,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: `Gagal insert: ${insertError.message}` }, { status: 500 });
   }
 
+  // Kasih tahu search engine (Bing, Yandex, dll) ada artikel baru — gak nge-block response,
+  // gak bikin insert gagal walau IndexNow-nya sendiri gagal
+  submitToIndexNow([`https://www.quizfrend.my.id/blog/${slug}`]);
+
   return NextResponse.json({ success: true });
-  }
+}

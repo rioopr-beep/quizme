@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 
+const DEFAULT_AUTHOR = 'Rioopr';
+
 export default function AdminBlogPage(): JSX.Element {
   const router = useRouter();
   const { language } = useLanguage();
@@ -12,7 +14,6 @@ export default function AdminBlogPage(): JSX.Element {
   const [slug, setSlug] = useState('');
   const [sector, setSector] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [author, setAuthor] = useState('R');
 
   const [idTitle, setIdTitle] = useState('');
   const [idExcerpt, setIdExcerpt] = useState('');
@@ -63,7 +64,7 @@ export default function AdminBlogPage(): JSX.Element {
           slug,
           sector,
           date,
-          author,
+          author: DEFAULT_AUTHOR,
           id_title: idTitle,
           id_excerpt: idExcerpt,
           id_content: idContent,
@@ -127,24 +128,14 @@ export default function AdminBlogPage(): JSX.Element {
           </div>
         </div>
 
-        <div className="mb-6 grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelClass}>Tanggal</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Author</label>
-            <input
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
-              className={inputClass}
-            />
-          </div>
+        <div className="mb-6">
+          <label className={labelClass}>Tanggal</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={inputClass}
+          />
         </div>
 
         <div className="mb-6 rounded-floating bg-base-surface shadow-floating-sm p-4">
@@ -212,4 +203,4 @@ export default function AdminBlogPage(): JSX.Element {
       </div>
     </main>
   );
-          }
+        }

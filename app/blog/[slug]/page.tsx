@@ -22,8 +22,8 @@ interface BlogPost {
 // diubah jadi marker internal biar bisa dideteksi dari hasil parse markdown
 // (ReactMarkdown kasih kita React nodes, bukan raw text, jadi deteksi dilakukan
 // di raw string dulu sebelum di-parse).
-const TIP_MARKER = '__CALLOUT_TIP__';
-const IMPORTANT_MARKER = '__CALLOUT_IMPORTANT__';
+const TIP_MARKER = '§CALLOUT_TIP§';
+const IMPORTANT_MARKER = '§CALLOUT_IMPORTANT§';
 
 function preprocessCallouts(markdown: string): string {
   return markdown
@@ -236,4 +236,4 @@ export default function BlogPostPage() {
       </article>
     </main>
   );
-}
+        }

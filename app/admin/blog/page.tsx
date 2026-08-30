@@ -27,6 +27,10 @@ export default function AdminBlogPage(): JSX.Element {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  const [isReindexing, setIsReindexing] = useState(false);
+  const [reindexResult, setReindexResult] = useState<string | null>(null);
+  const [reindexError, setReindexError] = useState<string | null>(null);
+
   function resetForm() {
     setSlug('');
     setSector('');
@@ -87,6 +91,44 @@ export default function AdminBlogPage(): JSX.Element {
       setSubmitError(error instanceof Error ? error.message : 'Gagal menghubungi server.');
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleReindex(): Promise<void> {
+    setIsReindexing(true);
+    setReindexError(null);
+    setReindexResult(null);
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setReindexError('Sesi login habis, silakan login ulang.');
+        return;
+      }
+
+      const response = await fetch('/api/admin/blog/reindex', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setReindexError(data.error ?? 'Terjadi kesalahan saat reindex.');
+        return;
+      }
+
+      setReindexResult(`Berhasil submit ${data.count} URL ke IndexNow.`);
+    } catch (error) {
+      setReindexError(error instanceof Error ? error.message : 'Gagal menghubungi server.');
+    } finally {
+      setIsReindexing(false);
     }
   }
 
@@ -200,7 +242,34 @@ export default function AdminBlogPage(): JSX.Element {
             Artikel berhasil disimpan! (versi ID & EN sekaligus)
           </div>
         ) : null}
+
+        <div className="mt-10 border-t border-base-border pt-6">
+          <h2 className="text-sm font-semibold text-text-primary mb-2">Reindex Artikel Lama</h2>
+          <p className="text-xs text-text-muted mb-3">
+            Submit ulang semua slug artikel yang sudah ada ke IndexNow (Bing, Yandex, dll). Cukup dijalankan sekali.
+          </p>
+          <button
+            type="button"
+            onClick={handleReindex}
+            disabled={isReindexing}
+            className="w-full rounded-floating border border-base-border bg-base-surface px-4 py-3 text-sm font-medium text-text-primary shadow-floating-sm transition active:scale-95 hover:opacity-90 disabled:opacity-50"
+          >
+            {isReindexing ? 'Mengirim…' : 'Reindex Semua Artikel Lama'}
+          </button>
+
+          {reindexError ? (
+            <div className="mt-4 rounded-floating bg-status-incorrectSoft p-4 text-sm text-status-incorrect">
+              {reindexError}
+            </div>
+          ) : null}
+
+          {reindexResult ? (
+            <div className="mt-4 rounded-floating bg-status-correctSoft p-4 text-sm text-status-correct">
+              {reindexResult}
+            </div>
+          ) : null}
+        </div>
       </div>
     </main>
   );
-        }
+}

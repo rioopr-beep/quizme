@@ -24,9 +24,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url,
       type: 'article',
       siteName: 'QuizFrend',
+      locale: 'id_ID',
+      images: [
+        {
+          url: 'https://www.quizfrend.my.id/opengraph-image',
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
     twitter: {
-      card: 'summary',
+      card: 'summary_large_image',
       title: post.title,
       description,
     },

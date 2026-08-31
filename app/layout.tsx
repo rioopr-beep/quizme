@@ -23,32 +23,32 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.quizfrend.my.id'),
   title: {
-    default: 'QuizFrend — Latihan Analisis Lintas Disiplin',
+    default: 'QuizFrend — Cross-Disciplinary Analysis Practice',
     template: '%s | QuizFrend',
   },
   description:
-    'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu: keuangan, fisika, psikologi, bahasa, dan lainnya. Belajar sambil menganalisis, bukan sekadar menghafal.',
+    'Test how you think through story-based case studies from various fields: finance, physics, psychology, language, and more. Learn by analyzing, not just memorizing.',
   keywords: [
-    'kuis studi kasus',
-    'latihan analisis',
-    'belajar lintas disiplin',
-    'quiz edukasi',
+    'case study quiz',
+    'analysis practice',
+    'cross-disciplinary learning',
+    'education quiz',
     'QuizFrend',
   ],
   openGraph: {
-    title: 'QuizFrend — Latihan Analisis Lintas Disiplin',
+    title: 'QuizFrend — Cross-Disciplinary Analysis Practice',
     description:
-      'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu.',
+      'Test how you think through story-based case studies from various fields.',
     url: 'https://www.quizfrend.my.id',
     siteName: 'QuizFrend',
-    locale: 'id_ID',
+    locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary',
-    title: 'QuizFrend — Latihan Analisis Lintas Disiplin',
+    title: 'QuizFrend — Cross-Disciplinary Analysis Practice',
     description:
-      'Uji cara berpikirmu lewat studi kasus berbentuk cerita dari berbagai bidang ilmu.',
+      'Test how you think through story-based case studies from various fields.',
   },
   robots: {
     index: true,

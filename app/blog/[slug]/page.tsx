@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const url = `https://www.quizfrend.my.id/blog/${post.slug}`;
 
   return {
-    title: `${post.title} | QuizFrend Blog`,
+    title: post.title,
     description,
     alternates: { canonical: url },
     openGraph: {

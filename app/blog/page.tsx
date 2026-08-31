@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getAllPosts } from '@/lib/blog';
 import BlogIndexClient from './BlogIndexClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'QuizFrend Blog',
   description:

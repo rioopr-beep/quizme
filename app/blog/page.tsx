@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getAllPosts } from '@/lib/blog';
 import BlogIndexClient from './BlogIndexClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // fallback: refresh otomatis tiap 1 jam kalau on-demand revalidate gak jalan
 
 export const metadata: Metadata = {
   title: 'QuizFrend Blog',

@@ -57,6 +57,12 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
-export default function PreviewQuizPage() {
-  return <PreviewQuizClient />;
+export default function PreviewQuizPage({ params }: Props) {
+  const label = sectorToLabel(params.sector?.toLowerCase() ?? '');
+  return (
+    <>
+      <h1 className="sr-only">{label} Quiz Preview</h1>
+      <PreviewQuizClient />
+    </>
+  );
 }

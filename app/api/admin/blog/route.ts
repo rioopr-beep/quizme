@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getSupabaseAdminClient } from '../../../../lib/supabase/admin';
 import { supabaseContributor } from '../../../../lib/supabaseContributor';
 import { submitToIndexNow } from '../../../../lib/indexnow';
@@ -90,9 +91,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: `Gagal insert: ${insertError.message}` }, { status: 500 });
   }
 
+  // Hapus cache halaman blog index & halaman artikel ini sendiri, biar langsung muncul tanpa nunggu revalidate 1 jam
+  revalidatePath('/blog');
+  revalidatePath(`/blog/${slug}`);
+
   // Kasih tahu search engine (Bing, Yandex, dll) ada artikel baru — gak nge-block response,
   // gak bikin insert gagal walau IndexNow-nya sendiri gagal
   submitToIndexNow([`https://www.quizfrend.my.id/blog/${slug}`]);
 
   return NextResponse.json({ success: true });
-}
+      }

@@ -293,9 +293,9 @@ export default function PreviewQuizClient(): JSX.Element {
             </div>
           ) : null}
 
-          <h1 className="text-lg font-semibold leading-relaxed text-text-primary">
+          <h2 className="text-lg font-semibold leading-relaxed text-text-primary">
             {question.prompt[language]}
-          </h1>
+          </h2>
 
           <div className="mt-6 flex flex-col gap-3">
             {OPTION_ORDER.map((optionKey) => {

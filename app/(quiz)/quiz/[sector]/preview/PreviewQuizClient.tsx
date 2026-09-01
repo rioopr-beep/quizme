@@ -115,7 +115,7 @@ function splitReasoningSteps(text: string | string[]): string[] {
     .filter((part) => part.length > 0);
 }
 
-export default function PreviewQuizPage(): JSX.Element {
+export default function PreviewQuizClient(): JSX.Element {
   const rawParams = useParams();
   const router = useRouter();
   const { language } = useLanguage();
@@ -233,7 +233,6 @@ export default function PreviewQuizPage(): JSX.Element {
     );
   }
 
-  // Setelah 3 soal preview selesai dijawab & di-reveal semua -> CTA login
   if (engine.state.status === 'completed') {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base-bg px-6">
@@ -375,4 +374,4 @@ export default function PreviewQuizPage(): JSX.Element {
       </div>
     </main>
   );
-                             }
+    }

@@ -1,11 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 
 const DEFAULT_AUTHOR = 'Rioopr';
+
+interface DraftPair {
+  slug: string;
+  sector: string;
+  date: string;
+  author: string;
+  id_title: string;
+  id_excerpt: string;
+  id_content: string;
+  en_title: string;
+  en_excerpt: string;
+  en_content: string;
+}
 
 export default function AdminBlogPage(): JSX.Element {
   const router = useRouter();
@@ -31,6 +44,14 @@ export default function AdminBlogPage(): JSX.Element {
   const [reindexResult, setReindexResult] = useState<string | null>(null);
   const [reindexError, setReindexError] = useState<string | null>(null);
 
+  // --- State antrian draft ---
+  const [drafts, setDrafts] = useState<DraftPair[]>([]);
+  const [isLoadingDrafts, setIsLoadingDrafts] = useState(false);
+  const [draftsError, setDraftsError] = useState<string | null>(null);
+  const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
+  const [publishingSlug, setPublishingSlug] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
+
   function resetForm() {
     setSlug('');
     setSector('');
@@ -41,6 +62,46 @@ export default function AdminBlogPage(): JSX.Element {
     setEnExcerpt('');
     setEnContent('');
   }
+
+  const fetchDrafts = useCallback(async () => {
+    setIsLoadingDrafts(true);
+    setDraftsError(null);
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setDraftsError('Sesi login habis, silakan login ulang.');
+        return;
+      }
+
+      const response = await fetch('/api/admin/blog/drafts', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setDraftsError(data.error ?? 'Gagal mengambil daftar antrian.');
+        return;
+      }
+
+      setDrafts(data.drafts ?? []);
+    } catch (error) {
+      setDraftsError(error instanceof Error ? error.message : 'Gagal menghubungi server.');
+    } finally {
+      setIsLoadingDrafts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDrafts();
+  }, [fetchDrafts]);
 
   async function handleSubmit(): Promise<void> {
     setIsSubmitting(true);
@@ -87,10 +148,51 @@ export default function AdminBlogPage(): JSX.Element {
 
       setSubmitSuccess(true);
       resetForm();
+      fetchDrafts(); // Refresh antrian, artikel baru bakal muncul di sini
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Gagal menghubungi server.');
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handlePublish(publishSlug: string): Promise<void> {
+    setPublishingSlug(publishSlug);
+    setPublishError(null);
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setPublishError('Sesi login habis, silakan login ulang.');
+        return;
+      }
+
+      const response = await fetch('/api/admin/blog/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ slug: publishSlug }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setPublishError(data.error ?? 'Terjadi kesalahan saat publish.');
+        return;
+      }
+
+      // Hapus dari antrian lokal biar langsung ilang tanpa nunggu refetch
+      setDrafts((prev) => prev.filter((d) => d.slug !== publishSlug));
+    } catch (error) {
+      setPublishError(error instanceof Error ? error.message : 'Gagal menghubungi server.');
+    } finally {
+      setPublishingSlug(null);
     }
   }
 
@@ -239,9 +341,121 @@ export default function AdminBlogPage(): JSX.Element {
 
         {submitSuccess ? (
           <div className="mt-4 rounded-floating bg-status-correctSoft p-4 text-sm text-status-correct">
-            Artikel berhasil disimpan! (versi ID & EN sekaligus)
+            Artikel berhasil disimpan sebagai draft! Cek di antrian di bawah sebelum publish.
           </div>
         ) : null}
+
+        {/* --- Section Antrian Draft --- */}
+        <div className="mt-10 border-t border-base-border pt-6">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-text-primary">
+              Antrian Draft {drafts.length > 0 ? `(${drafts.length})` : ''}
+            </h2>
+            <button
+              type="button"
+              onClick={fetchDrafts}
+              disabled={isLoadingDrafts}
+              className="text-xs text-text-muted underline hover:text-text-secondary disabled:opacity-50"
+            >
+              {isLoadingDrafts ? 'Memuat…' : 'Refresh'}
+            </button>
+          </div>
+
+          {draftsError ? (
+            <div className="mb-3 rounded-floating bg-status-incorrectSoft p-4 text-sm text-status-incorrect">
+              {draftsError}
+            </div>
+          ) : null}
+
+          {publishError ? (
+            <div className="mb-3 rounded-floating bg-status-incorrectSoft p-4 text-sm text-status-incorrect">
+              {publishError}
+            </div>
+          ) : null}
+
+          {!isLoadingDrafts && drafts.length === 0 ? (
+            <p className="text-sm text-text-muted">Nggak ada draft yang nunggu direview.</p>
+          ) : null}
+
+          <div className="space-y-3">
+            {drafts.map((draft) => {
+              const isExpanded = expandedSlug === draft.slug;
+              const isPublishing = publishingSlug === draft.slug;
+
+              return (
+                <div
+                  key={draft.slug}
+                  className="rounded-floating bg-base-surface shadow-floating-sm p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-text-muted mb-1">
+                        {draft.slug} · {draft.sector} · {draft.date}
+                      </p>
+                      <p className="text-sm font-medium text-text-primary truncate">
+                        🇮🇩 {draft.id_title || '(judul ID kosong)'}
+                      </p>
+                      <p className="text-sm text-text-secondary truncate">
+                        🇬🇧 {draft.en_title || '(judul EN kosong)'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedSlug(isExpanded ? null : draft.slug)}
+                      className="flex-1 rounded-floating border border-base-border bg-base-bg px-3 py-2 text-xs font-medium text-text-primary transition active:scale-95 hover:opacity-90"
+                    >
+                      {isExpanded ? 'Sembunyikan' : 'Lihat Detail'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handlePublish(draft.slug)}
+                      disabled={isPublishing}
+                      className="flex-1 rounded-floating bg-accent px-3 py-2 text-xs font-medium text-base-surface transition active:scale-95 hover:opacity-90 disabled:opacity-50"
+                    >
+                      {isPublishing ? 'Publishing…' : 'Publish'}
+                    </button>
+                  </div>
+
+                  {isExpanded ? (
+                    <div className="mt-4 space-y-4 border-t border-base-border pt-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">
+                          🇮🇩 Excerpt
+                        </p>
+                        <p className="text-sm text-text-primary whitespace-pre-wrap">{draft.id_excerpt}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">
+                          🇮🇩 Isi
+                        </p>
+                        <p className="text-sm text-text-primary whitespace-pre-wrap font-mono text-xs max-h-64 overflow-y-auto">
+                          {draft.id_content}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">
+                          🇬🇧 Excerpt
+                        </p>
+                        <p className="text-sm text-text-primary whitespace-pre-wrap">{draft.en_excerpt}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">
+                          🇬🇧 Content
+                        </p>
+                        <p className="text-sm text-text-primary whitespace-pre-wrap font-mono text-xs max-h-64 overflow-y-auto">
+                          {draft.en_content}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         <div className="mt-10 border-t border-base-border pt-6">
           <h2 className="text-sm font-semibold text-text-primary mb-2">Reindex Artikel Lama</h2>
@@ -272,4 +486,4 @@ export default function AdminBlogPage(): JSX.Element {
       </div>
     </main>
   );
-}
+        }

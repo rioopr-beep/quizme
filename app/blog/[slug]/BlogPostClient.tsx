@@ -17,6 +17,13 @@ function preprocessCallouts(markdown: string): string {
     .replace(/^>\s*\[IMPORTANT\]\s*/gim, `${IMPORTANT_TAG}\n> `);
 }
 
+function protectMathDelimiters(markdown: string): string {
+  // Markdown menghapus 1 backslash di depan tanda kurung (dianggap "escape").
+  // Kita double-kan backslashnya dulu, supaya setelah Markdown hapus satu,
+  // sisa satu backslash tetap ada untuk dikenali MathJax sebagai delimiter rumus.
+  return markdown.replace(/\\([()[\]])/g, '\\\\$1');
+}
+
 function getPlainText(node: ReactNode): string {
   if (typeof node === 'string') return node;
   if (typeof node === 'number') return String(node);
@@ -162,9 +169,9 @@ export default function BlogPostClient({ slug, initialPost }: Props) {
 
       <article className="prose prose-sm max-w-none text-text-primary">
         <ReactMarkdown remarkPlugins={[remarkGfm]} components={createMarkdownComponents()}>
-          {preprocessCallouts(post.content)}
+          {preprocessCallouts(protectMathDelimiters(post.content))}
         </ReactMarkdown>
       </article>
     </main>
   );
-}
+        }

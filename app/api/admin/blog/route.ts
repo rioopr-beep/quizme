@@ -95,9 +95,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   revalidatePath('/blog');
   revalidatePath(`/blog/${slug}`);
 
-  // Kasih tahu search engine (Bing, Yandex, dll) ada artikel baru — gak nge-block response,
-  // gak bikin insert gagal walau IndexNow-nya sendiri gagal
-  submitToIndexNow([`https://www.quizfrend.my.id/blog/${slug}`]);
+  // Kasih tahu search engine (Bing, Yandex, dll) ada artikel baru.
+  // Pakai await biar Vercel gak motong proses fetch sebelum selesai (serverless function
+  // bisa "mati" begitu response dikirim kalau prosesnya gak ditunggu)
+  await submitToIndexNow([`https://www.quizfrend.my.id/blog/${slug}`]);
 
   return NextResponse.json({ success: true });
-      }
+}

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { getSupabaseAdminClient } from '../../../../lib/supabase/admin';
 import { supabaseContributor } from '../../../../lib/supabaseContributor';
-import { submitToIndexNow } from '../../../../lib/indexnow';
 
 export const runtime = 'nodejs';
 
@@ -81,8 +79,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const rows = [
-    { slug, lang: 'id', title: id_title, excerpt: id_excerpt, content: id_content, sector, author, date },
-    { slug, lang: 'en', title: en_title, excerpt: en_excerpt, content: en_content, sector, author, date },
+    { slug, lang: 'id', title: id_title, excerpt: id_excerpt, content: id_content, sector, author, date, status: 'draft' },
+    { slug, lang: 'en', title: en_title, excerpt: en_excerpt, content: en_content, sector, author, date, status: 'draft' },
   ];
 
   const { error: insertError } = await supabaseContributor.from('blog_posts').insert(rows);
@@ -91,14 +89,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: `Gagal insert: ${insertError.message}` }, { status: 500 });
   }
 
-  // Hapus cache halaman blog index & halaman artikel ini sendiri, biar langsung muncul tanpa nunggu revalidate 1 jam
-  revalidatePath('/blog');
-  revalidatePath(`/blog/${slug}`);
-
-  // Kasih tahu search engine (Bing, Yandex, dll) ada artikel baru.
-  // Pakai await biar Vercel gak motong proses fetch sebelum selesai (serverless function
-  // bisa "mati" begitu response dikirim kalau prosesnya gak ditunggu)
-  await submitToIndexNow([`https://www.quizfrend.my.id/blog/${slug}`]);
+  // TIDAK revalidatePath & TIDAK submitToIndexNow di sini —
+  // artikel masih draft, belum tayang di website. Itu baru terjadi
+  // di endpoint /api/admin/blog/publish saat status diubah jadi 'published'.
 
   return NextResponse.json({ success: true });
 }

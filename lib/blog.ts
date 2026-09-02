@@ -16,6 +16,7 @@ export async function getAllPosts(lang: 'id' | 'en'): Promise<BlogPost[]> {
     .from('blog_posts')
     .select('slug, lang, title, excerpt, date, sector, author, content')
     .eq('lang', lang)
+    .eq('status', 'published')
     .order('date', { ascending: false });
 
   if (error) {
@@ -35,6 +36,7 @@ export async function getPostBySlug(
     .select('slug, lang, title, excerpt, date, sector, author, content')
     .eq('slug', slug)
     .eq('lang', lang)
+    .eq('status', 'published')
     .maybeSingle();
 
   if (error || !data) {
@@ -47,10 +49,27 @@ export async function getPostBySlug(
 export async function getAllSlugs(): Promise<string[]> {
   const { data, error } = await supabaseContributor
     .from('blog_posts')
-    .select('slug');
+    .select('slug')
+    .eq('status', 'published');
 
   if (error || !data) return [];
 
   const slugs = new Set(data.map((row) => row.slug));
   return Array.from(slugs);
+}
+
+export async function getDraftPosts(): Promise<BlogPost[]> {
+  const { data, error } = await supabaseContributor
+    .from('blog_posts')
+    .select('slug, lang, title, excerpt, date, sector, author, content')
+    .eq('lang', 'id')
+    .eq('status', 'draft')
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching draft posts:', error);
+    return [];
+  }
+
+  return data as BlogPost[];
 }

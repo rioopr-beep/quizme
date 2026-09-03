@@ -11,6 +11,13 @@ export interface BlogPost {
   content: string;
 }
 
+export interface RelatedPost {
+  slug: string;
+  title: string;
+  excerpt: string;
+  sector: string;
+}
+
 export async function getAllPosts(lang: 'id' | 'en'): Promise<BlogPost[]> {
   const { data, error } = await supabaseContributor
     .from('blog_posts')
@@ -72,4 +79,31 @@ export async function getDraftPosts(): Promise<BlogPost[]> {
   }
 
   return data as BlogPost[];
+}
+
+export async function getRandomRelatedPosts(
+  excludeSlug: string,
+  lang: 'id' | 'en',
+  count = 6
+): Promise<RelatedPost[]> {
+  const { data, error } = await supabaseContributor
+    .from('blog_posts')
+    .select('slug, title, excerpt, sector')
+    .eq('lang', lang)
+    .eq('status', 'published')
+    .neq('slug', excludeSlug);
+
+  if (error || !data) {
+    console.error('Error fetching related posts:', error);
+    return [];
+  }
+
+  // Acak urutan (Fisher-Yates shuffle)
+  const shuffled = [...data];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled.slice(0, count) as RelatedPost[];
 }

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getAllPosts, getAllSlugs } from '@/lib/blog';
+import { getAllPosts } from '@/lib/blog';
 
 const baseUrl = 'https://www.quizfrend.my.id';
 
@@ -34,13 +34,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const slugs = await getAllSlugs();
-  const blogPages: MetadataRoute.Sitemap = slugs.map((slug) => ({
-    url: `${baseUrl}/blog/${slug}`,
+  const posts = await getAllPosts('en');
+
+  const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${baseUrl}/blog/${post.sector}/${post.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.6,
   }));
 
-  return [...staticPages, ...previewPages, ...blogPages];
+  const uniqueBlogSectors = Array.from(new Set(posts.map((post) => post.sector)));
+  const blogSectorPages: MetadataRoute.Sitemap = uniqueBlogSectors.map((sector) => ({
+    url: `${baseUrl}/blog/${sector}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...previewPages, ...blogPages, ...blogSectorPages];
 }

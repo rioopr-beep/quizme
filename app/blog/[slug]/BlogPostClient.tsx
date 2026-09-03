@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
-import type { BlogPost } from '@/lib/blog';
+import type { BlogPost, RelatedPost } from '@/lib/blog';
 
 const TIP_TAG = '§§TIP§§';
 const IMPORTANT_TAG = '§§IMPORTANT§§';
@@ -115,16 +115,19 @@ function createMarkdownComponents() {
 interface Props {
   slug: string;
   initialPost: BlogPost; // versi EN, sudah di-fetch di server
+  initialRelatedPosts: RelatedPost[]; // versi EN, sudah di-fetch di server
 }
 
-export default function BlogPostClient({ slug, initialPost }: Props) {
+export default function BlogPostClient({ slug, initialPost, initialRelatedPosts }: Props) {
   const { language } = useLanguage();
   const [post, setPost] = useState<BlogPost>(initialPost);
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>(initialRelatedPosts);
 
   useEffect(() => {
     // Kalau bahasa yg dipilih user sama kayak yg sudah di-render server, gak perlu fetch ulang
     if (language === initialPost.lang && slug === initialPost.slug) {
       setPost(initialPost);
+      setRelatedPosts(initialRelatedPosts);
       return;
     }
 
@@ -132,15 +135,22 @@ export default function BlogPostClient({ slug, initialPost }: Props) {
     fetch(`/api/blog/${slug}?lang=${language}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (!ignore && data?.post) setPost(data.post);
+        if (!ignore && data?.post) {
+          setPost(data.post);
+          // Kalau API belum mengembalikan relatedPosts sesuai bahasa baru,
+          // daftar "Baca Juga" tetap pakai versi awal (judul mungkin beda bahasa
+          // sampai endpoint ini diupdate untuk include relatedPosts juga)
+          if (data.relatedPosts) setRelatedPosts(data.relatedPosts);
+        }
       });
 
     return () => {
       ignore = true;
     };
-  }, [slug, language, initialPost]);
+  }, [slug, language, initialPost, initialRelatedPosts]);
 
   const backLabel = language === 'en' ? '← Back to Blog' : '← Kembali ke Blog';
+  const relatedLabel = language === 'en' ? 'You Might Also Like' : 'Baca Juga';
 
   return (
     <main className="min-h-screen bg-base-bg px-4 py-10 max-w-2xl mx-auto">
@@ -172,6 +182,35 @@ export default function BlogPostClient({ slug, initialPost }: Props) {
           {preprocessCallouts(protectMathDelimiters(post.content))}
         </ReactMarkdown>
       </article>
+
+      {relatedPosts.length > 0 && (
+        <div className="mt-12 border-t border-base-border pt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted mb-4">
+            {relatedLabel}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {relatedPosts.map((related) => (
+              <Link
+                key={related.slug}
+                href={`/blog/${related.slug}`}
+                className="block rounded-floating bg-base-surface shadow-floating-sm p-4 transition active:scale-95 hover:opacity-90"
+              >
+                <span className="text-xs uppercase text-accent font-medium">
+                  {related.sector}
+                </span>
+                <p className="text-sm font-medium text-text-primary mt-1 line-clamp-2">
+                  {related.title}
+                </p>
+                {related.excerpt && (
+                  <p className="text-xs text-text-muted mt-1 line-clamp-2">
+                    {related.excerpt}
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   );
-        }
+}

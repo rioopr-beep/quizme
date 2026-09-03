@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPostBySlug } from '@/lib/blog';
+import { getPostBySlug, getRandomRelatedPosts } from '@/lib/blog';
 
 export async function GET(
   request: NextRequest,
@@ -12,5 +12,7 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ post });
+  const relatedPosts = await getRandomRelatedPosts(params.slug, lang, 6);
+
+  return NextResponse.json({ post, relatedPosts });
 }

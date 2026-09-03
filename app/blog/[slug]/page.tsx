@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getPostBySlug } from '@/lib/blog';
+import { getPostBySlug, getRandomRelatedPosts } from '@/lib/blog';
 import BlogPostClient from './BlogPostClient';
 
 interface Props {
@@ -55,5 +55,7 @@ export default async function BlogPostPage({ params }: Props) {
     );
   }
 
-  return <BlogPostClient slug={params.slug} initialPost={post} />;
+  const relatedPosts = await getRandomRelatedPosts(params.slug, 'en', 6);
+
+  return <BlogPostClient slug={params.slug} initialPost={post} initialRelatedPosts={relatedPosts} />;
 }

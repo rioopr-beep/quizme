@@ -1,17 +1,24 @@
 import type { Metadata } from 'next';
-import { getAllPosts } from '@/lib/blog';
-import BlogIndexClient from './BlogIndexClient';
+import { getPostsBySector } from '@/lib/blog';
+import { labelForSector } from '@/lib/sectorLabels';
+import BlogIndexClient from '../BlogIndexClient';
 
-export const revalidate = 3600; // fallback: refresh otomatis tiap 1 jam kalau on-demand revalidate gak jalan
+export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: 'QuizFrend Blog',
-  description:
-    'Educational articles across disciplines to accompany your analysis practice on QuizFrend.',
-  alternates: { canonical: 'https://www.quizfrend.my.id/blog' },
-};
+interface Props {
+  params: { sector: string };
+}
 
-export default async function BlogIndexPage() {
-  const posts = await getAllPosts('en');
-  return <BlogIndexClient initialPosts={posts} initialLang="en" />;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const label = labelForSector(params.sector, 'en');
+  return {
+    title: `${label} Articles`,
+    description: `Educational articles about ${label} on QuizFrend Blog.`,
+    alternates: { canonical: `https://www.quizfrend.my.id/blog/${params.sector}` },
+  };
+}
+
+export default async function BlogSectorPage({ params }: Props) {
+  const posts = await getPostsBySector(params.sector, 'en');
+  return <BlogIndexClient initialPosts={posts} initialLang="en" forcedSector={params.sector} />;
 }

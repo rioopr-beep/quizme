@@ -107,3 +107,20 @@ export async function getRandomRelatedPosts(
 
   return shuffled.slice(0, count) as RelatedPost[];
 }
+
+export async function getPostsBySector(sector: string, lang: 'id' | 'en'): Promise<BlogPost[]> {
+  const { data, error } = await supabaseContributor
+    .from('blog_posts')
+    .select('slug, lang, title, excerpt, date, sector, author, content')
+    .eq('sector', sector)
+    .eq('lang', lang)
+    .eq('status', 'published')
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching posts by sector:', error);
+    return [];
+  }
+
+  return data as BlogPost[];
+    }

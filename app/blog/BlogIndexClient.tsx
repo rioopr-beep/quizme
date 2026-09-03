@@ -11,13 +11,14 @@ const ALL_SECTORS = '__all__';
 interface Props {
   initialPosts: BlogPost[]; // versi EN, sudah di-fetch di server
   initialLang: 'en';
+  forcedSector?: string; // kalau diisi, halaman terkunci ke 1 sector ini (dipakai di /blog/[sector])
 }
 
-export default function BlogIndexClient({ initialPosts, initialLang }: Props) {
+export default function BlogIndexClient({ initialPosts, initialLang, forcedSector }: Props) {
   const { language } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [loading, setLoading] = useState(false);
-  const [selectedSector, setSelectedSector] = useState<string>(ALL_SECTORS);
+  const [selectedSector, setSelectedSector] = useState<string>(forcedSector ?? ALL_SECTORS);
 
   useEffect(() => {
     if (language === initialLang) {
@@ -42,8 +43,11 @@ export default function BlogIndexClient({ initialPosts, initialLang }: Props) {
   }, [language, initialPosts, initialLang]);
 
   useEffect(() => {
-    setSelectedSector(ALL_SECTORS);
-  }, [language]);
+    // Reset filter ke "Semua" pas ganti bahasa — KECUALI kalau halaman ini terkunci ke 1 sector
+    if (!forcedSector) {
+      setSelectedSector(ALL_SECTORS);
+    }
+  }, [language, forcedSector]);
 
   const availableSectors = useMemo(() => {
     const unique = new Set(posts.map((post) => post.sector));
@@ -74,20 +78,31 @@ export default function BlogIndexClient({ initialPosts, initialLang }: Props) {
     },
   }[language];
 
+  const pageTitle = forcedSector
+    ? `${labelForSector(forcedSector, language)}`
+    : t.title;
+  const pageSubtitle = forcedSector
+    ? (language === 'en'
+        ? `All articles about ${labelForSector(forcedSector, language)}.`
+        : `Semua artikel tentang ${labelForSector(forcedSector, language)}.`)
+    : t.subtitle;
+
   return (
     <main className="min-h-screen bg-base-bg px-4 py-10 max-w-2xl mx-auto">
-      <Link href="/" className="text-sm text-accent mb-6 inline-block">
-        {language === 'en' ? '← Back to Home' : '← Kembali ke Beranda'}
+      <Link href={forcedSector ? '/blog' : '/'} className="text-sm text-accent mb-6 inline-block">
+        {forcedSector
+          ? (language === 'en' ? '← Back to Blog' : '← Kembali ke Blog')
+          : (language === 'en' ? '← Back to Home' : '← Kembali ke Beranda')}
       </Link>
 
-      <h1 className="text-2xl font-bold text-text-primary mb-2">{t.title}</h1>
-      <p className="text-text-secondary mb-6">{t.subtitle}</p>
+      <h1 className="text-2xl font-bold text-text-primary mb-2">{pageTitle}</h1>
+      <p className="text-text-secondary mb-6">{pageSubtitle}</p>
 
       {!loading && posts.length === 0 && (
         <p className="text-text-muted">{t.empty}</p>
       )}
 
-      {availableSectors.length > 1 && (
+      {!forcedSector && availableSectors.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-4 px-4 scrollbar-hide">
           <button
             type="button"
@@ -101,18 +116,13 @@ export default function BlogIndexClient({ initialPosts, initialLang }: Props) {
             {t.all}
           </button>
           {availableSectors.map((sector) => (
-            <button
+            <Link
               key={sector}
-              type="button"
-              onClick={() => setSelectedSector(sector)}
-              className={`shrink-0 rounded-floating px-3 py-1.5 text-xs font-medium border transition ${
-                selectedSector === sector
-                  ? 'bg-accent border-accent text-white'
-                  : 'bg-base-surface border-base-border text-text-secondary'
-              }`}
+              href={`/blog/${sector}`}
+              className="shrink-0 rounded-floating px-3 py-1.5 text-xs font-medium border transition bg-base-surface border-base-border text-text-secondary"
             >
               {labelForSector(sector, language)}
-            </button>
+            </Link>
           ))}
         </div>
       )}
@@ -125,7 +135,7 @@ export default function BlogIndexClient({ initialPosts, initialLang }: Props) {
         {filteredPosts.map((post) => (
           <Link
             key={post.slug}
-            href={`/blog/${post.slug}`}
+            href={`/blog/${post.sector}/${post.slug}`}
             className="block rounded-floating border border-base-border bg-base-surface p-4 hover:shadow-floating-sm transition"
           >
             <span className="text-xs uppercase text-accent font-medium">

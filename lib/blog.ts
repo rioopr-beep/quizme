@@ -84,14 +84,21 @@ export async function getDraftPosts(): Promise<BlogPost[]> {
 export async function getRandomRelatedPosts(
   excludeSlug: string,
   lang: 'id' | 'en',
-  count = 6
+  count = 6,
+  sector?: string
 ): Promise<RelatedPost[]> {
-  const { data, error } = await supabaseContributor
+  let query = supabaseContributor
     .from('blog_posts')
     .select('slug, title, excerpt, sector')
     .eq('lang', lang)
     .eq('status', 'published')
     .neq('slug', excludeSlug);
+
+  if (sector) {
+    query = query.eq('sector', sector);
+  }
+
+  const { data, error } = await query;
 
   if (error || !data) {
     console.error('Error fetching related posts:', error);

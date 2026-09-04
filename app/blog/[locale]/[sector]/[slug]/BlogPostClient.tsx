@@ -106,8 +106,31 @@ export default function BlogPostClient({ post, locale, relatedPosts }: Props) {
   const otherLocale = locale === 'en' ? 'id' : 'en';
   const switchLangLabel = locale === 'en' ? 'Bahasa Indonesia' : 'English';
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    author: {
+      '@type': 'Person',
+      name: post.author,
+      url: `https://www.quizfrend.my.id/blog/${locale}/author`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'QuizFrend',
+      url: 'https://www.quizfrend.my.id',
+    },
+  };
+
   return (
     <main className="min-h-screen bg-base-bg px-4 py-10 max-w-2xl mx-auto">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
       <div className="flex items-center justify-between mb-6">
         <Link href={`/blog/${locale}`} className="text-sm text-accent inline-block">
           {backLabel}
@@ -119,7 +142,12 @@ export default function BlogPostClient({ post, locale, relatedPosts }: Props) {
 
       <span className="text-xs uppercase text-accent font-medium block mt-2">{post.sector}</span>
       <h1 className="text-2xl font-bold text-text-primary mt-1 mb-2">{post.title}</h1>
-      <p className="text-sm text-text-muted mb-6">{post.author} · {post.date}</p>
+      <p className="text-sm text-text-muted mb-6">
+        <Link href={`/blog/${locale}/author`} className="text-accent hover:underline">
+          {post.author}
+        </Link>{' '}
+        · {post.date}
+      </p>
 
       {post.excerpt && (
         <div className="mb-8 rounded-floating border border-base-border bg-base-surface px-4 py-4">
@@ -156,4 +184,4 @@ export default function BlogPostClient({ post, locale, relatedPosts }: Props) {
       )}
     </main>
   );
-}
+            }

@@ -25,8 +25,21 @@ export default function AuthorPageClient({ posts, locale }: Props) {
     },
   }[locale];
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Rioopr',
+    description: t.bio,
+    url: `https://www.quizfrend.my.id/blog/${locale}/author`,
+  };
+
   return (
     <main className="min-h-screen bg-base-bg px-4 py-10 max-w-2xl mx-auto">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
       <Link href={`/blog/${locale}`} className="text-sm text-accent mb-6 inline-block">
         {t.back}
       </Link>

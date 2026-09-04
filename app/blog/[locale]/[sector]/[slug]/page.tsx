@@ -61,7 +61,7 @@ export default async function BlogPostPage({ params }: Props) {
     );
   }
 
-  const relatedPosts = await getRandomRelatedPosts(params.slug, params.locale, 6);
+    const relatedPosts = await getRandomRelatedPosts(params.slug, params.locale, 6, post.sector);
 
   return <BlogPostClient post={post} locale={params.locale} relatedPosts={relatedPosts} />;
 }

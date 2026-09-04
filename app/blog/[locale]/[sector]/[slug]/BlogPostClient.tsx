@@ -112,7 +112,7 @@ export default function BlogPostClient({ post, locale, relatedPosts }: Props) {
     headline: post.title,
     description: post.excerpt,
     image: 'https://www.quizfrend.my.id/opengraph-image',
-    datePublished: post.date,
+    datePublished: `${post.date}T00:00:00+07:00`,
     author: {
       '@type': 'Person',
       name: post.author,

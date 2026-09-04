@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { getPostsBySector } from '@/lib/blog';
+import { permanentRedirect, notFound } from 'next/navigation';
+import { getPostsBySector, getPostBySlug } from '@/lib/blog';
 import { labelForSector } from '@/lib/sectorLabels';
 import BlogIndexClient from '../BlogIndexClient';
 
@@ -32,9 +32,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BlogSectorPage({ params }: Props) {
-  if (!isValidLocale(params.locale)) notFound();
+export default async function BlogSectorOrLegacyArticlePage({ params }: Props) {
+  if (isValidLocale(params.locale)) {
+    const posts = await getPostsBySector(params.sector, params.locale);
+    return <BlogIndexClient posts={posts} locale={params.locale} forcedSector={params.sector} />;
+  }
 
-  const posts = await getPostsBySector(params.sector, params.locale);
-  return <BlogIndexClient posts={posts} locale={params.locale} forcedSector={params.sector} />;
+  // locale nggak valid → ini URL LAMA (v2: /blog/[sector]/[slug])
+  // params.locale = sector lama, params.sector = slug lama
+  const post = await getPostBySlug(params.sector, 'en');
+  if (post && post.sector === params.locale) {
+    permanentRedirect(`/blog/en/${post.sector}/${post.slug}`);
+  }
+
+  notFound();
 }

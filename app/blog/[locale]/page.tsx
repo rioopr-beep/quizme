@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { getAllPosts } from '@/lib/blog';
+import { permanentRedirect, notFound } from 'next/navigation';
+import { getAllPosts, getPostsBySector, getPostBySlug } from '@/lib/blog';
 import BlogIndexClient from './BlogIndexClient';
 
 export const revalidate = 3600;
 
 const VALID_LOCALES = ['en', 'id'] as const;
 type Locale = (typeof VALID_LOCALES)[number];
-
 function isValidLocale(value: string): value is Locale {
   return VALID_LOCALES.includes(value as Locale);
 }
@@ -38,9 +37,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BlogIndexPage({ params }: Props) {
-  if (!isValidLocale(params.locale)) notFound();
+export default async function BlogIndexOrLegacyPage({ params }: Props) {
+  if (isValidLocale(params.locale)) {
+    const posts = await getAllPosts(params.locale);
+    return <BlogIndexClient posts={posts} locale={params.locale} />;
+  }
 
-  const posts = await getAllPosts(params.locale);
-  return <BlogIndexClient posts={posts} locale={params.locale} />;
+  // params.locale bukan 'en'/'id' — kemungkinan besar ini URL LAMA (v2: /blog/[sector])
+  const sectorPosts = await getPostsBySector(params.locale, 'en');
+  if (sectorPosts.length > 0) {
+    permanentRedirect(`/blog/en/${params.locale}`);
+  }
+
+  // Atau URL SANGAT lama (v1: /blog/[slug] flat)
+  const post = await getPostBySlug(params.locale, 'en');
+  if (post) {
+    permanentRedirect(`/blog/en/${post.sector}/${post.slug}`);
+  }
+
+  notFound();
 }

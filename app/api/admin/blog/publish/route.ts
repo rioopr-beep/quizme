@@ -65,12 +65,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   // Publish kedua baris (id & en) yang punya slug ini sekaligus, sekalian ambil balik "sector"
-  // buat dipakai bentuk URL baru (/blog/sector/slug)
   const { data: updatedRows, error: updateError } = await supabaseContributor
     .from('blog_posts')
     .update({ status: 'published' })
     .eq('slug', slug)
-    .eq('status', 'draft') // jaga-jaga, cuma yang masih draft yang boleh di-publish
+    .eq('status', 'draft')
     .select('sector')
     .limit(1);
 
@@ -80,13 +79,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const sector = updatedRows?.[0]?.sector;
 
-  // Baru sekarang artikel resmi tayang: revalidate cache + kasih tahu search engine
-  revalidatePath('/blog');
   if (sector) {
-    revalidatePath(`/blog/${sector}`);
-    revalidatePath(`/blog/${sector}/${slug}`);
-    await submitToIndexNow([`https://www.quizfrend.my.id/blog/${sector}/${slug}`]);
+    // Revalidate kedua versi bahasa
+    revalidatePath('/blog/en');
+    revalidatePath('/blog/id');
+    revalidatePath(`/blog/en/${sector}`);
+    revalidatePath(`/blog/id/${sector}`);
+    revalidatePath(`/blog/en/${sector}/${slug}`);
+    revalidatePath(`/blog/id/${sector}/${slug}`);
+
+    // Submit kedua URL bahasa sekaligus ke IndexNow
+    await submitToIndexNow([
+      `https://www.quizfrend.my.id/blog/en/${sector}/${slug}`,
+      `https://www.quizfrend.my.id/blog/id/${sector}/${slug}`,
+    ]);
   }
 
   return NextResponse.json({ success: true });
-                             }
+                                                        }

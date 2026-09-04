@@ -111,6 +111,7 @@ export default function BlogPostClient({ post, locale, relatedPosts }: Props) {
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt,
+    image: 'https://www.quizfrend.my.id/opengraph-image',
     datePublished: post.date,
     author: {
       '@type': 'Person',
@@ -184,4 +185,4 @@ export default function BlogPostClient({ post, locale, relatedPosts }: Props) {
       )}
     </main>
   );
-            }
+    }
